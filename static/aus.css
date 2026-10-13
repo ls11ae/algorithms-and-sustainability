@@ -1,0 +1,197 @@
+/* Course styles for "Algorithms and Sustainability" on top of the TU Dortmund Decker theme */
+
+/* Color scheme, built from the theme's accent colors:
+   blue    emphasis: bold text, key terms, information and example boxes ({.info})
+   orange  questions to the audience and activities: boxes ({.ask}), inline [text]{.ask}
+   green   structure and links: title bars, section slides, links (theme)
+   red     caution, common misconceptions ({.warn}); use rarely
+   grey    secondary information: sources, references, step labels
+   The SDG colors appear only in the SDG chips. */
+.reveal {
+  --aus-blue: var(--accent5-fg);
+  --aus-blue-line: var(--accent5);
+  --aus-blue-bg: var(--accent5-bbg);
+  --aus-orange: var(--accent1-fg);
+  --aus-orange-line: var(--accent1);
+  --aus-orange-bg: var(--accent1-bbg);
+  --aus-red: var(--accent0-fg);
+  --aus-red-line: var(--accent0);
+  --aus-red-bg: var(--accent0-bbg);
+}
+.reveal strong {
+  color: var(--aus-blue);
+}
+.reveal div.block:is(.info, .ask, .warn) {
+  border-left: 6px solid;
+}
+.reveal div.block.info {
+  background-color: var(--aus-blue-bg);
+  border-left-color: var(--aus-blue-line);
+}
+.reveal div.block.info h2 {
+  color: var(--aus-blue);
+}
+.reveal div.block.ask {
+  background-color: var(--aus-orange-bg);
+  border-left-color: var(--aus-orange-line);
+}
+.reveal div.block.ask :is(h2, strong),
+.reveal span.ask {
+  color: var(--aus-orange);
+}
+.reveal span.ask {
+  font-weight: bold;
+}
+.reveal div.block.warn {
+  background-color: var(--aus-red-bg);
+  border-left-color: var(--aus-red-line);
+}
+.reveal div.block.warn :is(h2, strong),
+.reveal span.warn {
+  color: var(--aus-red);
+}
+
+/* licence line on the title slide: small and unobtrusive */
+.reveal #title-slide .copyright,
+.reveal #title-slide .copyright a {
+  font-size: 0.75em;
+  color: var(--shade5, #4d4d4c);
+}
+.reveal #title-slide .teaser img {
+  max-height: 170px;
+}
+
+/* SDG chips: number in the official SDG colour, followed by the goal's name */
+.sdg {
+  display: inline-block;
+  min-width: 1.7em;
+  padding: 0.05em 0.3em;
+  margin-right: 0.35em;
+  border-radius: 3px;
+  font-weight: bold;
+  text-align: center;
+  color: #ffffff;
+}
+.sdg.s1  { background: #E5243B; }
+.sdg.s2  { background: #DDA63A; color: #1d1f21; }
+.sdg.s3  { background: #4C9F38; }
+.sdg.s4  { background: #C5192D; }
+.sdg.s5  { background: #FF3A21; }
+.sdg.s6  { background: #26BDE2; color: #1d1f21; }
+.sdg.s7  { background: #FCC30B; color: #1d1f21; }
+.sdg.s8  { background: #A21942; }
+.sdg.s9  { background: #FD6925; color: #1d1f21; }
+.sdg.s10 { background: #DD1367; }
+.sdg.s11 { background: #FD9D24; color: #1d1f21; }
+.sdg.s12 { background: #BF8B2E; color: #1d1f21; }
+.sdg.s13 { background: #3F7E44; }
+.sdg.s14 { background: #0A97D9; color: #1d1f21; }
+.sdg.s15 { background: #56C02B; color: #1d1f21; }
+.sdg.s16 { background: #00689D; }
+.sdg.s17 { background: #19486A; }
+
+/* lists of SDG chips without bullets */
+.reveal ul.sdglist,
+.reveal .sdglist ul {
+  list-style: none;
+  margin-left: 0;
+  padding-left: 0;
+}
+.reveal .sdglist li {
+  margin-bottom: 0.3em;
+}
+
+/* the big guiding question */
+.reveal .bigquestion {
+  font-size: 1.45em;
+  line-height: 1.35;
+  text-align: center;
+  margin: 1.2em 0 1em 0;
+}
+
+/* captions / source lines under figures */
+.reveal .source {
+  font-size: 0.6em;
+  color: var(--shade4, #8e908c);
+}
+
+/* step labels in the "how each block works" slide */
+.reveal .step {
+  font-size: 0.6em;
+  font-weight: bold;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--shade4, #8e908c);
+}
+
+/* four questions: centred figures of equal height */
+.reveal .fourq img {
+  height: 180px;
+  width: auto;
+  max-width: 100%;
+  display: block;
+  margin: 0 auto 0.4em auto;
+}
+.reveal .fourq p {
+  font-size: 0.82em;
+  text-align: center;
+}
+
+/* reference list */
+.reveal div.refs {
+  font-size: 0.62em;
+}
+.reveal div.refs li,
+.reveal div.small li {
+  margin-bottom: 0.3em;
+}
+/* compact lists of SDG chips */
+.reveal div.sdglist {
+  font-size: 0.85em;
+}
+.reveal .sdglist li {
+  margin-bottom: 0.15em;
+}
+.reveal .sdglist p {
+  margin-top: 0.5em;
+  margin-bottom: 0.2em;
+}
+
+/* tables that need a little less space */
+.reveal div.tablefit {
+  font-size: 0.8em;
+}
+
+/* figures whose caption is only used as accessible label (aria-label) */
+.reveal .nocap figcaption {
+  display: none;
+}
+
+/* lecture notes (Decker pages): code and pseudocode left-aligned */
+body.page pre,
+body.page pre code {
+  text-align: left;
+}
+/* tables in the notes: left-aligned text, a little spacing */
+body.page table {
+  margin: 1em auto 0.3em auto;
+}
+body.page table td,
+body.page table th {
+  text-align: left;
+  padding: 0.25em 0.6em;
+}
+
+/* collapsible answers in the notes */
+body.page details summary p {
+  display: inline;
+  margin: 0;
+}
+body.page details {
+  margin: 0.4em 0 0.8em 0;
+}
+
+/* tables with many columns (semester overview) */
+.reveal div.tablesmall {
+  font-size: 0.68em;
+}

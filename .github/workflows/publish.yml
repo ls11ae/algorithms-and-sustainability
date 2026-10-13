@@ -1,0 +1,68 @@
+# Build the slides and lecture notes with Decker and publish them on GitHub Pages.
+#
+# Runs on every push to the default branch and can be started by hand
+# (Actions → "Publish slides" → "Run workflow").
+# One-time setup in the repository: Settings → Pages → Source: "GitHub Actions".
+name: Publish slides
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# one deployment at a time; a newer push waits for the running one
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+env:
+  DECKER_VERSION: v0.15.0-rc2
+  LANG: C.UTF-8
+  LC_ALL: C.UTF-8
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install Decker
+        run: |
+          mkdir -p "$HOME/bin"
+          curl -fsSL --retry 3 -o "$HOME/bin/decker" \
+            "https://github.com/decker-edu/decker/releases/download/${DECKER_VERSION}/decker-${DECKER_VERSION}-Linux-X64"
+          chmod +x "$HOME/bin/decker"
+          # "decker pdf" calls an executable named "chrome"; the runner has Google Chrome
+          printf '#!/bin/sh\nexec google-chrome --no-sandbox "$@"\n' > "$HOME/bin/chrome"
+          chmod +x "$HOME/bin/chrome"
+          echo "$HOME/bin" >> "$GITHUB_PATH"
+
+      - name: Build slides and notes (HTML)
+        run: decker html
+
+      - name: Build PDFs of the slides
+        # if this step fails, the web version is still published
+        continue-on-error: true
+        run: decker pdf
+
+      - name: Add PDFs of the lecture notes
+        run: find notes -maxdepth 1 -name '*.pdf' -exec cp {} public/notes/ \;
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: public
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

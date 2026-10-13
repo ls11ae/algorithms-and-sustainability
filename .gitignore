@@ -1,0 +1,10 @@
+# Decker build output and cache (the published site is built by GitHub Actions)
+public/
+.decker/
+
+# local preview PDFs; the published slide PDFs are built automatically
+*-preview.pdf
+
+# lecture recordings: they go to Moodle, not into this repository (see README)
+*-recording.webm
+*-recording.mp4

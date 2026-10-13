@@ -1,0 +1,21 @@
+# Decker project: Algorithms and Sustainability (WiSe 2026/27), TU Dortmund
+# Build: `decker html` (all) or `decker public/lectures/01-introduction-deck.html`
+# Preview: `decker --server` (or `decker -S`), then open the URL it prints
+resource-pack: exe:tudo
+lang: en
+
+author: Prof. Dr. Kevin Buchin
+affiliation:
+  name: TU Dortmund University · Algorithm Engineering
+copyright:
+  type: "Slides: CC BY 4.0 (except logos and marked third-party material)"
+  url: https://creativecommons.org/licenses/by/4.0/
+
+showDeckerLink: false
+
+static-resource-dirs:
+  - static
+
+template:
+  css:
+    - /static/aus.css
