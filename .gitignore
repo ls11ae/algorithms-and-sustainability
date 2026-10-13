@@ -8,3 +8,6 @@ public/
 # lecture recordings: they go to Moodle, not into this repository (see README)
 *-recording.webm
 *-recording.mp4
+
+# whiteboard annotations, saved automatically when a deck is closed or reloaded
+*-annot.json

@@ -195,3 +195,9 @@ body.page details {
 .reveal div.tablesmall {
   font-size: 0.68em;
 }
+
+/* quiz explanations (second-level items) are hover tooltips on screen; leave them out of the PDF,
+   where they would push the slide onto a second page */
+html.print-pdf .reveal .quiz ul li ul {
+  display: none;
+}

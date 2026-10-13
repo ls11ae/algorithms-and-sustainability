@@ -14,7 +14,7 @@ date: Tuesday, 13 October 2026
 6. Questions
 
 ::: notes
-Timing (90 min): 10:15 welcome (slides 1–2) · 10:17 what this course is about (slides 3–9, about 13 min) · 10:30 guest contribution (slide 10, about 20 min plus questions) · 10:55 SDGs (slide 11) · 11:00 topic blocks (slides 12–19, about 5 min per block) · 11:20 organization (slides 20–29) · 11:38 next steps and questions (slide 30). At the start, say that the lecture is recorded.
+Timing (90 min): 10:15 welcome (slides 1–2) · 10:17 what this course is about (slides 3–9, about 13 min) · 10:30 guest contribution (slide 10, about 20 min plus questions) · 10:55 SDGs (slide 11) · 11:00 topic blocks (slides 12–21, about 5 min per block, plus about 3 min for the quizzes on slides 15 and 16) · 11:23 organization (slides 22–31) · 11:41 next steps and questions (slide 32). At the start, say that the lecture is recorded.
 :::
 
 # The guiding question
@@ -272,6 +272,60 @@ The fastest route is not the most fuel-efficient one. Other criteria: safety and
 
 ::: notes
 Numbers: field-test averages for the direction Delft → Zoetermeer (Tables II and III in Minett et al. 2011). All three routes are Pareto-optimal for (time, fuel), which motivates multi-criteria routing.
+:::
+
+# Quiz: which routes are Pareto-optimal?
+
+::: columns-1-1
+::: col
+| Route | Time | Fuel |
+|-------|-----:|-----:|
+| Motorway | 15.6 min | 1.34 l |
+| Provincial road | 15.7 min | 0.76 l |
+| Local road | 21.0 min | 0.73 l |
+:::
+
+::: col
+A route **dominates** another if it is at least as good in both criteria and better in at least one. It is **Pareto-optimal** if no other route dominates it.
+
+[Which routes are Pareto-optimal for (time, fuel)?]{.ask}
+:::
+:::
+
+::: quiz
+- [ ] only the provincial road
+    - The motorway is the fastest route, and the local road uses the least fuel.
+- [ ] motorway and provincial road
+    - The local road uses the least fuel, so no route dominates it.
+- [ ] provincial road and local road
+    - The motorway is the fastest route, so no route dominates it.
+- [x] all three
+    - Motorway: fastest. Local road: least fuel. Provincial road: faster than the local road, less fuel than the motorway.
+:::
+
+::: notes
+Let students vote on their phones (QR code and poll buttons in presenter mode) or by show of hands. Many expect the motorway to be dominated because the provincial road is almost as fast with 43% less fuel. But almost as fast is not as fast: the motorway is still 0.1 min faster. Which route a driver prefers depends on how they weigh time against fuel; this is why multi-criteria route planning computes the whole Pareto set. Next slide: algorithms for it.
+:::
+
+# Quiz: shortest paths
+
+Route planning is based on computing **shortest paths**.
+
+[Which of the following is *not* a shortest-path algorithm?]{.ask}
+
+::: quiz
+- [ ] Dijkstra's algorithm
+    - Shortest paths from one source, for non-negative edge weights.
+- [ ] Bellman–Ford algorithm
+    - Shortest paths from one source, also with negative edge weights.
+- [x] Kruskal's algorithm
+    - It computes a minimum spanning tree: the cheapest network that connects all nodes.
+- [ ] A* search
+    - Dijkstra's algorithm, guided towards the target by a lower bound on the remaining distance.
+:::
+
+::: notes
+Quick check of prior knowledge from DAP 2; let students vote on their phones or by show of hands. Kruskal's algorithm, like Prim's, computes a minimum spanning tree. If there is time: a minimum spanning tree does not contain shortest paths in general. In a triangle with edge weights 2, 2 and 3, the tree uses the two edges of weight 2, but the shortest path between the ends of the weight-3 edge is that edge. Next slide: shortest paths at scale.
 :::
 
 # Block 2 · From routes to algorithms
