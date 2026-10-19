@@ -21,6 +21,7 @@ body.index table td:first-child, body.index table td:nth-child(n+3) { white-spac
 | Date | Topic | Slides | Lecture notes |
 |------|-------|--------|---------------|
 | 13&nbsp;Oct | Introduction | [web](lectures/01-introduction-deck.html)&nbsp;·&nbsp;[PDF](lectures/01-introduction-deck.pdf) | [chapter&nbsp;1](notes/01-introduction-page.html)&nbsp;·&nbsp;[PDF](notes/01-introduction-notes.pdf) |
+| 20&nbsp;Oct | Animal migration and trajectory similarity | [web](lectures/02-trajectory-similarity-deck.html)&nbsp;·&nbsp;[PDF](lectures/02-trajectory-similarity-deck.pdf) | [chapter&nbsp;2](notes/02-movement-analysis-page.html)&nbsp;·&nbsp;[PDF](notes/02-movement-analysis-notes.pdf) |
 
 In the web version of the slides, press `?` for keyboard shortcuts and `f` for full screen.
 The lecture notes have one chapter per block; see the [contents](notes/00-contents-page.html)

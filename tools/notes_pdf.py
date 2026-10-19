@@ -16,6 +16,15 @@ from playwright.sync_api import sync_playwright
 
 page_path, out = sys.argv[1], sys.argv[2]
 
+# Print layout: no color-mode button, no headings at the bottom of a page,
+# no answer, definition, theorem or example box split across pages if avoidable.
+PRINT_CSS = """
+#page-color-button { display: none !important; }
+h1, h2, h3 { break-after: avoid; }
+details, .definition, .theorem, .example, figure, table { break-inside: avoid; }
+.definition, .theorem, .example, details { text-align: left; }
+"""
+
 
 class QuietHandler(http.server.SimpleHTTPRequestHandler):
     def log_message(self, *args):
@@ -32,6 +41,7 @@ with sync_playwright() as p:
     page = browser.new_page()
     page.goto(url, wait_until="networkidle")
     page.evaluate("document.querySelectorAll('details').forEach(d => d.open = true)")
+    page.add_style_tag(content=PRINT_CSS)
     page.wait_for_timeout(1500)  # let math and fonts settle
     page.pdf(path=out, format="A4", print_background=True,
              margin={"top": "14mm", "bottom": "14mm", "left": "12mm", "right": "12mm"})

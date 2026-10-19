@@ -1,4 +1,4 @@
-"""Figures for "Algorithms and Sustainability", lecture 1 (own work, CC BY 4.0).
+"""Figures for "Algorithms and Sustainability", lectures 1 and 2 (own work, CC BY 4.0).
 
 Usage:  python3 tools/make_figures.py lectures/figures
 Needs:  matplotlib, numpy, scipy. Text is converted to paths, so the SVGs look the same
@@ -225,5 +225,36 @@ ax.annotate("start", xy=mig1[0], xytext=(0.35, -0.45), fontsize=12, color=GREY, 
             arrowprops=dict(arrowstyle="-", color=GREY, lw=0.8))
 ax.set_aspect("equal"); ax.axis("off")
 save(fig, "segmentation.svg")
+
+# 8) Lecture 2: small example for the discrete Fréchet distance (worked through on the slides)
+P8 = np.array([[0, 0], [1, 0], [4, 0], [5, 0]], float)
+Q8 = np.array([[0, 1], [4, 1], [5, 1]], float)
+
+
+def frechet_example(name, coupling):
+    fig, ax = plt.subplots(figsize=(7.4, 2.9))
+    if coupling:                                   # optimal coupling: q1 waits while P moves from p1 to p2
+        for p, q in [(0, 0), (1, 0), (2, 1), (3, 2)]:
+            longest = (p, q) == (1, 0)
+            ax.plot(*zip(P8[p], Q8[q]), color=INK if longest else GREY, lw=2.4 if longest else 1.2,
+                    ls="-" if longest else (0, (2, 2)), zorder=1)
+        ax.text(0.62, 0.5, r"$\sqrt{2} \approx 1.41$", fontsize=15, color=INK, ha="left", va="center")
+    ax.plot(*P8.T, "-o", color=SDG[14], lw=2.4, ms=8, zorder=3)
+    ax.plot(*Q8.T, "-o", color=SDG[13], lw=2.4, ms=8, zorder=3)
+    for k, (x, y) in enumerate(P8):
+        ax.text(x, y - 0.18, f"$p_{k + 1}$", ha="center", va="top", fontsize=16, color=SDG[14])
+        ax.text(x, y - 0.55, f"({x:g}, {y:g})", ha="center", va="top", fontsize=12, color=GREY)
+    for k, (x, y) in enumerate(Q8):
+        ax.text(x, y + 0.53, f"$q_{k + 1}$", ha="center", va="bottom", fontsize=16, color=SDG[13])
+        ax.text(x, y + 0.18, f"({x:g}, {y:g})", ha="center", va="bottom", fontsize=12, color=GREY)
+    ax.text(-0.55, 0, "$P$", fontsize=17, color=SDG[14], ha="right", va="center", fontweight="bold")
+    ax.text(-0.55, 1, "$Q$", fontsize=17, color=SDG[13], ha="right", va="center", fontweight="bold")
+    ax.set_xlim(-1.0, 5.5); ax.set_ylim(-0.95, 1.95)
+    ax.set_aspect("equal"); ax.axis("off")
+    save(fig, name)
+
+
+frechet_example("frechet-example.svg", coupling=False)
+frechet_example("frechet-example-coupling.svg", coupling=True)
 
 print("figures written to", out)

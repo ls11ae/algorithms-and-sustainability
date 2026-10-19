@@ -1,0 +1,272 @@
+[
+    {
+        "slideId": "title-slide",
+        "timeIn": "0",
+        "timeOut": "23.423"
+    },
+    {
+        "slideId": "plan-for-today",
+        "timeIn": "23.423",
+        "timeOut": "84.408"
+    },
+    {
+        "slideId": "the-guiding-question",
+        "timeIn": "84.408",
+        "timeOut": "167.964"
+    },
+    {
+        "slideId": "warm-up-quiz",
+        "timeIn": "167.964",
+        "timeOut": "357.222"
+    },
+    {
+        "slideId": "from-a-calculation-to-an-algorithm",
+        "timeIn": "357.222",
+        "timeOut": "467.388"
+    },
+    {
+        "slideId": "sustainability-and-algorithmic-questions",
+        "timeIn": "467.388",
+        "timeOut": "625.938"
+    },
+    {
+        "slideId": "what-to-expect",
+        "timeIn": "625.938",
+        "timeOut": "736.262"
+    },
+    {
+        "slideId": "how-the-blocks-are-structured",
+        "timeIn": "736.262",
+        "timeOut": "844.592"
+    },
+    {
+        "slideId": "the-semester-at-a-glance",
+        "timeIn": "844.592",
+        "timeOut": "1160.775"
+    },
+    {
+        "slideId": "organization",
+        "timeIn": "1160.775",
+        "timeOut": "1164.936"
+    },
+    {
+        "slideId": "lecturer-and-contact",
+        "timeIn": "1164.936",
+        "timeOut": "1220.8"
+    },
+    {
+        "slideId": "meetings-and-materials",
+        "timeIn": "1220.8",
+        "timeOut": "1524.566"
+    },
+    {
+        "slideId": "tutorials-and-quizzes",
+        "timeIn": "1524.566",
+        "timeOut": "1580.585"
+    },
+    {
+        "slideId": "course-project",
+        "timeIn": "1580.585",
+        "timeOut": "1778.674"
+    },
+    {
+        "slideId": "exam-and-course-requirement",
+        "timeIn": "1778.674",
+        "timeOut": "2111.115"
+    },
+    {
+        "slideId": "studium-oecologicum",
+        "timeIn": "2111.115",
+        "timeOut": "2163.224"
+    },
+    {
+        "slideId": "prerequisites",
+        "timeIn": "2163.224",
+        "timeOut": "2274.729"
+    },
+    {
+        "slideId": "code-of-conduct",
+        "timeIn": "2274.729",
+        "timeOut": "2277.6"
+    },
+    {
+        "slideId": "prerequisites",
+        "timeIn": "2277.6",
+        "timeOut": "2281.095"
+    },
+    {
+        "slideId": "code-of-conduct",
+        "timeIn": "2281.095",
+        "timeOut": "2311.018"
+    },
+    {
+        "slideId": "contact-persons",
+        "timeIn": "2311.018",
+        "timeOut": "2382.925"
+    },
+    {
+        "slideId": "next-steps",
+        "timeIn": "2382.925",
+        "timeOut": "2442.367"
+    },
+    {
+        "slideId": "contact-persons",
+        "timeIn": "2442.367",
+        "timeOut": "2442.67"
+    },
+    {
+        "slideId": "code-of-conduct",
+        "timeIn": "2442.67",
+        "timeOut": "2442.862"
+    },
+    {
+        "slideId": "prerequisites",
+        "timeIn": "2442.862",
+        "timeOut": "2443.025"
+    },
+    {
+        "slideId": "studium-oecologicum",
+        "timeIn": "2443.025",
+        "timeOut": "2443.188"
+    },
+    {
+        "slideId": "exam-and-course-requirement",
+        "timeIn": "2443.188",
+        "timeOut": "2443.368"
+    },
+    {
+        "slideId": "course-project",
+        "timeIn": "2443.368",
+        "timeOut": "2443.543"
+    },
+    {
+        "slideId": "tutorials-and-quizzes",
+        "timeIn": "2443.543",
+        "timeOut": "2443.729"
+    },
+    {
+        "slideId": "meetings-and-materials",
+        "timeIn": "2443.729",
+        "timeOut": "2443.92"
+    },
+    {
+        "slideId": "lecturer-and-contact",
+        "timeIn": "2443.92",
+        "timeOut": "2444.089"
+    },
+    {
+        "slideId": "organization",
+        "timeIn": "2444.089",
+        "timeOut": "2444.269"
+    },
+    {
+        "slideId": "block-4-from-fairness-to-algorithms",
+        "timeIn": "2444.269",
+        "timeOut": "2444.783"
+    },
+    {
+        "slideId": "block-4-algorithmic-fairness",
+        "timeIn": "2444.783",
+        "timeOut": "2444.822"
+    },
+    {
+        "slideId": "block-3-from-energy-to-algorithms",
+        "timeIn": "2444.822",
+        "timeOut": "2444.851"
+    },
+    {
+        "slideId": "block-3-energy-efficient-algorithms",
+        "timeIn": "2444.851",
+        "timeOut": "2444.875"
+    },
+    {
+        "slideId": "block-2-from-routes-to-algorithms",
+        "timeIn": "2444.875",
+        "timeOut": "2444.91"
+    },
+    {
+        "slideId": "block-2-route-planning-for-sustainable-mobility",
+        "timeIn": "2444.91",
+        "timeOut": "2444.937"
+    },
+    {
+        "slideId": "block-1-from-tracks-to-algorithms",
+        "timeIn": "2444.937",
+        "timeOut": "2444.972"
+    },
+    {
+        "slideId": "block-1-computational-movement-analysis",
+        "timeIn": "2444.972",
+        "timeOut": "2444.996"
+    },
+    {
+        "slideId": "where-do-algorithms-meet-the-sdgs",
+        "timeIn": "2444.996",
+        "timeOut": "2445.079"
+    },
+    {
+        "slideId": "sustainability-goals",
+        "timeIn": "2445.079",
+        "timeOut": "2445.108"
+    },
+    {
+        "slideId": "the-semester-at-a-glance",
+        "timeIn": "2445.108",
+        "timeOut": "2445.129"
+    },
+    {
+        "slideId": "how-the-blocks-are-structured",
+        "timeIn": "2445.129",
+        "timeOut": "2445.166"
+    },
+    {
+        "slideId": "what-to-expect",
+        "timeIn": "2445.166",
+        "timeOut": "2445.368"
+    },
+    {
+        "slideId": "sustainability-and-algorithmic-questions",
+        "timeIn": "2445.368",
+        "timeOut": "2445.588"
+    },
+    {
+        "slideId": "from-a-calculation-to-an-algorithm",
+        "timeIn": "2445.588",
+        "timeOut": "2446.542"
+    },
+    {
+        "slideId": "sustainability-and-algorithmic-questions",
+        "timeIn": "2446.542",
+        "timeOut": "2446.717"
+    },
+    {
+        "slideId": "what-to-expect",
+        "timeIn": "2446.717",
+        "timeOut": "2446.871"
+    },
+    {
+        "slideId": "how-the-blocks-are-structured",
+        "timeIn": "2446.871",
+        "timeOut": "2447.742"
+    },
+    {
+        "slideId": "the-semester-at-a-glance",
+        "timeIn": "2447.742",
+        "timeOut": "2448.295"
+    },
+    {
+        "slideId": "sustainability-goals",
+        "timeIn": "2448.295",
+        "timeOut": "2448.913"
+    },
+    {
+        "slideId": "where-do-algorithms-meet-the-sdgs",
+        "timeIn": "2448.913",
+        "timeOut": "2450.125"
+    },
+    {
+        "slideId": "block-1-computational-movement-analysis",
+        "timeIn": "2450.125",
+        "timeOut": "2695.17"
+    }
+]

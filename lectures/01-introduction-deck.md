@@ -170,11 +170,11 @@ This is the structure that each block follows: a sustainability question, then r
 |  | *no classes from 22 December to 6 January* | | |
 | 11–12 | Algorithmic Fairness | fair clustering and beyond | |
 | 13 | Further topics | | |
-| 14 | Project presentations on 2 and 3 February | | |
+| 14 | Project presentations on 2 February | | |
 :::
 
 ::: notes
-Week 1 is 13 October; week 14 is 2/3 February, after three weeks without classes over the holidays. Week 13 is open for further topics. Guest talks: Andrea Kölzsch (Radboud University) on MoveApps in the tutorial on Wednesday 28 October; Sabine Storandt (University of Konstanz) on accessibility-aware route planning in the lecture on Tuesday 17 November.
+Week 1 is 13 October; week 14 is 2 February, after three weeks without classes over the holidays. Week 13 is open for further topics. Guest talks: Andrea Kölzsch (Radboud University) on MoveApps in the tutorial on Wednesday 28 October; Sabine Storandt (University of Konstanz) on accessibility-aware route planning in the lecture on Tuesday 17 November.
 :::
 
 # Sustainability goals {.section}
@@ -408,10 +408,12 @@ In Dortmund since 2021
 # Meetings and materials
 
 - **Lecture:** Tuesdays 10:15–11:45, OH 12, room 3.032
-- **Tutorial:** Wednesdays 10:15–11:45, OH 12, room 3.032; first tutorial next week, 21 October
+- **Tutorial:**
+    - 21 and 28 October: Wednesdays 10:15–11:45, OH 12, room 3.032
+    - from 3 November: Tuesdays 14:15–15:45, OH 14, room E02
 - **Recordings** of the lectures (slides and audio) on Moodle
 - **No classes** from 22 December 2026 to 6 January 2027
-- **Project presentations:** 2 and 3 February 2027
+- **Project presentations:** 2 February 2027, 10:15–11:45 and 14:15–15:45
 - **Moodle:** slides before each lecture, exercise sheets, quizzes, forum
 
 # Tutorials and quizzes
@@ -431,7 +433,7 @@ In Dortmund since 2021
     - a routing algorithm in **tour4me**
     - energy measurements with the **energy toolkit**
 - own ideas are welcome, talk to me
-- presentations on 2 and 3 February 2027
+- presentations on 2 February 2027
 
 ## Projects from 2025/26 {.right grow="2" .small}
 
