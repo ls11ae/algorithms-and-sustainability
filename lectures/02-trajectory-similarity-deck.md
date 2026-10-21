@@ -13,13 +13,13 @@ date: Tuesday, 20 October 2026
 5. Sampling, choosing a measure, and the next step: clustering
 
 ::: notes
-Timing (90 min, main part slides 2–36): 10:15 plan (slide 2) · 10:17 course overview (slides 3–7, about 15 min) · 10:32 Block 1: question and data (slides 8–16, about 16 min) · 10:48 time series, Hausdorff and order (slides 17–20, about 9 min) · 10:57 Fréchet distance with the worked example and back to the storks (slides 21–27, about 20 min) · 11:17 DTW (slides 28–29, about 7 min) · 11:24 continuous curves, choosing a measure, comparative study (slides 30–32, about 8 min) · 11:32 running time (slides 33–34, about 5 min) · 11:37 clustering preview and next steps (slides 35–36) · about 4 min buffer. At the start, say that the lecture is recorded.
+Timing (90 min, main part slides 2–35): 10:15 plan (slide 2) · 10:17 course overview (slides 3–7, about 15 min) · 10:32 Block 1: question and data (slides 8–15, about 14 min) · 10:46 time series, Hausdorff and order (slides 16–19, about 9 min) · 10:55 Fréchet distance with the worked example and back to the storks (slides 20–26, about 20 min) · 11:15 DTW (slides 27–28, about 7 min) · 11:22 continuous curves, choosing a measure, comparative study (slides 29–31, about 8 min) · 11:30 running time (slides 32–33, about 5 min) · 11:35 clustering preview and next steps (slides 34–35) · about 6 min buffer. At the start, say that the lecture is recorded.
 
-The overview is a hard limit of 15 minutes; otherwise the Fréchet distance starts later than 10:57. The algorithm names on slides 4–7 are signposts, not topics for today.
+The overview is a hard limit of 15 minutes; otherwise the Fréchet distance starts later than 10:55. The algorithm names on slides 4–7 are signposts, not topics for today.
 
-The times already assume the pace of lecture 1, where the introduction took about 1.3 times as long as planned. If time runs short: slide 34 in one sentence (first choice), slides 30 and 32 in two sentences each, slide 35 in one sentence; on slide 24 compute the two cells together with the class instead of in pairs. Earlier on, slide 3 without discussion. If time is left: the quiz on slide 38 (maximum or sum) or the exit question on slide 43.
+The times already assume the pace of lecture 1, where the introduction took about 1.3 times as long as planned. If time runs short: slide 33 in one sentence (first choice), slides 29 and 31 in two sentences each, slide 34 in one sentence; on slide 23 compute the two cells together with the class instead of in pairs. Earlier on, slide 3 without discussion. If time is left: the quiz on slide 37 (maximum or sum) or the exit question on slide 42.
 
-Slides 37–43 are additional material for self-study and the tutorial. Voting: the quiz on slide 25 supports phone voting (QR code and poll buttons in presenter mode), otherwise show of hands; collect the votes before revealing the answer.
+Slides 36–42 are additional material for self-study and the tutorial. Voting: the quiz on slide 24 supports phone voting (QR code and poll buttons in presenter mode), otherwise show of hands; collect the votes before revealing the answer.
 :::
 
 # Where do algorithms meet the SDGs?
@@ -162,25 +162,25 @@ How do **migratory animals** respond to a changing world, and **where do they ne
 :::
 
 - Many migratory species are declining
-- The energy transition builds new obstacles into their flyways
+- Landscape fragmentation and climate change put new obstacles in their way
 - Animals change their routes and wintering areas
 
 ::: notes
-Like every block, Block 1 starts with a sustainability question (the four steps from last week: question, research, algorithms, practice). The next three slides take up the three points; then we see what this means for algorithms.
+Like every block, Block 1 starts with a sustainability question (the four steps from last week: question, research, algorithms, practice). The next slides take up the three points: the decline and its causes, among them fragmentation and climate change (slide 10), and changing routes (slides 11–12). Then we see what this means for algorithms.
 :::
 
 # Migratory animals under pressure {.columns}
 
-## {.left grow="3"}
+## {.left grow="2"}
 
 UN report on the 1,189 species protected under the Convention on Migratory Species (CMS), 2024:
 
-- **44%** have declining populations
-- **22%** are threatened with extinction
-- **51%** of the Key Biodiversity Areas that matter for them are not protected
-- Greatest threats: **overexploitation** and **loss of habitat** through human activity
+- **44%** have declining populations; **22%** are threatened with extinction
+- Greatest threats: **overexploitation** and **habitat loss**; habitat loss, degradation and **fragmentation** affect 3 in 4 species
+- **Climate change**, pollution and invasive species also have profound impacts
+- **51%** of their Key Biodiversity Areas are unprotected
 
-## {.right grow="2"}
+## {.right grow="1"}
 
 ::: sdglist
 - [15]{.sdg .s15} Life on land
@@ -193,33 +193,7 @@ Target 15.5: halt the loss of biodiversity and prevent the extinction of threate
 [UNEP press release, 12 February 2024]{.source}
 
 ::: notes
-Source: UNEP press release on the report "State of the World's Migratory Species" (12 February 2024). Overexploitation includes unsustainable hunting and overfishing; habitat loss includes degradation and fragmentation. Migratory animals need protection in many places: breeding areas, stopover sites, wintering areas, and the routes in between. To protect them we need to know where they are and when.
-:::
-
-# Wind energy on the flyways {.columns}
-
-## {.left grow="3"}
-
-Gauld et al. (2022): GPS data of **1,454 birds** of **27 species** in Europe and North Africa → maps of collision risk with **wind turbines** and **power lines**
-
-- Highly sensitive: 13.6% of the mapped area for wind turbines, 9.4% for power lines, mostly along **migration corridors** and **coasts**
-- Hotspots with existing infrastructure: near the **Strait of Gibraltar**, near the **Bosporus**, and in central Europe
-
-## {.right grow="2"}
-
-A trade-off between two goals:
-
-::: sdglist
-- [7]{.sdg .s7} Affordable and clean energy
-- [15]{.sdg .s15} Life on land
-:::
-
-[Which information from tracking data would help choose a wind-farm site?]{.ask}
-
-::: notes
-Allow 45 seconds: 15 seconds to think, then collect two concrete suggestions. Examples: frequently used corridors, flight height, time of year, and which species use a site. Ask how tracking points would become that information. This motivates the analysis without pretending there is enough information on the slide to choose a site.
-
-Gauld et al. (2022), Journal of Applied Ecology: sensitivity maps in 5 × 5 km cells, from GPS tracks of species that are susceptible to collisions. Recommendation: plan new turbines and lines outside sensitive areas, and mitigate existing infrastructure in the hotspots first. The maps need tracking data and methods that turn tracks into corridors: that is our topic in weeks 3 and 4.
+Source: UNEP press release on the report "State of the World's Migratory Species" (12 February 2024). Overexploitation includes unsustainable hunting and overfishing. Three out of four CMS-listed species are impacted by habitat loss, degradation and fragmentation; climate change, pollution and invasive species also have profound impacts (press release). Migratory animals need protection in many places: breeding areas, stopover sites, wintering areas, and the routes in between. To protect them we need to know where they are and when.
 :::
 
 # Young white storks in their first winter
@@ -267,7 +241,7 @@ A **trajectory** is a sequence $P = \langle p_1, \ldots, p_n \rangle$ of time-st
 |---------------------|-------|-----------------------|
 | Does an animal fly the same route every year? | marsh harriers: timing is more repeatable than the route (Vardanis et al. 2011) | **similarity** of two trajectories (today) |
 | Which route does a juvenile take, and is this shifting? | white storks at the migratory divide (Jorzik et al. 2026) | **classify** and **cluster** trajectories (week 3) |
-| Which corridors need protection, or no wind farms? | collision risk maps from GPS data (Gauld et al. 2022) | **common subtrajectories**, representative routes (week 3) |
+| Which corridors need protection? | western and eastern flyways of white storks (Flack et al. 2016) | **common subtrajectories**, representative routes (week 3) |
 | Where does an animal rest and feed? | rest days: less than 100 km (Flack et al. 2016) | **segmentation** into migration, rest and foraging (week 4) |
 :::
 
@@ -295,7 +269,7 @@ Goal: **group similar routes**.
 [Daily samples to 31 Dec 2013. Flack et al. (2016), CC0.]{.source}
 
 ::: notes
-Allow 90 seconds: 15 seconds to think, 45 seconds in pairs, and 30 seconds for two responses. Ask for a reason: should different departure days, stops, destinations, or a shared corridor change the grouping? Write down two suggestions and refer back to them when comparing lock-step comparison, Hausdorff, and Fréchet. No single answer is prescribed until the purpose of the grouping is specified. The numbers follow on slide 27, after the Fréchet distance is defined.
+Allow 90 seconds: 15 seconds to think, 45 seconds in pairs, and 30 seconds for two responses. Ask for a reason: should different departure days, stops, destinations, or a shared corridor change the grouping? Write down two suggestions and refer back to them when comparing lock-step comparison, Hausdorff, and Fréchet. No single answer is prescribed until the purpose of the grouping is specified. The numbers follow on slide 26, after the Fréchet distance is defined.
 
 The introductory figure omits the distance values and couplings. The same observations can support different questions: whole migration routes, shared corridors, or similar movement behaviour. Do not equate a similar route with a similar conservation need.
 :::
@@ -515,7 +489,7 @@ Karamell and Yolo share the corridor to Gibraltar, then part ways. Next week: co
 [Daily samples to 31 Dec 2013. Flack et al. (2016), CC0.]{.source}
 
 ::: notes
-This answers the question from slide 16. Grey dashed lines: pairs of an optimal coupling; black: the longest pair. The Hausdorff distance gives almost the same values here (89 and 2,442 km); the difference showed on the autumn–spring example. Whole routes can end far apart while sharing an important corridor: for corridor protection we should compare parts of trajectories (subtrajectory clustering, week 3).
+This answers the question from slide 15. Grey dashed lines: pairs of an optimal coupling; black: the longest pair. The Hausdorff distance gives almost the same values here (89 and 2,442 km); the difference showed on the autumn–spring example. Whole routes can end far apart while sharing an important corridor: for corridor protection we should compare parts of trajectories (subtrajectory clustering, week 3).
 :::
 
 # Dynamic time warping
@@ -531,7 +505,7 @@ $$\operatorname{DTW}(P,Q)=\min_{\pi}\sum_{(i,j)\in\pi}d(p_i,q_j).$$
 Here: **unsquared distances, no normalization**. For demand or speed, use ${|x_i-y_j|}$ instead; the same dynamic program applies.
 
 ::: notes
-Introduce DTW as a generally applicable sequence-alignment method. The name does not mean that actual timestamps automatically enter the objective. Here the local costs are spatial distances and the coupling warps the correspondence. Say explicitly: for electricity demand or speed, replace the spatial distance by the difference between the observed values; the same dynamic program applies (additional slide 39 has a demand example). Other DTW conventions use squared costs, a final square root, different step weights, or normalization; state the convention before comparing numerical results. Reference: Müller (2007), Chapter 4, and the linked teaching notebook in the references.
+Introduce DTW as a generally applicable sequence-alignment method. The name does not mean that actual timestamps automatically enter the objective. Here the local costs are spatial distances and the coupling warps the correspondence. Say explicitly: for electricity demand or speed, replace the spatial distance by the difference between the observed values; the same dynamic program applies (additional slide 38 has a demand example). Other DTW conventions use squared costs, a final square root, different step weights, or normalization; state the convention before comparing numerical results. Reference: Müller (2007), Chapter 4, and the linked teaching notebook in the references.
 :::
 
 # The same grid, a different recurrence
@@ -621,7 +595,7 @@ Tao et al. (2021) compared five similarity measures on bus and bird trajectories
 [Tao et al. (2021), GIScience & Remote Sensing 58(5), 643–669]{.source}
 
 ::: notes
-Our own paper. The data: Dublin bus trajectories and oystercatchers whose behaviour (flight, foraging) was annotated. DTW, discrete and continuous Fréchet agreed more closely with the expected similarities than LCSS and EDR. In the experiments, maximum-based and sum-based measures behaved similarly, so outliers did not matter much in these data. Sampling: compare Karamell and Eamy, 71 km at full resolution and 89 km with one position per day (slide 33). Experiment 1 in detail: additional slides 40–41. Continuous measures help with different sampling and gaps only where interpolation is meaningful (slide 30).
+Our own paper. The data: Dublin bus trajectories and oystercatchers whose behaviour (flight, foraging) was annotated. DTW, discrete and continuous Fréchet agreed more closely with the expected similarities than LCSS and EDR. In the experiments, maximum-based and sum-based measures behaved similarly, so outliers did not matter much in these data. Sampling: compare Karamell and Eamy, 71 km at full resolution and 89 km with one position per day (slide 32). Experiment 1 in detail: additional slides 39–40. Continuous measures help with different sampling and gaps only where interpolation is meaningful (slide 29).
 :::
 
 # How fast in practice?
@@ -671,7 +645,7 @@ $$\min_{|C|=k}\;\max_{P\in\mathcal T}\;\min_{c\in C}d(P,c)$$
 Next week: which curves may serve as representatives, and why the triangle inequality matters: Fréchet satisfies it, DTW does not.
 
 ::: notes
-A preview of about one minute: the question and that the distance matters; the details are next week's content. For reference: this is the k-center objective, not the only clustering objective. Representatives can be restricted to input trajectories, or be new curves with at most ℓ vertices, which gives (k,ℓ)-center clustering. Metric approximation proofs use the triangle inequality, which ordinary DTW does not satisfy in general. In a formal metric-space treatment of Fréchet, identify equivalent zero-distance representations. Whole routes versus parts of routes: refer back to Karamell and Yolo (slide 27). Do not imply that a k-means average of synchronized coordinates automatically represents a cluster of differently sampled routes.
+A preview of about one minute: the question and that the distance matters; the details are next week's content. For reference: this is the k-center objective, not the only clustering objective. Representatives can be restricted to input trajectories, or be new curves with at most ℓ vertices, which gives (k,ℓ)-center clustering. Metric approximation proofs use the triangle inequality, which ordinary DTW does not satisfy in general. In a formal metric-space treatment of Fréchet, identify equivalent zero-distance representations. Whole routes versus parts of routes: refer back to Karamell and Yolo (slide 26). Do not imply that a k-means average of synchronized coordinates automatically represents a cluster of differently sampled routes.
 :::
 
 # Next steps
@@ -685,7 +659,7 @@ A preview of about one minute: the question and that the distance matters; the d
 - Project idea: a MoveApp that compares migration routes
 
 ::: notes
-Closing sentence: similarity measures help to find shared corridors and changes in migration; decisions on protection also need ecological knowledge and information on threats such as wind farms and power lines.
+Closing sentence: similarity measures help to find shared corridors and changes in migration; decisions on protection also need ecological knowledge and information on threats such as landscape fragmentation and climate change.
 :::
 
 # Additional material {.section}
@@ -762,7 +736,7 @@ The grey curves are offset **for visibility**.
 [Tao et al. (2021), Figure 5, cropped. CC BY 4.0.]{.source}
 
 ::: notes
-Additional material: this and the following slide give Experiment 1 in detail (about five minutes); the findings are summarized on slide 32. Experiment 1 changes temporal sampling, rotates the curve, and combines the two. The temporal transformation changes which samples represent the trajectory, rather than merely relabelling the same geometric curve with different timestamps. This distinction matters for continuous Fréchet invariance. Show the visual before the numbers.
+Additional material: this and the following slide give Experiment 1 in detail (about five minutes); the findings are summarized on slide 31. Experiment 1 changes temporal sampling, rotates the curve, and combines the two. The temporal transformation changes which samples represent the trajectory, rather than merely relabelling the same geometric curve with different timestamps. This distinction matters for continuous Fréchet invariance. Show the visual before the numbers.
 :::
 
 # The measure can change the ranking
@@ -795,10 +769,10 @@ Values are from Experiment 1, Figure 5 and Table 1, journal page 659. The paper'
 
 Whole routes can end far apart while sharing an important corridor. Sometimes we should compare **parts of trajectories**.
 
-Protection decisions also need ecological evidence, habitat information, and threats such as energy infrastructure.
+Protection decisions also need ecological evidence, habitat information, and knowledge of threats such as landscape fragmentation and climate change.
 
 ::: notes
-Return to the opening question and the Gauld et al. infrastructure example. These are potential contributions of the analysis methods, not a claim that all cited studies use Fréchet or clustering. A route cluster alone is not a conservation priority map. The distinction between migration route, shared corridor, and activity pattern explains why the choice of representation and similarity matters.
+Return to the opening question. These are potential contributions of the analysis methods, not a claim that all cited studies use Fréchet or clustering. A route cluster alone is not a conservation priority map. The distinction between migration route, shared corridor, and activity pattern explains why the choice of representation and similarity matters.
 :::
 
 # Check your understanding
@@ -827,7 +801,6 @@ A corridor question might legitimately discard direction and use a point-set vie
 - Cheng, Y., Fiedler, W., Wikelski, M., Flack, A. (2019). "Closer-to-home" strategy benefits juvenile survival in a long-distance migratory bird. *Ecology and Evolution* 9(16), 8945–8952. <https://doi.org/10.1002/ece3.5395>
 - Flack, A., Fiedler, W., Blas, J., et al. (2016). Costs of migratory decisions: A comparison across eight white stork populations. *Science Advances* 2(1), e1500931. <https://doi.org/10.1126/sciadv.1500931>
 - Flack, A., Fiedler, W., Blas, J., et al. (2015). Data from: Costs of migratory decisions: a comparison across eight white stork populations. Movebank Data Repository, CC0. <https://doi.org/10.5441/001/1.78152p3q>
-- Gauld, J. G., Silva, J. P., Atkinson, P. W., et al. (2022). Hotspots in the grid: Avian sensitivity and vulnerability to collision risk from energy infrastructure interactions in Europe and North Africa. *Journal of Applied Ecology* 59(6), 1496–1512. <https://doi.org/10.1111/1365-2664.14160>
 - Jorzik, I., Fiedler, W., Kaatz, M., Rotics, S., Nathan, R., Wikelski, M., Flack, A. (2026). Timing shapes flyway selection in juvenile white storks at the European migratory divide. *Journal of Ornithology* 167(1), 131–142. <https://doi.org/10.1007/s10336-025-02322-z>
 - Kölzsch, A., et al. (2025). Citizen scientists for MoveApps: Innovations and insights from volunteer coders in wildlife conservation. *Methods in Ecology and Evolution* 16, 1550–1563. <https://doi.org/10.1111/2041-210X.70101>
 - UNEP (2024). Landmark UN report reveals shocking state of wildlife: the world's migratory species. Press release, 12 February 2024. <https://www.unep.org/news-and-stories/press-release/landmark-un-report-reveals-shocking-state-wildlife-worlds-migratory>

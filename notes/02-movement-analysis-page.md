@@ -23,7 +23,7 @@ After working through Sections 2.1 to 2.3, you should be able to
 
 Many migratory species are in decline. A report for the UN Convention on the Conservation of Migratory Species of Wild Animals (CMS) covers the 1,189 species listed under the convention: 44% of them have declining populations, 22% are threatened with extinction, and 51% of the Key Biodiversity Areas that are important for them are not protected. Overexploitation and the loss of habitat through human activity are the greatest threats [UNEP 2024]. Migratory animals need protection in many places: where they breed, where they rest and feed on the way, where they spend the winter, and on the routes in between. This concerns [15]{.sdg .s15} Life on land, in particular target 15.5, to halt the loss of biodiversity and protect threatened species from extinction, as well as [14]{.sdg .s14} Life below water [United Nations 2015].
 
-Protecting migratory animals can conflict with other goals. Gauld et al. (2022) combined the GPS tracks of 1,454 birds of 27 species that are susceptible to collisions into maps of the sensitivity of Europe and North Africa to collisions with wind turbines and power lines. Highly sensitive areas make up 13.6% of the mapped area for wind turbines and 9.4% for power lines, mostly along migration corridors and coasts. Hotspots where sensitive areas meet existing infrastructure lie near the Strait of Gibraltar, near the Bosporus, and in central Europe. Wind energy serves [7]{.sdg .s7} Affordable and clean energy; deciding where to build it requires knowing where birds fly.
+Two obstacles are central for migratory animals: the fragmentation of landscapes and climate change. Habitat loss, degradation, and fragmentation affect three out of four of these species; climate change, pollution, and invasive species also have profound impacts [UNEP 2024]. Fragmentation cuts apart the places that a migratory animal depends on and the connections between them. Climate change shifts when and where conditions along a route are suitable, which links the topic to [13]{.sdg .s13} Climate action. Tracking data show how animals respond to such changes.
 
 ## Animals change their routes
 
@@ -41,7 +41,7 @@ Table 2.1 lists ecological questions and the algorithmic problems behind them. T
 |---------------------|---------------|---------------------|
 | Does an animal fly the same route every year? | marsh harriers: timing is more repeatable than the route [Vardanis et al. 2011] | similarity of two trajectories (Section 2.3) |
 | Which route does a juvenile take, and is this shifting? | white storks at the migratory divide [Jorzik et al. 2026] | classification and clustering of trajectories (Section 2.4) |
-| Which corridors need protection, or should stay free of wind farms? | collision-risk maps from GPS data [Gauld et al. 2022] | common subtrajectories, representative routes (Section 2.4) |
+| Which corridors need protection? | western and eastern flyways of white storks [Flack et al. 2016] | common subtrajectories, representative routes (Section 2.4) |
 | Where does an animal rest and feed? | rest days: less than 100 km per day [Flack et al. 2016] | segmentation into phases (Section 2.5) |
 
 : Table 2.1: From ecological questions to computational problems.
@@ -299,7 +299,6 @@ This section follows after Lecture 4 (3 November). It covers how to split a traj
 - Flack, A., Fiedler, W., Blas, J., et al. (2015). Data from: Costs of migratory decisions: a comparison across eight white stork populations. Movebank Data Repository, CC0. <https://doi.org/10.5441/001/1.78152p3q>
 - Flack, A., Fiedler, W., Blas, J., et al. (2016). Costs of migratory decisions: A comparison across eight white stork populations. *Science Advances* 2(1), e1500931. <https://doi.org/10.1126/sciadv.1500931>
 - Fréchet, M. (1906). Sur quelques points du calcul fonctionnel. *Rendiconti del Circolo Matematico di Palermo* 22, 1–72.
-- Gauld, J. G., Silva, J. P., Atkinson, P. W., et al. (2022). Hotspots in the grid: Avian sensitivity and vulnerability to collision risk from energy infrastructure interactions in Europe and North Africa. *Journal of Applied Ecology* 59(6), 1496–1512. <https://doi.org/10.1111/1365-2664.14160>
 - Impagliazzo, R., Paturi, R. (2001). On the complexity of k-SAT. *Journal of Computer and System Sciences* 62(2), 367–375.
 - Jorzik, I., Fiedler, W., Kaatz, M., Rotics, S., Nathan, R., Wikelski, M., Flack, A. (2026). Timing shapes flyway selection in juvenile white storks at the European migratory divide. *Journal of Ornithology* 167(1), 131–142. <https://doi.org/10.1007/s10336-025-02322-z>
 - Kölzsch, A., et al. (2025). Citizen scientists for MoveApps: Innovations and insights from volunteer coders in wildlife conservation. *Methods in Ecology and Evolution* 16, 1550–1563. <https://doi.org/10.1111/2041-210X.70101>

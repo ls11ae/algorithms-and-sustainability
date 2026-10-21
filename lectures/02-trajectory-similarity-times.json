@@ -1,0 +1,347 @@
+[
+    {
+        "slideId": "title-slide",
+        "timeIn": "0",
+        "timeOut": "32.293"
+    },
+    {
+        "slideId": "plan-for-today",
+        "timeIn": "32.293",
+        "timeOut": "55.323"
+    },
+    {
+        "slideId": "where-do-algorithms-meet-the-sdgs",
+        "timeIn": "55.323",
+        "timeOut": "316.861"
+    },
+    {
+        "slideId": "block-1-computational-movement-analysis",
+        "timeIn": "316.861",
+        "timeOut": "433.614"
+    },
+    {
+        "slideId": "block-2-route-planning-for-sustainable-mobility",
+        "timeIn": "433.614",
+        "timeOut": "697.539"
+    },
+    {
+        "slideId": "block-3-energy-efficient-algorithms",
+        "timeIn": "697.539",
+        "timeOut": "827.613"
+    },
+    {
+        "slideId": "block-4-algorithmic-fairness",
+        "timeIn": "827.613",
+        "timeOut": "1278.376"
+    },
+    {
+        "slideId": "block-1-computational-movement-analysis-1",
+        "timeIn": "1278.376",
+        "timeOut": "1284.47"
+    },
+    {
+        "slideId": "the-question",
+        "timeIn": "1284.47",
+        "timeOut": "1434.678"
+    },
+    {
+        "slideId": "migratory-animals-under-pressure",
+        "timeIn": "1434.678",
+        "timeOut": "1541.62"
+    },
+    {
+        "slideId": "young-white-storks-in-their-first-winter",
+        "timeIn": "1541.62",
+        "timeOut": "1612.308"
+    },
+    {
+        "slideId": "routes-change",
+        "timeIn": "1612.308",
+        "timeOut": "1628.421"
+    },
+    {
+        "slideId": "young-white-storks-in-their-first-winter",
+        "timeIn": "1628.421",
+        "timeOut": "1631.347"
+    },
+    {
+        "slideId": "routes-change",
+        "timeIn": "1631.347",
+        "timeOut": "1672.443"
+    },
+    {
+        "slideId": "young-white-storks-in-their-first-winter",
+        "timeIn": "1672.443",
+        "timeOut": "1673.003"
+    },
+    {
+        "slideId": "migratory-animals-under-pressure",
+        "timeIn": "1673.003",
+        "timeOut": "1673.914"
+    },
+    {
+        "slideId": "young-white-storks-in-their-first-winter",
+        "timeIn": "1673.914",
+        "timeOut": "1678.522"
+    },
+    {
+        "slideId": "routes-change",
+        "timeIn": "1678.522",
+        "timeOut": "1703.756"
+    },
+    {
+        "slideId": "a-trajectory-up-close",
+        "timeIn": "1703.756",
+        "timeOut": "1723.289"
+    },
+    {
+        "slideId": "routes-change",
+        "timeIn": "1723.289",
+        "timeOut": "1724.186"
+    },
+    {
+        "slideId": "young-white-storks-in-their-first-winter",
+        "timeIn": "1724.186",
+        "timeOut": "1739.483"
+    },
+    {
+        "slideId": "routes-change",
+        "timeIn": "1739.483",
+        "timeOut": "1740.089"
+    },
+    {
+        "slideId": "a-trajectory-up-close",
+        "timeIn": "1740.089",
+        "timeOut": "1778.491"
+    },
+    {
+        "slideId": "from-ecological-questions-to-computational-problems",
+        "timeIn": "1778.491",
+        "timeOut": "1869.11"
+    },
+    {
+        "slideId": "how-similar-are-two-migration-routes",
+        "timeIn": "1869.11",
+        "timeOut": "2429.506"
+    },
+    {
+        "slideId": "trajectories-are-time-series",
+        "timeIn": "2429.506",
+        "timeOut": "2512.838"
+    },
+    {
+        "slideId": "comparing-routes",
+        "timeIn": "2512.838",
+        "timeOut": "2566.681"
+    },
+    {
+        "slideId": "hausdorff-distance",
+        "timeIn": "2566.681",
+        "timeOut": "2855.218"
+    },
+    {
+        "slideId": "comparing-routes",
+        "timeIn": "2855.218",
+        "timeOut": "2855.542"
+    },
+    {
+        "slideId": "trajectories-are-time-series",
+        "timeIn": "2855.542",
+        "timeOut": "2855.826"
+    },
+    {
+        "slideId": "how-similar-are-two-migration-routes",
+        "timeIn": "2855.826",
+        "timeOut": "2856.074"
+    },
+    {
+        "slideId": "from-ecological-questions-to-computational-problems",
+        "timeIn": "2856.074",
+        "timeOut": "2856.317"
+    },
+    {
+        "slideId": "a-trajectory-up-close",
+        "timeIn": "2856.317",
+        "timeOut": "2856.899"
+    },
+    {
+        "slideId": "from-ecological-questions-to-computational-problems",
+        "timeIn": "2856.899",
+        "timeOut": "2857.69"
+    },
+    {
+        "slideId": "a-trajectory-up-close",
+        "timeIn": "2857.69",
+        "timeOut": "2860.073"
+    },
+    {
+        "slideId": "from-ecological-questions-to-computational-problems",
+        "timeIn": "2860.073",
+        "timeOut": "2860.772"
+    },
+    {
+        "slideId": "how-similar-are-two-migration-routes",
+        "timeIn": "2860.772",
+        "timeOut": "2877.604"
+    },
+    {
+        "slideId": "trajectories-are-time-series",
+        "timeIn": "2877.604",
+        "timeOut": "2878.204"
+    },
+    {
+        "slideId": "comparing-routes",
+        "timeIn": "2878.204",
+        "timeOut": "2878.724"
+    },
+    {
+        "slideId": "hausdorff-distance",
+        "timeIn": "2878.724",
+        "timeOut": "2896.444"
+    },
+    {
+        "slideId": "same-route-opposite-direction",
+        "timeIn": "2896.444",
+        "timeOut": "2990.775"
+    },
+    {
+        "slideId": "the-fréchet-distance",
+        "timeIn": "2990.775",
+        "timeOut": "3355.553"
+    },
+    {
+        "slideId": "the-discrete-fréchet-distance",
+        "timeIn": "3355.553",
+        "timeOut": "3358.092"
+    },
+    {
+        "slideId": "the-fréchet-distance",
+        "timeIn": "3358.092",
+        "timeOut": "3378.837"
+    },
+    {
+        "slideId": "the-discrete-fréchet-distance",
+        "timeIn": "3378.837",
+        "timeOut": "3745.022"
+    },
+    {
+        "slideId": "dynamic-programming",
+        "timeIn": "3745.022",
+        "timeOut": "4199.521"
+    },
+    {
+        "slideId": "example",
+        "timeIn": "4199.521",
+        "timeOut": "4576.344"
+    },
+    {
+        "slideId": "quiz-the-discrete-fréchet-distance",
+        "timeIn": "4576.344",
+        "timeOut": "4653.449"
+    },
+    {
+        "slideId": "solution",
+        "timeIn": "4653.449",
+        "timeOut": "4659.743"
+    },
+    {
+        "slideId": "back-to-the-storks",
+        "timeIn": "4659.743",
+        "timeOut": "4689.663"
+    },
+    {
+        "slideId": "dynamic-time-warping",
+        "timeIn": "4689.663",
+        "timeOut": "4763.12"
+    },
+    {
+        "slideId": "the-same-grid-a-different-recurrence",
+        "timeIn": "4763.12",
+        "timeOut": "4789.929"
+    },
+    {
+        "slideId": "dynamic-time-warping",
+        "timeIn": "4789.929",
+        "timeOut": "4793.026"
+    },
+    {
+        "slideId": "the-same-grid-a-different-recurrence",
+        "timeIn": "4793.026",
+        "timeOut": "4831.361"
+    },
+    {
+        "slideId": "sampled-points-and-continuous-curves",
+        "timeIn": "4831.361",
+        "timeOut": "4876.007"
+    },
+    {
+        "slideId": "choosing-a-similarity-measure",
+        "timeIn": "4876.007",
+        "timeOut": "4982.043"
+    },
+    {
+        "slideId": "what-a-comparative-study-found",
+        "timeIn": "4982.043",
+        "timeOut": "4985.562"
+    },
+    {
+        "slideId": "how-fast-in-practice",
+        "timeIn": "4985.562",
+        "timeOut": "4987.373"
+    },
+    {
+        "slideId": "can-we-do-better-than-quadratic-time",
+        "timeIn": "4987.373",
+        "timeOut": "4988.522"
+    },
+    {
+        "slideId": "next-lecture-clustering-trajectories",
+        "timeIn": "4988.522",
+        "timeOut": "4989.757"
+    },
+    {
+        "slideId": "next-steps",
+        "timeIn": "4989.757",
+        "timeOut": "4990.563"
+    },
+    {
+        "slideId": "next-lecture-clustering-trajectories",
+        "timeIn": "4990.563",
+        "timeOut": "4990.972"
+    },
+    {
+        "slideId": "can-we-do-better-than-quadratic-time",
+        "timeIn": "4990.972",
+        "timeOut": "4991.765"
+    },
+    {
+        "slideId": "how-fast-in-practice",
+        "timeIn": "4991.765",
+        "timeOut": "4993.095"
+    },
+    {
+        "slideId": "what-a-comparative-study-found",
+        "timeIn": "4993.095",
+        "timeOut": "4994.245"
+    },
+    {
+        "slideId": "choosing-a-similarity-measure",
+        "timeIn": "4994.245",
+        "timeOut": "4995.627"
+    },
+    {
+        "slideId": "what-a-comparative-study-found",
+        "timeIn": "4995.627",
+        "timeOut": "5030.567"
+    },
+    {
+        "slideId": "how-fast-in-practice",
+        "timeIn": "5030.567",
+        "timeOut": "5066.914"
+    },
+    {
+        "slideId": "can-we-do-better-than-quadratic-time",
+        "timeIn": "5066.914",
+        "timeOut": "5133.093"
+    }
+]
