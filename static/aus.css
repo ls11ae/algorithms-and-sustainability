@@ -201,3 +201,10 @@ body.page details {
 html.print-pdf .reveal .quiz ul li ul {
   display: none;
 }
+
+/* code excerpts (e.g. data files) that must be readable from the back row;
+   the theme sets .reveal .media .code pre to 0.5em */
+.reveal div.bigcode .media .code pre {
+  font-size: 0.72em;
+  max-height: none;
+}
