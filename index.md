@@ -23,7 +23,7 @@ body.index table td:first-child, body.index table td:nth-child(n+3) { white-spac
 | 13&nbsp;Oct | Introduction | [web](lectures/01-introduction-deck.html)&nbsp;·&nbsp;[PDF](lectures/01-introduction-deck.pdf) | [chapter&nbsp;1](notes/01-introduction-page.html)&nbsp;·&nbsp;[PDF](notes/01-introduction-notes.pdf) |
 | 20&nbsp;Oct | Animal migration and trajectory similarity | [web](lectures/02-trajectory-similarity-deck.html)&nbsp;·&nbsp;[PDF](lectures/02-trajectory-similarity-deck.pdf) | [chapter&nbsp;2](notes/02-movement-analysis-page.html)&nbsp;·&nbsp;[PDF](notes/02-movement-analysis-notes.pdf) |
 | 27&nbsp;Oct | Clustering trajectories | [web](lectures/03-trajectory-clustering-deck.html)&nbsp;·&nbsp;[PDF](lectures/03-trajectory-clustering-deck.pdf) | [chapter&nbsp;2](notes/02-movement-analysis-page.html)&nbsp;·&nbsp;[PDF](notes/02-movement-analysis-notes.pdf) |
-| 3&nbsp;Nov | Stopovers: segmenting trajectories | [web](lectures/04-trajectory-segmentation-deck.html)&nbsp;·&nbsp;[PDF](lectures/04-trajectory-segmentation-deck.pdf) | [chapter&nbsp;2](notes/02-movement-analysis-page.html)&nbsp;·&nbsp;[PDF](notes/02-movement-analysis-notes.pdf) |
+| 3&nbsp;Nov | Segmenting trajectories | [web](lectures/04-trajectory-segmentation-deck.html)&nbsp;·&nbsp;[PDF](lectures/04-trajectory-segmentation-deck.pdf) | [chapter&nbsp;2](notes/02-movement-analysis-page.html)&nbsp;·&nbsp;[PDF](notes/02-movement-analysis-notes.pdf) |
 
 In the web version of the slides, press `?` for keyboard shortcuts and `f` for full screen.
 The lecture notes have one chapter per block; see the [contents](notes/00-contents-page.html)

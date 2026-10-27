@@ -4,18 +4,22 @@ subtitle: "Algorithms and Sustainability · Lecture Notes · Winter 2026/27"
 author: Kevin Buchin
 affiliation: TU Dortmund University
 copyright: "CC BY 4.0 ·"
-date: "version of 20 October 2026"
+date: "version of 27 October 2026"
 ---
 
-GPS tags show where animals move, when, and how their movement changes. This chapter develops algorithms for analyzing such tracking data. It accompanies Lectures 2 to 4 and grows with them: this version covers Lecture 2, on the similarity of trajectories. Sections on clustering (Lecture 3) and segmentation (Lecture 4) will follow.
+GPS tags show where animals move, when, and how their movement changes. This chapter develops algorithms for analyzing such tracking data. It accompanies Lectures 2 to 4 and grows with them: this version covers Lectures 2 and 3, on the similarity and the clustering of trajectories. A section on segmentation (Lecture 4) will follow.
 
-After working through Sections 2.1 to 2.3, you should be able to
+After working through Sections 2.1 to 2.4, you should be able to
 
 - explain how tracking data can inform the conservation of migratory animals, and which computational problems arise;
 - define lock-step distances, the Hausdorff distance, the discrete and the continuous Fréchet distance, and dynamic time warping (DTW), and explain what each of them keeps and what it ignores;
 - compute the discrete Fréchet distance and DTW by dynamic programming, prove the recurrence correct, and analyze running time and memory;
 - explain what the conditional lower bound for the Fréchet distance says, and what it does not say;
-- choose a similarity measure for a given question and justify the choice.
+- choose a similarity measure for a given question and justify the choice;
+- decide whether a question calls for clustering points or curves, and compare the $k$-center, $k$-median, and $k$-means objectives;
+- run Gonzalez's algorithm and prove that it is a 2-approximation for $k$-center clustering;
+- define $(k, \ell)$-center clustering, compute an optimal simplification under the discrete Fréchet distance, and prove that Gonzalez's algorithm with simplified centers is a 3-approximation;
+- interpret a clustering of tracking data: what it shows and what it does not show.
 
 # 2.1 Migration and conservation
 
@@ -228,7 +232,164 @@ No measure fits every question. Before choosing one, decide whether to compare *
 
 # 2.4 Clustering trajectories
 
-This section follows after Lecture 3 (27 October). It covers how to find $k$ representative routes such that every trajectory in the data is close to one of them, which curves may serve as representatives, and how to find corridors that several trajectories share.
+Section 2.3 compared two trajectories. With many trajectories, we want an overview: which routes are typical, and how many of them are there? Figure 2.7 shows the first autumn migrations of the 34 juvenile storks of Flack et al. (2016) that migrated and were tracked into the winter, with one position per day from the day before departure until 31 December 2013. By eye, we see a western flyway via the Strait of Gibraltar, a crossing of the Sahara from Tunisia, an eastern flyway via the Bosporus and the Levant that splits toward the Sahel and toward East and southern Africa, and storks from Armenia that winter in the Middle East. **Clustering** makes such a summary precise: it partitions the trajectories into groups and describes each group by a representative.
+
+![Figure 2.7: The first autumn migrations of 34 juvenile white storks from seven populations, one position per day until 31 December 2013. Data: Flack et al. (2015), Movebank, CC0; map: Natural Earth.](../lectures/figures/storks-routes.svg){width="75%"}
+
+## 2.4.1 Points or curves?
+
+Clustering in movement data comes in several kinds (Figure 2.8). If only the places matter and not the order in which they are visited, we cluster **points**: the positions of one track, for instance to find a nest that a bird visits again and again [Picardi et al. 2020], or the positions of many tracks, for instance to find carcasses where several vultures feed [Rast et al. 2024]. Several apps on MoveApps do this kind of spatial clustering. If the order matters, we cluster **curves**: whole trajectories, to find typical routes, or parts of trajectories, to find corridors that several animals share [Buchin et al. 2011]. This section is mostly about whole trajectories; Section 2.4.8 returns to shared corridors.
+
+![Figure 2.8: Four kinds of clustering in movement data: points of one track, points of many tracks, whole tracks, and parts of tracks (schematic, constructed data).](../lectures/figures/clustering-points-curves.svg){width="100%"}
+
+## 2.4.2 k-center clustering
+
+We first look at points. All we need is a set of objects and a distance $d$ between them that is symmetric and satisfies the triangle inequality $d(x, z) \leq d(x, y) + d(y, z)$; this holds for the Euclidean distance, for the great-circle distance on Earth, and, as we will use in Section 2.4.4, for the discrete and the continuous Fréchet distance.
+
+::: definition
+**Definition 2.6 ($k$-center clustering).** Given a finite set $S$ of objects in a space $X$ with distance $d$ and a number $k \geq 1$, find a set $C \subseteq X$ of $k$ *centers* that minimizes the *radius*
+$$r(C) = \max_{s \in S} \; \min_{c \in C} \; d(s, c).$$
+Each object is assigned to a nearest center; the objects assigned to the same center form a *cluster*. We write $r^*$ for the minimum radius.
+:::
+
+The radius is a worst-case measure: $r(C) \leq r$ means that *every* object lies within distance $r$ of some center. This fits questions like "can we protect a few wintering regions such that every bird winters within $r$ of one of them?". The price is that a single unusual object can determine the radius. Other objectives sum over the objects instead: $k$-median minimizes $\sum_{s} \min_{c} d(s, c)$, and $k$-means minimizes $\sum_{s} \min_{c} d(s, c)^2$. Finding an optimal $k$-center clustering is NP-hard, so we look for approximation algorithms.
+
+## 2.4.3 Gonzalez's algorithm
+
+The following greedy algorithm is also called *farthest-first traversal* [Gonzalez 1985].
+
+1. Choose any object $c_1 \in S$ as the first center.
+2. For $i = 2, \ldots, k$: let $c_i$ be an object whose distance to its nearest center among $c_1, \ldots, c_{i-1}$ is largest.
+3. Assign every object to a nearest center.
+
+The algorithm keeps, for every object, its distance to the nearest center chosen so far. Each new center needs one distance per object and one update, so the algorithm needs $O(kn)$ distance computations for $n$ objects.
+
+::: example
+**Example 2.2.** For 37 of the juvenile storks we know where they spent their first winter: the median of their positions in December and January (for three storks that did not migrate, this lies near the nest). With great-circle distances and $k = 4$, Gonzalez's algorithm starting at Karamell's winter site in northern Morocco chooses Pelopidas's site in South Africa (7,509 km away), then the site of Halim, a non-migrating stork in Uzbekistan (6,496 km from the nearest center), and then a site in Sudan (4,314 km). With these four centers the radius is 2,424 km, attained by Yolo's site in Senegal (Figure 2.9). Trying all $\binom{37}{4} = 66{,}045$ sets of four winter sites gives 2,302 km as the best radius with centers at winter sites, only 5% less.
+:::
+
+![Figure 2.9: Gonzalez's algorithm on the first-winter sites of 37 juvenile storks after four steps. The dashed circles have the current radius, 2,424 km; the black line connects the farthest site to its nearest center. Data: Flack et al. (2015), CC0.](../lectures/figures/storks-winter-kcenter-4.svg){width="65%"}
+
+The first centers are *extreme* objects: Gonzalez's algorithm finds diverse representatives quickly, but an outlier, such as a GPS error far from everything else, becomes a center (Section 2.4.8). How good is the result in general?
+
+::: theorem
+**Theorem 2.2 [Gonzalez 1985].** Gonzalez's algorithm computes $k$ centers with radius $r \leq 2 r^*$. Here $r^*$ allows centers anywhere in $X$, although the algorithm only uses objects as centers.
+
+*Proof.* If $r = 0$, there is nothing to show. Otherwise let $c_{k+1}$ be an object at distance $r$ from its nearest center, and consider the $k + 1$ objects $c_1, \ldots, c_{k+1}$. For $2 \leq j \leq k$, when $c_j$ was chosen, its distance to the nearest earlier center was the radius at that time. The radius never increases when a center is added, so this distance is at least the final radius $r$. For $j = k + 1$, the distance is exactly $r$. Hence $d(c_i, c_j) \geq r$ for all $i < j \leq k + 1$.
+
+An optimal solution has $k$ centers, so by the pigeonhole principle (Figure 2.10) two of the $k + 1$ objects, say $c_i$ and $c_j$, are assigned to the same optimal center $c^*$. By the triangle inequality and symmetry, $r \leq d(c_i, c_j) \leq d(c_i, c^*) + d(c^*, c_j) \leq 2 r^*$. [∎]{.qed}
+:::
+
+![Figure 2.10: Why Gonzalez's algorithm is a 2-approximation: k + 1 objects with pairwise distance at least r cannot lie in k clusters of radius r* if r > 2r*.](../lectures/figures/kcenter-proof.svg){width="45%"}
+
+The factor 2 is tight for the algorithm: for the points 0, 1, 2 on a line and $k = 1$, starting at 0 gives radius 2, while the center 1 gives radius 1. It is also the best possible factor for polynomial-time algorithms in general: for distances that satisfy the triangle inequality, a $(2 - \varepsilon)$-approximation for any $\varepsilon > 0$ would imply P = NP [Hsu and Nemhauser 1979]. Hochbaum and Shmoys (1985) give a different, also best-possible 2-approximation. Even for points in the Euclidean plane, approximating within a factor below about 1.82 is NP-hard [Feder and Greene 1988]. In practice, the result is often much better than the guarantee. To check this for an instance, we need a lower bound on $r^*$. In Example 2.2, the four centers and Yolo's site are pairwise at least 2,424 km apart, so by the argument of the proof $r^* \geq 1{,}212$ km. The best four centers among the winter sites are only 5% better than Gonzalez's; with centers anywhere, the optimum could be smaller.
+
+## 2.4.4 From points to curves: (k, ℓ)-center clustering
+
+Gonzalez's algorithm and its proof use only distances, symmetry, and the triangle inequality. The discrete and the continuous Fréchet distance are symmetric and satisfy the triangle inequality; proving this is a good exercise. So we can run Gonzalez's algorithm on trajectories with the discrete Fréchet distance and again obtain a 2-approximation, compared with the best centers among all curves. But then a center is an *input trajectory* with all its detours, for instance a bird circling in its winter area (Figure 2.11, middle). A representative route should rather show the shape of the route with few vertices (Figure 2.11, right). DTW does not satisfy the triangle inequality, and the proof of Theorem 2.2 does not carry over to it.
+
+![Figure 2.11: From points to curves. Shaded: everything within distance r of the center. Left: a center point. Middle: an input trajectory as center, with a loop. Right: a center curve with few vertices (schematic, constructed data).](../lectures/figures/points-to-curves.svg){width="100%"}
+
+::: definition
+**Definition 2.7 ($(k, \ell)$-center clustering [Driemel et al. 2016]).** Given polygonal curves $P_1, \ldots, P_n$ and numbers $k, \ell \geq 1$, find $k$ curves $C = \{c_1, \ldots, c_k\}$ with at most $\ell$ vertices each that minimize
+$$r(C) = \max_{i} \; \min_{c \in C} \; \delta(P_i, c),$$
+where $\delta$ is the discrete or the continuous Fréchet distance.
+:::
+
+Driemel, Krivošija, and Sohler (2016) introduced $(k, \ell)$-center and $(k, \ell)$-median clustering for time series, that is, for curves in one dimension. Limiting the number of vertices of the centers has two effects. The representatives become simple. And a center cannot overfit: with arbitrarily many vertices, a center could follow every detour of the curves in its cluster.
+
+If $\ell$ is unrestricted and $k = 1$, every input curve is a 2-approximation, by the triangle inequality as in the proof of Theorem 2.2. If $\ell$ is part of the input, even approximation is hard, already for a single center:
+
+::: theorem
+**Theorem 2.3 [Buchin et al. 2025].** For every $\varepsilon > 0$, approximating $(k, \ell)$-center clustering within a factor $3 - \varepsilon$ is NP-hard when $\ell$ is part of the input, even for $k = 1$ and curves in the plane. This holds for the discrete and for the continuous Fréchet distance.
+:::
+
+Earlier lower bounds for curves in two or more dimensions were about 2.598 for the discrete and 2.25 for the continuous Fréchet distance [Buchin et al. 2019]. The reductions start from the *shortest common supersequence* problem for strings: each string is encoded as a curve, such that a center curve with few vertices corresponds to a short common supersequence. As we will see next, a factor of 3 can be achieved.
+
+## 2.4.5 Simplifying a curve
+
+To obtain centers with at most $\ell$ vertices, we simplify input curves. For a curve $P = \langle p_1, \ldots, p_m \rangle$ and $\ell \leq m$, the **optimal simplification** under the discrete Fréchet distance is a curve $Q$ with at most $\ell$ vertices, anywhere in the plane (or in $\mathbb{R}^d$), that minimizes $\delta_{\mathrm{dF}}(P, Q)$. It has a simple structure.
+
+::: theorem
+**Lemma 2.3.** The minimum of $\delta_{\mathrm{dF}}(P, Q)$ over all curves $Q$ with at most $\ell$ vertices equals the minimum, over all partitions of $p_1, \ldots, p_m$ into at most $\ell$ groups of consecutive vertices, of the largest radius of the smallest enclosing balls of the groups.
+
+*Proof.* Given such a partition into groups $G_1, \ldots, G_s$ with $s \leq \ell$, let $q_j$ be the center of the smallest enclosing ball of $G_j$ and $Q = \langle q_1, \ldots, q_s \rangle$. The coupling that matches every vertex of $G_j$ with $q_j$, and steps diagonally from the last vertex of $G_j$ to the first vertex of $G_{j+1}$, has the largest radius as its value.
+
+Conversely, take a curve $Q = \langle q_1, \ldots, q_s \rangle$ with $s \leq \ell$ and a coupling of $P$ and $Q$ with value $\rho$. Assign each $p_i$ to the smallest $j$ such that $(i, j)$ is in the coupling. Since a coupling is monotone in both indices, the vertices assigned to the same $j$ are consecutive, so the non-empty groups form a partition of $P$ into at most $\ell$ groups of consecutive vertices. Every vertex of a group lies within distance $\rho$ of its $q_j$, so the smallest enclosing ball of the group has radius at most $\rho$. [∎]{.qed}
+:::
+
+For a given radius $\rho$, we can therefore test greedily whether $\ell$ vertices suffice: start a group at $p_1$, extend it as long as its smallest enclosing ball has radius at most $\rho$, then start the next group. No partition into groups of radius at most $\rho$ has fewer groups than the greedy one: since a subset of a group never needs a larger ball, induction shows that the $t$-th greedy group ends no earlier than the $t$-th group of any such partition. Searching for the smallest feasible $\rho$ then gives the optimal simplification; Bereg et al. (2008) show how to compute it efficiently, also for curves in three dimensions.
+
+![Figure 2.12: Pelopidas's route from Greece to South Africa: 72 daily positions in six groups with their smallest enclosing circles, and the optimal simplification with six vertices. The largest radius is 537 km. Data: Flack et al. (2015), CC0.](../lectures/figures/route-simplification.svg){width="60%"}
+
+Figure 2.12 shows an example. Pelopidas's route has 72 daily positions; the optimal simplification with six vertices has error 537 km, and its longest group holds 43 positions from his stay in the Sahel. On the sphere, smallest enclosing balls become smallest enclosing spherical caps; for the examples we computed them in an azimuthal equidistant projection, re-centered at the current center until it no longer moves; this projection keeps the distances to its center exact.
+
+## 2.4.6 Gonzalez with simplification: a 3-approximation
+
+We combine Gonzalez's algorithm with simplification [Buchin et al. 2019]:
+
+1. Choose any input curve $T_1$; its optimal simplification with at most $\ell$ vertices is the first center $Q_1$.
+2. For $i = 2, \ldots, k$: let $T_i$ be the input curve farthest from its nearest center curve among $Q_1, \ldots, Q_{i-1}$, and let $Q_i$ be its optimal simplification.
+3. Assign every curve to its nearest center curve.
+
+::: theorem
+**Theorem 2.4 [Buchin et al. 2019].** Under the discrete Fréchet distance, in any dimension, this algorithm computes a $(k, \ell)$-center clustering with radius $r \leq 3 r^*$. For $n$ input curves with $m$ vertices each, it takes $\tilde O(kn \cdot \ell m)$ time, where $\tilde O$ hides logarithmic factors.
+
+*Proof.* We write $\delta$ for $\delta_{\mathrm{dF}}$. If $r = 0$, there is nothing to show. Otherwise let $T_{k+1}$ be an input curve at distance $r$ from its nearest center curve. We use three inequalities (Figure 2.13).
+
+- $\delta(T_i, Q_i) \leq r^*$ for all $i \leq k$: the curve $T_i$ lies in some optimal cluster, whose center has at most $\ell$ vertices and distance at most $r^*$ from $T_i$; the optimal simplification $Q_i$ is at least as close.
+- $\delta(T_j, Q_i) \geq r$ for all $i < j \leq k + 1$: for $j \leq k$, when $T_j$ was chosen, its distance to the nearest of $Q_1, \ldots, Q_{j-1}$ was the radius at that time, and the radius never increases; for $j = k + 1$, the distance is at least $r$ by the choice of $T_{k+1}$.
+- By the pigeonhole principle, two of the $k + 1$ curves $T_1, \ldots, T_{k+1}$, say $T_i$ and $T_j$ with $i < j$, lie in the same optimal cluster, so $\delta(T_i, T_j) \leq 2 r^*$ by the triangle inequality.
+
+Together, again by the triangle inequality, $r \leq \delta(T_j, Q_i) \leq \delta(T_j, T_i) + \delta(T_i, Q_i) \leq 2 r^* + r^* = 3 r^*$. [∎]{.qed}
+:::
+
+![Figure 2.13: The three inequalities in the proof of Theorem 2.4. Points stand for curves: Tᵢ and Tⱼ lie in one optimal cluster of radius r*, and Qᵢ is the simplification of Tᵢ.](../lectures/figures/klcenter-proof-curves.svg){width="45%"}
+
+The proof is the proof of Theorem 2.2 with one extra step: the centers $Q_i$ are not input curves, and the triangle inequality costs one more $r^*$. It only uses that $\delta(T_i, Q_i) \leq r^*$. If the simplification is only an $\alpha$-approximation, so that $\delta(T_i, Q_i) \leq \alpha r^*$, the same argument gives a factor $2 + \alpha$. For the continuous Fréchet distance, optimal simplification is harder; a 4-approximate simplification gives the factor 6, and for curves in the plane a more careful argument gives 3 [Buchin et al. 2019]. By Theorem 2.3, the factor 3 is best possible for the discrete Fréchet distance in two or more dimensions and for the continuous Fréchet distance in the plane, unless P = NP.
+
+The running time is dominated by $kn$ Fréchet distance computations between an input curve with $m$ vertices and a center with $\ell$ vertices, each in $O(\ell m)$ time, and by $k$ simplifications.
+
+## 2.4.7 Typical routes of the storks
+
+::: example
+**Example 2.3.** We run the algorithm on the 34 routes of Figure 2.7 with $k = 5$ and $\ell = 6$, starting at Karamell's route, with great-circle distances and optimal simplifications on the sphere. The centers come from the routes of Karamell (south-western Germany), Pelopidas (Greece), BraveHeart (Armenia), Silvia (Greece), and C708 (Spain). After each step, the radius is 7,518, 5,095, 3,719, 3,321, and 2,545 km. The five clusters are (Figure 2.14):
+
+- south-western Germany to France, Morocco, and West Africa, five of them via Gibraltar (6 routes);
+- Greece, Russia, and Poland to East and southern Africa (5);
+- Armenia to eastern Turkey, Iraq, and Iran (4);
+- Greece, Russia, and Poland to the Sahel and Ethiopia (10);
+- Spain, Tunisia, and one stork from south-western Germany to the Sahel (9).
+:::
+
+![Figure 2.14: Five representative routes with six vertices each, and the routes of each cluster. Radius 2,545 km. Data: Flack et al. (2015), CC0.](../lectures/figures/storks-klcenter-5.svg){width="75%"}
+
+The algorithm was told nothing about populations or flyways; that the clusters roughly follow origin and flyway is a result, not an input. **How good is the radius of 2,545 km?** The proof of Theorem 2.4 gives a lower bound for this instance: the five routes whose simplifications are the centers and the farthest route after five steps, from a Russian stork, have pairwise discrete Fréchet distance at least 2,266 km. Two of them lie in the same optimal cluster, so $r^* \geq 2{,}266 / 2 = 1{,}133$ km, and the computed radius is at most 2.25 times the optimum. **Which $k$?** With $k = 6, 7, 8$, the radius decreases only slowly, to 2,470, 2,206, and 2,115 km: the remaining large distances come from different origins and destinations within the clusters, not from new flyways. There is no single correct $k$; it depends on the question. The choice of $\ell$ matters less here: with $k = 5$ and $\ell = 4, 6, 8$, the radius is 2,621, 2,545, and 2,470 km. With the input routes themselves as centers, without simplification, Gonzalez's algorithm finds broadly similar groups with radius 2,445 km, but its centers carry every detour.
+
+**Back to protection.** Where routes of several clusters meet, a protective measure helps many birds. Electrocution at power poles is the largest known human-induced cause of death of tracked large birds along the African-Eurasian flyway: 40.5% of 637 human-induced deaths with a known cause [Serratosa et al. 2024]. Figure 2.15 marks two bottlenecks: 9 of the 34 routes pass within 100 km of the Strait of Gibraltar (from the western cluster and the Spain–Tunisia cluster), and 15 pass within 100 km of the Jordan valley in the Levant (all routes of the two clusters from Greece, Poland, and Russia). There, making power poles safe for birds protects birds from several populations.
+
+![Figure 2.15: The clusters of Example 2.3 and two bottlenecks with the number of routes that pass within 100 km. Data: Flack et al. (2015), CC0; map: Natural Earth.](../lectures/figures/storks-bottlenecks.svg){width="65%"}
+
+The clustering also has limits. Whole routes mix origin and destination: storks from Spain and Tunisia end up together because both end in the Sahel, while storks from Greece are split by destination. Gonzalez's algorithm picks extreme routes first. And the data cover 34 juveniles in one year; adults partly use other routes and wintering areas. Clustering summarizes data; decisions on protection also need data on mortality, habitats, and threats.
+
+## 2.4.8 Shared corridors and other methods
+
+**Shared corridors.** Routes with different origins and destinations can share a corridor, such as the flyway through the Levant. A distance between whole routes misses this. A *subtrajectory cluster* consists of at least a given number of parts of the trajectories that overlap in at most a point, have pairwise Fréchet distance at most a given threshold, and include at least one part of a given minimum length [Buchin et al. 2011]. Deciding whether such a cluster exists is NP-hard, and Buchin et al. (2011) give approximation algorithms based on a reference subtrajectory and the free-space diagram of the Fréchet distance.
+
+**Outliers.** In $k$-center clustering with $z$ outliers, the $z$ objects farthest from their centers are ignored. A 3-approximation exists [Charikar et al. 2001]. In practice, one also cleans the data first, for instance by removing implausible positions. How many outliers to ignore is a modeling decision, like the choice of $k$.
+
+**Other ways to cluster time series.** Table 2.3 sorts common approaches by their representatives. DTW barycenter averaging (DBA) iterates two steps: align every series to the current average with DTW, then replace each element of the average by the mean of the elements aligned to it [Petitjean et al. 2011]. It is a heuristic; computing an optimal average curve (a 1-median) is NP-hard, under the Fréchet distance as well as under DTW [Buchin, Driemel, and Struijs 2020]. The average keeps the length of the initial series; $(k, \ell)$-medians under a continuous version of DTW (CDTW) limit the complexity of the representatives [Brankovic et al. 2020]. Overviews of time-series clustering are given by Liao (2005), Kotsakos et al. (2014), and Aghabozorgi et al. (2015).
+
+| Approach | Representative | Example |
+|---|---|---|
+| center-based, simple centers | curve with at most $\ell$ vertices | $(k, \ell)$-center or median, Fréchet or CDTW |
+| partitional with medoids | an input series | $k$-medoids with DTW |
+| partitional with averages | an average series | $k$-means with DBA |
+| hierarchical | a tree of merges | single or complete linkage on pairwise distances |
+| density-based | dense regions | DBSCAN [Ester et al. 1996], subtrajectory clusters |
+| feature- or model-based | features, models | speed and distance with $k$-means; mixtures of hidden Markov models |
+
+: Table 2.3: Ways to cluster time series and trajectories.
 
 # 2.5 Segmentation
 
@@ -285,25 +446,80 @@ This section follows after Lecture 4 (3 November). It covers how to split a traj
     Whenever being close at the same time matters: whether two animals meet, or whether electricity demand and supply coincide at the same hour. DTW would align a shifted pattern and report a small distance, as for the demand profiles of Figure 2.6, where it gives 0 although the peaks are an hour apart.
     </details>
 
+8. Which kind of clustering from Figure 2.8 would you use to find (a) the sites where many animals rest on their way, (b) the flyways of a population, (c) a corridor that routes with different destinations share?
+
+    <details>
+    <summary>Answer</summary>
+    For (a), points of many tracks: only the places matter, for instance the positions of resting animals. For (b), whole tracks: a flyway is a route, so the order of the positions matters. For (c), parts of tracks: the routes as a whole differ, only the shared part is similar.
+    </details>
+
+9. Run Gonzalez's algorithm with $k = 2$ on the points 0, 4, 5, 9 on a line, once starting at 0 and once starting at 4. Which clusters and which radius do you get? What is the optimal radius?
+
+    <details>
+    <summary>Answer</summary>
+    Starting at 0, the farthest point is 9, and the clusters are $\{0, 4\}$ and $\{5, 9\}$. Starting at 4, the farthest point is again 9, and the clusters are $\{0, 4, 5\}$ and $\{9\}$. Both times the radius is 4: the first center changes the clusters, not the radius. With centers anywhere on the line, the centers 2 and 7 give radius 2, so here the factor 2 of Theorem 2.2 is attained. With centers among the four points, 4 is optimal.
+    </details>
+
+10. Why does the proof of Theorem 2.2 not work for DTW?
+
+    <details>
+    <summary>Answer</summary>
+    The proof bounds the distance of two objects in the same optimal cluster by $2 r^*$, using the triangle inequality. DTW does not satisfy the triangle inequality, so two members of an optimal cluster can be much farther apart than $2 r^*$, and the pairwise distances of the chosen objects do not give a lower bound on $r^*$.
+    </details>
+
+11. Where does the proof of Theorem 2.4 use that the simplifications are optimal? Which factor do you get if each $Q_i$ is only a 2-approximate simplification of $T_i$?
+
+    <details>
+    <summary>Answer</summary>
+    Only in $\delta(T_i, Q_i) \leq r^*$: the optimal simplification is at least as close to $T_i$ as the center of the optimal cluster of $T_i$. With a 2-approximate simplification, $\delta(T_i, Q_i) \leq 2 r^*$, and the last step gives $r \leq 2 r^* + 2 r^* = 4 r^*$. In general, an $\alpha$-approximate simplification gives the factor $2 + \alpha$.
+    </details>
+
+12. In Example 2.3, the five routes whose simplifications are the centers and the farthest route after five steps have pairwise discrete Fréchet distance at least 2,266 km. Why does this give $r^* \geq 1{,}133$ km for $k = 5$, although we do not know an optimal clustering?
+
+    <details>
+    <summary>Answer</summary>
+    Every clustering with five centers puts two of the six routes into the same cluster. If its radius is $r$, both routes are within $r$ of the same center curve, so by the triangle inequality their distance is at most $2 r$. Hence $2{,}266 \leq 2 r$ for every clustering with five centers, in particular for an optimal one.
+    </details>
+
 # References
 
 ::: refs
 - Agarwal, P. K., Ben Avraham, R., Kaplan, H., Sharir, M. (2014). Computing the discrete Fréchet distance in subquadratic time. *SIAM Journal on Computing* 43(2), 429–449.
+- Aghabozorgi, S., Shirkhorshidi, A. S., Wah, T. Y. (2015). Time-series clustering – A decade review. *Information Systems* 53, 16–38.
 - Alt, H., Godau, M. (1995). Computing the Fréchet distance between two polygonal curves. *International Journal of Computational Geometry & Applications* 5(1–2), 75–91.
+- Bereg, S., Jiang, M., Wang, W., Yang, B., Zhu, B. (2008). Simplifying 3D polygonal chains under the discrete Fréchet distance. *LATIN 2008*, LNCS 4957, 630–641.
+- Brankovic, M., Buchin, K., Klaren, K., Nusser, A., Popov, A., Wong, S. (2020). (k, l)-medians clustering of trajectories using continuous dynamic time warping. *SIGSPATIAL 2020*, 99–110.
 - Bringmann, K. (2014). Why walking the dog takes time: Fréchet distance has no strongly subquadratic algorithms unless SETH fails. *55th IEEE Symposium on Foundations of Computer Science (FOCS)*, 661–670.
+- Buchin, K., Buchin, M., Gudmundsson, J., Löffler, M., Luo, J. (2011). Detecting commuting patterns by clustering subtrajectories. *International Journal of Computational Geometry & Applications* 21(3), 253–282.
 - Buchin, K., Buchin, M., Meulemans, W., Mulzer, W. (2017). Four Soviets walk the dog: improved bounds for computing the Fréchet distance. *Discrete & Computational Geometry* 58(1), 180–216.
+- Buchin, K., Conradi, J., Deryckere, L., Hagedoorn, M., Rehs, C. (2025). Tight lower bound for approximating (k, ℓ)-center clustering under the Fréchet distance. *XXI Spanish Meeting on Computational Geometry (EGC 2025)*, Santander. <https://egc2025.unican.es/wp-content/uploads/2025/06/paper_20.pdf>
+- Buchin, K., Driemel, A., Gudmundsson, J., Horton, M., Kostitsyna, I., Löffler, M., Struijs, M. (2019). Approximating (k, ℓ)-center clustering for curves. *30th ACM-SIAM Symposium on Discrete Algorithms (SODA)*, 2922–2938.
+- Buchin, K., Driemel, A., Struijs, M. (2020). On the hardness of computing an average curve. *17th Scandinavian Symposium and Workshops on Algorithm Theory (SWAT)*, LIPIcs 162, 19:1–19:19.
+- Charikar, M., Khuller, S., Mount, D. M., Narasimhan, G. (2001). Algorithms for facility location problems with outliers. *12th ACM-SIAM Symposium on Discrete Algorithms (SODA)*, 642–651.
 - Chen, L., Özsu, M. T., Oria, V. (2005). Robust and fast similarity search for moving object trajectories. *ACM SIGMOD International Conference on Management of Data*, 491–502.
 - Cheng, Y., Fiedler, W., Wikelski, M., Flack, A. (2019). "Closer-to-home" strategy benefits juvenile survival in a long-distance migratory bird. *Ecology and Evolution* 9(16), 8945–8952. <https://doi.org/10.1002/ece3.5395>
 - Driemel, A., Har-Peled, S., Wenk, C. (2012). Approximating the Fréchet distance for realistic curves in near linear time. *Discrete & Computational Geometry* 48(1), 94–127.
+- Driemel, A., Krivošija, A., Sohler, C. (2016). Clustering time series under the Fréchet distance. *27th ACM-SIAM Symposium on Discrete Algorithms (SODA)*, 766–785.
 - Eiter, T., Mannila, H. (1994). Computing discrete Fréchet distance. Technical Report CD-TR 94/64, TU Wien.
+- Ester, M., Kriegel, H.-P., Sander, J., Xu, X. (1996). A density-based algorithm for discovering clusters in large spatial databases with noise. *2nd International Conference on Knowledge Discovery and Data Mining (KDD)*, 226–231.
+- Feder, T., Greene, D. (1988). Optimal algorithms for approximate clustering. *20th ACM Symposium on Theory of Computing (STOC)*, 434–444.
 - Flack, A., Fiedler, W., Blas, J., et al. (2015). Data from: Costs of migratory decisions: a comparison across eight white stork populations. Movebank Data Repository, CC0. <https://doi.org/10.5441/001/1.78152p3q>
 - Flack, A., Fiedler, W., Blas, J., et al. (2016). Costs of migratory decisions: A comparison across eight white stork populations. *Science Advances* 2(1), e1500931. <https://doi.org/10.1126/sciadv.1500931>
 - Fréchet, M. (1906). Sur quelques points du calcul fonctionnel. *Rendiconti del Circolo Matematico di Palermo* 22, 1–72.
+- Gonzalez, T. F. (1985). Clustering to minimize the maximum intercluster distance. *Theoretical Computer Science* 38, 293–306.
+- Hochbaum, D. S., Shmoys, D. B. (1985). A best possible heuristic for the k-center problem. *Mathematics of Operations Research* 10(2), 180–184.
+- Hsu, W.-L., Nemhauser, G. L. (1979). Easy and hard bottleneck location problems. *Discrete Applied Mathematics* 1, 209–216.
 - Impagliazzo, R., Paturi, R. (2001). On the complexity of k-SAT. *Journal of Computer and System Sciences* 62(2), 367–375.
 - Jorzik, I., Fiedler, W., Kaatz, M., Rotics, S., Nathan, R., Wikelski, M., Flack, A. (2026). Timing shapes flyway selection in juvenile white storks at the European migratory divide. *Journal of Ornithology* 167(1), 131–142. <https://doi.org/10.1007/s10336-025-02322-z>
 - Kölzsch, A., et al. (2025). Citizen scientists for MoveApps: Innovations and insights from volunteer coders in wildlife conservation. *Methods in Ecology and Evolution* 16, 1550–1563. <https://doi.org/10.1111/2041-210X.70101>
+- Kotsakos, D., Trajcevski, G., Gunopulos, D., Aggarwal, C. C. (2014). Time-series data clustering. In C. C. Aggarwal, C. K. Reddy (eds.), *Data Clustering: Algorithms and Applications*, Chapter 15. Chapman & Hall/CRC.
+- Liao, T. W. (2005). Clustering of time series data – a survey. *Pattern Recognition* 38(11), 1857–1874.
 - Müller, M. (2007). Dynamic time warping. Chapter 4 in *Information Retrieval for Music and Motion*, 69–84. Springer.
+- Petitjean, F., Ketterlin, A., Gançarski, P. (2011). A global averaging method for dynamic time warping, with applications to clustering. *Pattern Recognition* 44(3), 678–693.
+- Picardi, S., Smith, B. J., Boone, M. E., et al. (2020). Analysis of movement recursions to detect reproductive events and estimate their fate in central place foragers. *Movement Ecology* 8, 24. <https://doi.org/10.1186/s40462-020-00201-1>
+- Rast, W., Portas, R., Shatumbu, G. I., et al. (2024). Death detector: Using vultures as sentinels to detect carcasses by combining bio-logging and machine learning. *Journal of Applied Ecology* 61, 2936–2945. <https://doi.org/10.1111/1365-2664.14810>
 - Sakoe, H., Chiba, S. (1978). Dynamic programming algorithm optimization for spoken word recognition. *IEEE Transactions on Acoustics, Speech, and Signal Processing* 26(1), 43–49.
+- Serratosa, J., Oppel, S., Santangeli, A., et al. (2024). Tracking data highlight the importance of human-induced mortality for large migratory birds at a flyway scale. *Biological Conservation* 293, 110525. <https://doi.org/10.1016/j.biocon.2024.110525>
 - Tao, Y., Both, A., Silveira, R. I., Buchin, K., Sijben, S., Purves, R. S., Laube, P., Peng, D., Toohey, K., Duckham, M. (2021). A comparative analysis of trajectory similarity measures. *GIScience & Remote Sensing* 58(5), 643–669. <https://doi.org/10.1080/15481603.2021.1908927>
 - UNEP (2024). Landmark UN report reveals shocking state of wildlife: the world's migratory species. Press release, 12 February 2024. <https://www.unep.org/news-and-stories/press-release/landmark-un-report-reveals-shocking-state-wildlife-worlds-migratory>
 - United Nations (2015). *Transforming our world: the 2030 Agenda for Sustainable Development*. Resolution A/RES/70/1.
@@ -313,4 +529,4 @@ This section follows after Lecture 4 (3 November). It covers how to split a traj
 
 # License
 
-These notes are licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Suggested attribution: "Kevin Buchin, Algorithms and Sustainability, Lecture Notes, TU Dortmund University, CC BY 4.0". All figures are own work under the same license. The stork figures are based on data from Flack et al. (2015), Movebank Data Repository, CC0; the maps use Natural Earth (public domain). The demand profiles in Figure 2.6 are constructed examples, not measured data. The colors of the Sustainable Development Goals are used for orientation only; these notes are not endorsed by the United Nations. Not covered by the license: the TU Dortmund logo and the Decker software and its themes.
+These notes are licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Suggested attribution: "Kevin Buchin, Algorithms and Sustainability, Lecture Notes, TU Dortmund University, CC BY 4.0". All figures are own work under the same license. The stork figures are based on data from Flack et al. (2015), Movebank Data Repository, CC0; the maps use Natural Earth (public domain). The demand profiles in Figure 2.6 and the schematic Figures 2.8, 2.10, 2.11, and 2.13 are constructed examples, not measured data. The colors of the Sustainable Development Goals are used for orientation only; these notes are not endorsed by the United Nations. Not covered by the license: the TU Dortmund logo and the Decker software and its themes.

@@ -1,6 +1,6 @@
 ---
 title: Algorithms and Sustainability
-subtitle: "Lecture 4: Stopovers: segmenting trajectories"
+subtitle: "Lecture 4: Segmenting trajectories"
 date: Tuesday, 3 November 2026
 ---
 

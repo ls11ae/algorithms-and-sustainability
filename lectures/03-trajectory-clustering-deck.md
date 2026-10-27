@@ -86,10 +86,10 @@ The juveniles of lecture 2 that **migrated** and were tracked **into the winter*
 
 Goal: a few **representative routes** that summarize all 34.
 
-[Data: Flack et al. (2016), Movebank, CC0. Map: Natural Earth.]{.source}
+[Data: Flack et al. (2015), Movebank, CC0. Map: Natural Earth.]{.source}
 
 ::: notes
-Allow about 2 minutes and collect suggestions; write the number k that the class proposes. Expected: a western flyway via Gibraltar (Spain, SW Germany), a central crossing of the Sahara from Tunisia, an eastern flyway via the Bosporus and the Levant that splits into the Sahel and East/southern Africa, and Armenia to the Middle East (Iraq, Iran). Of the 71 juveniles, 37 were tracked into December or January; 3 of these did not migrate (two from Uzbekistan, one from Armenia), so 34 routes remain. They are daily positions (closest fix to 12:00 UTC) from the day before departure until 31 December 2013, 32 to 152 positions per route; gaps occur when the tag sent no data.
+Allow about 2 minutes and collect suggestions; write the number k that the class proposes. Expected: a western flyway via Gibraltar (Spain, SW Germany), a central crossing of the Sahara from Tunisia, an eastern flyway via the Bosporus and the Levant that splits into the Sahel and East/southern Africa, and Armenia to the Middle East (eastern Turkey, Iraq, Iran). Of the 71 juveniles, 37 were tracked into December or January; 3 of these did not migrate (two from Uzbekistan, one from Armenia), so 34 routes remain. They are daily positions (closest fix to 12:00 UTC) from the day before departure until 31 December 2013, 32 to 152 positions per route; gaps occur when the tag sent no data.
 :::
 
 # Clustering in movement data
@@ -386,10 +386,10 @@ $k=5$, $\ell=6$, start at Karamell:
 
 Radius: 7,518 → 5,095 → 3,719 → 3,321 → **2,545 km**
 
-[Data: Flack et al. (2016), Movebank, CC0.]{.source}
+[Data: Flack et al. (2015), Movebank, CC0.]{.source}
 
 ::: notes
-About 4 minutes; four clicks. Black: the farthest route, which provides the next centre. The clusters: SW Germany via Gibraltar to Morocco and West Africa (6 routes); Greece, Russia and Poland to East and southern Africa (5); Armenia to Iraq and Iran (4); Greece, Russia and Poland to the Sahel (10); Spain, Tunisia and Coco from SW Germany to the Sahel (9). The algorithm was told nothing about populations or flyways. With the input routes themselves as centres (no simplification), Gonzalez finds similar groups with radius 2,445 km for k = 5. Computing everything takes about half a minute in Python (tools/make_clustering_figures.py).
+About 4 minutes; four clicks. Black: the farthest route, which provides the next centre. The clusters: SW Germany to France, Morocco and West Africa, five of them via Gibraltar (6 routes); Greece, Russia and Poland to East and southern Africa (5); Armenia to eastern Turkey, Iraq and Iran (4); Greece, Russia and Poland to the Sahel and Ethiopia (10); Spain, Tunisia and Coco from SW Germany to the Sahel (9). The algorithm was told nothing about populations or flyways. With the input routes themselves as centres (no simplification), Gonzalez finds similar groups with radius 2,445 km for k = 5. Computing everything takes about half a minute in Python (tools/make_clustering_figures.py).
 :::
 
 # How good, and which $k$? {.columns}
@@ -516,7 +516,7 @@ Example of a shortest common supersequence: ABB, BAAA and ABA have the common su
 
 # Shared corridors: subtrajectory clusters
 
-A **subtrajectory cluster** $C(m,\ell,d)$: $m$ disjoint parts of the trajectories, each of length $\ell$, with pairwise Fréchet distance at most $d$.
+A **subtrajectory cluster** $C(m,\ell,d)$: at least $m$ parts of the trajectories that overlap in at most a point, one of them of length at least $\ell$, with pairwise Fréchet distance at most $d$.
 
 - Deciding whether a cluster exists is NP-hard (reduction from maximum clique)
 - A 2-approximation in $d$: use one part as reference curve; sweep over the free-space diagram

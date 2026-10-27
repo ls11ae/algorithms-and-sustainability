@@ -11,9 +11,13 @@ Writes the figures of lecture 3 and prints every number quoted on the slides:
   storks-winter-kcenter-1..4.svg     Gonzalez on the first-winter sites, one centre per step
   gonzalez-exercise(-solution).svg   small example to work by hand
   kcenter-proof.svg                  why Gonzalez is a 2-approximation (schematic)
+  points-to-curves.svg               from points to curves: centre point, input curve as centre, simple centre
+  klcenter-proof(-curves).svg        why Gonzalez with simplification is a 3-approximation (schematic; the
+                                     variant with capital letters is for the lecture notes)
   route-simplification.svg           optimal 6-vertex simplification of one route (discrete Fréchet)
   storks-klcenter-1..5.svg           Gonzalez with simplification, (k, l) = (5, 6), one step each
   klcenter-radius.svg                radius after k steps, l = 6
+  storks-bottlenecks.svg             the clusters for k = 5 and two bottlenecks (routes within 100 km)
 
 Algorithms (all in this file): discrete Fréchet distance (dynamic program over anti-diagonals),
 smallest enclosing circle (Welzl) in an azimuthal equidistant projection, optimal l-vertex
@@ -642,9 +646,10 @@ def fig_points_to_curves():
     save(fig, "points-to-curves.svg")
 
 
-def fig_why3():
+def fig_why3(name="klcenter-proof.svg", labels=("$p_i$", "$p_j$", "$q_i$")):
     """Why Gonzalez with simplification gives 3 r* (schematic; points stand for curves): p_i and p_j share an
-    optimal cluster, q_i is the simplification of p_i, and p_j is at least r away from q_i."""
+    optimal cluster, q_i is the simplification of p_i, and p_j is at least r away from q_i. The lecture notes use
+    capital letters for curves (klcenter-proof-curves.svg)."""
     fig, ax = plt.subplots(figsize=(5.4, 3.7))
     ax.set_xlim(-0.35, 5.25)
     ax.set_ylim(0.35, 4.7)
@@ -661,14 +666,14 @@ def fig_why3():
         ax.plot([a[0], b[0]], [a[1], b[1]], color=col, lw=2.8, zorder=3, solid_capstyle="round")
         ax.text(*at, text, fontsize=19, fontweight="bold", color=col, ha=ha, va="center", zorder=6,
                 path_effects=HALO)
-    for p, lbl, (dx, dy, ha) in [(pi, "$p_i$", (0.12, 0.2, "left")), (pj, "$p_j$", (0.18, -0.05, "left"))]:
+    for p, lbl, (dx, dy, ha) in [(pi, labels[0], (0.12, 0.2, "left")), (pj, labels[1], (0.18, -0.05, "left"))]:
         ax.plot(*p, "o", color=INK, ms=10, mec="white", mew=1.2, zorder=5)
         ax.text(p[0] + dx, p[1] + dy, lbl, fontsize=20, color=INK, ha=ha, va="center", zorder=6, path_effects=HALO)
     ax.plot(*qi, "s", color=COL[0], ms=11, mec="white", mew=1.2, zorder=5)
-    ax.text(qi[0] - 0.2, qi[1], "$q_i$", fontsize=20, color=COL[0], ha="right", va="center", zorder=6,
+    ax.text(qi[0] - 0.2, qi[1], labels[2], fontsize=20, color=COL[0], ha="right", va="center", zorder=6,
             path_effects=HALO)
     ax.text(-0.3, 0.55, "points stand for curves", fontsize=15, color=GREY, ha="left", va="center", style="italic")
-    save(fig, "klcenter-proof.svg")
+    save(fig, name)
 
 
 BOTTLENECKS = {"Strait of Gibraltar": (36.0, -5.6), "Levant": (32.0, 35.5)}   # Levant: Jordan valley
@@ -741,6 +746,7 @@ print("exercise: start a ->", " -> ".join(names_ex[c] for c in ch_ex), "; radius
       ", ".join(f"{r:.2f}" for r in r_ex))
 fig_proof()
 fig_why3()
+fig_why3("klcenter-proof-curves.svg", ("$T_i$", "$T_j$", "$Q_i$"))
 
 # 4) routes: juveniles that migrated and were tracked into the winter; daily positions from the day
 #    before departure until 31 December 2013 (as in lecture 2)
