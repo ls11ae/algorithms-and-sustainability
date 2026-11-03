@@ -1,0 +1,172 @@
+[
+    {
+        "slideId": "title-slide",
+        "timeIn": "0.001",
+        "timeOut": "19.012"
+    },
+    {
+        "slideId": "plan-for-today",
+        "timeIn": "19.012",
+        "timeOut": "70.277"
+    },
+    {
+        "slideId": "recap-comparing-two-trajectories",
+        "timeIn": "70.277",
+        "timeOut": "221.894"
+    },
+    {
+        "slideId": "block-1-computational-movement-analysis",
+        "timeIn": "221.894",
+        "timeOut": "257.193"
+    },
+    {
+        "slideId": "the-question",
+        "timeIn": "257.193",
+        "timeOut": "318.739"
+    },
+    {
+        "slideId": "first-migrations",
+        "timeIn": "318.739",
+        "timeOut": "428.131"
+    },
+    {
+        "slideId": "clustering-in-movement-data",
+        "timeIn": "428.131",
+        "timeOut": "573.483"
+    },
+    {
+        "slideId": "quiz-points-or-curves",
+        "timeIn": "573.483",
+        "timeOut": "657.724"
+    },
+    {
+        "slideId": "k-center-clustering",
+        "timeIn": "657.724",
+        "timeOut": "958.623"
+    },
+    {
+        "slideId": "gonzalezs-algorithm",
+        "timeIn": "958.623",
+        "timeOut": "1153.301"
+    },
+    {
+        "slideId": "your-turn-gonzalez-by-hand",
+        "timeIn": "1153.301",
+        "timeOut": "1241.727"
+    },
+    {
+        "slideId": "quiz-the-third-centre",
+        "timeIn": "1241.727",
+        "timeOut": "1268.412"
+    },
+    {
+        "slideId": "solution",
+        "timeIn": "1268.412",
+        "timeOut": "1269.944"
+    },
+    {
+        "slideId": "quiz-the-third-centre",
+        "timeIn": "1269.944",
+        "timeOut": "1281.847"
+    },
+    {
+        "slideId": "solution",
+        "timeIn": "1281.847",
+        "timeOut": "1357.414"
+    },
+    {
+        "slideId": "why-a-2-approximation",
+        "timeIn": "1357.414",
+        "timeOut": "1795.17"
+    },
+    {
+        "slideId": "can-we-do-better",
+        "timeIn": "1795.17",
+        "timeOut": "1800.676"
+    },
+    {
+        "slideId": "why-a-2-approximation",
+        "timeIn": "1800.676",
+        "timeOut": "1803.584"
+    },
+    {
+        "slideId": "can-we-do-better",
+        "timeIn": "1803.584",
+        "timeOut": "1879.4"
+    },
+    {
+        "slideId": "from-points-to-curves",
+        "timeIn": "1879.4",
+        "timeOut": "2132.575"
+    },
+    {
+        "slideId": "simplifying-a-curve",
+        "timeIn": "2132.575",
+        "timeOut": "2156.141"
+    },
+    {
+        "slideId": "from-points-to-curves",
+        "timeIn": "2156.141",
+        "timeOut": "2220.919"
+    },
+    {
+        "slideId": "simplifying-a-curve",
+        "timeIn": "2220.919",
+        "timeOut": "3075.428"
+    },
+    {
+        "slideId": "gonzalez-simplification",
+        "timeIn": "3075.428",
+        "timeOut": "3162.184"
+    },
+    {
+        "slideId": "why-a-3-approximation",
+        "timeIn": "3162.184",
+        "timeOut": "3411.281"
+    },
+    {
+        "slideId": "typical-routes-of-the-young-storks",
+        "timeIn": "3411.281",
+        "timeOut": "3627.432"
+    },
+    {
+        "slideId": "how-good-and-which-k",
+        "timeIn": "3627.432",
+        "timeOut": "3704.286"
+    },
+    {
+        "slideId": "other-ways-to-cluster-time-series",
+        "timeIn": "3704.286",
+        "timeOut": "3801.989"
+    },
+    {
+        "slideId": "back-to-the-storks",
+        "timeIn": "3801.989",
+        "timeOut": "3940.629"
+    },
+    {
+        "slideId": "next-steps",
+        "timeIn": "3940.629",
+        "timeOut": "4053.225"
+    },
+    {
+        "slideId": "additional-material",
+        "timeIn": "4053.225",
+        "timeOut": "4053.793"
+    },
+    {
+        "slideId": "dba-averaging-under-dtw",
+        "timeIn": "4053.793",
+        "timeOut": "4056.966"
+    },
+    {
+        "slideId": "additional-material",
+        "timeIn": "4056.966",
+        "timeOut": "4057.471"
+    },
+    {
+        "slideId": "next-steps",
+        "timeIn": "4057.471",
+        "timeOut": "4135.258"
+    }
+]
