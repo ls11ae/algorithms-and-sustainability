@@ -14,11 +14,11 @@ date: Tuesday, 3 November 2026
 6. New Year's Eve, an outlook, and back to the geese
 
 ::: notes
-Timing (90 min, main part slides 2–33): 10:15 plan and recap (slides 2–3, about 3 min) · 10:18 the geese, one goose, the manual rule (slides 5–7, about 10 min) · 10:28 segmenting time series (slide 8, about 4 min) · 10:32 problem, exercise, greedy, why it works, quiz, increasing monotone, greedy fails, start-stop diagram, dynamic program, faster with range minima (slides 9–18, about 29 min) · 11:01 the goose segmented (slide 19, about 3 min) · 11:04 change points: optimal partitioning and global temperature (slides 20–21, about 7 min) · 11:11 hidden Markov models: the model, the four states of the goose, hour by hour (slides 22–24, about 7 min) · 11:18 Viterbi exercise, solved hour by hour, and the recurrence (slides 25–26, about 8 min) · 11:26 forward algorithm (slide 27, about 1 min) · 11:27 fitting (slide 28, about 3 min) · 11:30 New Year's Eve (slide 29, about 3 min) · 11:33 outlook: state-space models (slide 30, about 2 min) · 11:35 comparison, back to the geese, next steps (slides 31–33, about 5 min) · about 5 min buffer. At the start, say that the lecture is recorded.
+Timing (90 min, main part slides 2–35): 10:15 plan and recap (slides 2–3, about 3 min) · 10:18 the geese, one goose, the manual rule (slides 5–7, about 10 min) · 10:28 segmenting time series (slide 8, about 4 min) · 10:32 problem, exercise, greedy, why it works, quiz, increasing monotone, greedy fails, start-stop diagram, dynamic program, faster with range minima (slides 9–18, about 29 min) · 11:01 the goose segmented (slide 19, about 3 min) · 11:04 change points: divider, optimal partitioning and global temperature (slides 20–22, about 7 min) · 11:11 hidden Markov models: divider, the model, the four states of the goose, hour by hour (slides 23–26, about 7 min) · 11:18 Viterbi exercise, solved hour by hour, and the recurrence (slides 27–28, about 8 min) · 11:26 forward algorithm (slide 29, about 1 min) · 11:27 fitting (slide 30, about 3 min) · 11:30 New Year's Eve (slide 31, about 3 min) · 11:33 outlook: state-space models (slide 32, about 2 min) · 11:35 comparison, back to the geese, next steps (slides 33–35, about 5 min) · about 5 min buffer. At the start, say that the lecture is recorded.
 
-If time runs short: slide 13 (quiz) by show of hands in one minute; slide 18 in one minute; slide 19 in two sentences; slide 30 in one sentence. If time is left: the pause and the surge (slide 38), the Kalman filter (slide 40), stable criteria (slide 36) or the questions on slide 42.
+If time runs short: slide 13 (quiz) by show of hands in one minute; slide 18 in one minute; slide 19 in two sentences; slide 32 in one sentence. If time is left: the pause and the surge (slide 40), the Kalman filter (slide 42), stable criteria (slide 38) or the questions on slide 44.
 
-Slides 35–41 are additional material for self-study and the tutorial. Voting: the quiz on slide 13 supports phone voting (QR code and poll buttons in presenter mode), otherwise show of hands. The tutorial this afternoon (14:15, OH14 E02) is the first in the new room.
+Slides 37–43 are additional material for self-study and the tutorial. Voting: the quiz on slide 13 supports phone voting (QR code and poll buttons in presenter mode), otherwise show of hands. The tutorial this afternoon (14:15, OH14 E02) is the first in the new room.
 :::
 
 # Recap: typical routes {.columns}
@@ -135,11 +135,11 @@ About 2 minutes. The rule in the Oikos paper also allowed "maximally one detour"
 [Edelhoff et al. (2016), Gurarie et al. (2009, 2016), Truong et al. (2020)]{.source}
 
 ::: notes
-About 4 minutes. A trajectory is a time series of positions (lecture 2), and segmentation is a general task for time series. The three rows are today's three parts, and all three are solved by dynamic programming: the recurrence S(j) over the start-stop diagram (slide 17), the same recurrence with a cost and a penalty per segment (slide 20), and Viterbi over the states (slide 25).
+About 4 minutes. A trajectory is a time series of positions (lecture 2), and segmentation is a general task for time series. The three rows are today's three parts, and all three are solved by dynamic programming: the recurrence S(j) over the start-stop diagram (slide 17), the same recurrence with a cost and a penalty per segment (slide 21), and Viterbi over the states (slide 27).
 
 The last line is the trade-off. Criteria encode the experts' knowledge, and their assumptions, about the behaviour: what a stopover is (30 km, 48 h). The result is directly interpretable and answers the ecologists' question, but it is only as good as the definition, and thresholds transfer poorly to other species or sampling rates. Change points only assume what "homogeneous" means (a model per segment) and a penalty; the data decide where the changes are, and experts still have to say what the segments mean. A hidden Markov model assumes a statistical structure (number of states, a distribution per state, a Markov chain), but the data decide what the states look like and how often they switch; experts interpret them afterwards (is state 3 of the goose "local flights"?), and in return we get probabilities and switching rates. So: knowledge-driven and directly interpretable, or data-driven and flexible. Gurarie (course material) contrasts synthesizing approaches such as BCPA, with few assumptions about the movement but little explanation, and full process models, which assume more and explain more.
 
-Change points are standard in movement ecology too: behavioural change point analysis (BCPA, Gurarie, Andrews and Laidre 2009) moves a window along the track and looks for changes in the mean, variance and autocorrelation of the velocity; segclust2d (Patin et al. 2020) cuts tracks into stationary phases and groups similar segments. Elsewhere: climate records (slide 21), sensor data, finance. Hidden Markov models are standard in speech recognition, bioinformatics (gene finding) and, by now, animal movement. PELT (a faster exact variant of the change point recurrence) and the forward algorithm (the likelihood of an HMM, needed for fitting) come later (slides 37 and 27).
+Change points are standard in movement ecology too: behavioural change point analysis (BCPA, Gurarie, Andrews and Laidre 2009) moves a window along the track and looks for changes in the mean, variance and autocorrelation of the velocity; segclust2d (Patin et al. 2020) cuts tracks into stationary phases and groups similar segments. Elsewhere: climate records (slide 22), sensor data, finance. Hidden Markov models are standard in speech recognition, bioinformatics (gene finding) and, by now, animal movement. PELT (a faster exact variant of the change point recurrence) and the forward algorithm (the likelihood of an HMM, needed for fitting) come later (slides 39 and 29).
 
 Edelhoff, Signer and Balkenhol (2016, Movement Ecology 4:21) structure path segmentation by research question: description of patterns, detection of change points, identification of hidden states. Gurarie et al. (2016, Journal of Animal Ecology 85, 69–84; "What is the animal doing?") review and compare such methods, including their assumptions and how interpretable their output is. Truong, Oudre and Vayatis (2020) review change point methods.
 :::
@@ -207,7 +207,7 @@ Time: $O(n)$ for constant-time updates (speed, heading); $O(n\log n)$ for the di
 ::: notes
 About 3 minutes. Decreasing monotone: shrinking a valid segment keeps it valid. The examples: a subsegment has a smaller range of speeds, its headings fit into the same arc, its positions into the same disk. Combinations: AND and OR of decreasing monotone criteria are again decreasing monotone.
 
-Running times (Buchin et al. 2011): with a test that can be updated in constant time when a point is added (range of speeds, arc of headings via the extreme values), greedy takes O(n). For the disk criterion an update is not constant; with exponential search followed by binary search (double-and-search) and a smallest-enclosing-disk computation as test, O(n log n) (their Theorem 9; additional slide 35).
+Running times (Buchin et al. 2011): with a test that can be updated in constant time when a point is added (range of speeds, arc of headings via the extreme values), greedy takes O(n). For the disk criterion an update is not constant; with exponential search followed by binary search (double-and-search) and a smallest-enclosing-disk computation as test, O(n log n) (their Theorem 9; additional slide 37).
 :::
 
 # Greedy stays ahead
@@ -219,7 +219,7 @@ After $k$ segments, greedy is at least as far as any valid segmentation: $g_k\ge
 If $g_k\ge o_k$, the other segmentation's next segment, cut at $g_k$, is still valid (decreasing monotone). So greedy gets at least as far, $g_{k+1}\ge o_{k+1}$, and needs the fewest segments.
 
 ::: notes
-About 3 minutes. The speeds of slide 10: greedy's four segments end at steps 3, 6, 8 and 11; another valid segmentation, [1, 2], [2, 3], [5, 4], [9, 8], [2, 1, 1], needs five and ends at 2, 4, 6, 8, 11. Claim: g_k ≥ o_k for every k, by induction. k = 1: greedy takes the longest valid first segment. Step: if g_k ≥ o_k, the other segmentation's (k+1)-th segment runs from o_k to o_{k+1}; the part after g_k is a subsegment, hence valid, so greedy's (k+1)-th segment reaches at least o_{k+1} (if g_k ≥ o_{k+1} already, there is nothing to show). Hence greedy reaches the end after at most as many segments as any valid segmentation, in particular an optimal one. Where the proof breaks: if subsegments can become invalid, as with "at least 48 h", the cut segment may be too short (slides 13–15; question 1 on slide 42).
+About 3 minutes. The speeds of slide 10: greedy's four segments end at steps 3, 6, 8 and 11; another valid segmentation, [1, 2], [2, 3], [5, 4], [9, 8], [2, 1, 1], needs five and ends at 2, 4, 6, 8, 11. Claim: g_k ≥ o_k for every k, by induction. k = 1: greedy takes the longest valid first segment. Step: if g_k ≥ o_k, the other segmentation's (k+1)-th segment runs from o_k to o_{k+1}; the part after g_k is a subsegment, hence valid, so greedy's (k+1)-th segment reaches at least o_{k+1} (if g_k ≥ o_{k+1} already, there is nothing to show). Hence greedy reaches the end after at most as many segments as any valid segmentation, in particular an optimal one. Where the proof breaks: if subsegments can become invalid, as with "at least 48 h", the cut segment may be too short (slides 13–15; question 1 on slide 44).
 :::
 
 # Quiz: which criterion breaks the proof?
@@ -343,7 +343,7 @@ $$S(0)=0,\qquad S(j)=\min_{i\le j:\ \text{steps } i..j \text{ valid}} S(i-1)+1$$
 ::: notes
 About 5 minutes; this is the core of the first part, take the time it needs. Seven clicks: columns 1 to 5 one at a time, then columns 6–8 together, then the backtracking; ask for each value before clicking. In a column, the white cells are the possible last segments; each gives S(start − 1) + 1 (written in the cell), and S(j) is the smallest. S(1) = ∞ (one step is too short), S(2) = 1 ([2, 3]), S(3) = 1 ([2, 3, 5]), S(4) = 2 ([2, 3] + [5, 8]), S(5) = ∞ (every segment ending at step 5 contains 8 and 3 or is too short), S(6) = 3 (S(4) + [3, 3]), S(7) = 3 (S(4) + [3, 3, 3]), S(8) = 3 (S(4) + [3, 3, 3, 7]). The staircase is recovered from where each minimum came from.
 
-The same recurrence works for any criterion; the start-stop diagram can have Θ(n²) valid cells, so this is O(n²) tests, each of which may cost more than constant time (e.g., the disk). For the goose (slide 19): 1,960 hourly positions, 1.9 million cells, 160,942 of them valid; one column at a time with numpy, about a minute (most of it for the heading arcs). Faster: next slide; the general case of "stable" criteria (Alewijnse et al. 2014): additional slide 36.
+The same recurrence works for any criterion; the start-stop diagram can have Θ(n²) valid cells, so this is O(n²) tests, each of which may cost more than constant time (e.g., the disk). For the goose (slide 19): 1,960 hourly positions, 1.9 million cells, 160,942 of them valid; one column at a time with numpy, about a minute (most of it for the heading arcs). Faster: next slide; the general case of "stable" criteria (Alewijnse et al. 2014): additional slide 38.
 :::
 
 # Faster: one range-minimum query per block {.columns}
@@ -367,7 +367,7 @@ The same recurrence works for any criterion; the start-stop diagram can have Θ(
 [Alewijnse et al. (2014)]{.source}
 
 ::: notes
-About 2 minutes; one click. The idea of the faster dynamic program; the general version for "stable" criteria is on additional slide 36. For a decreasing monotone criterion, a valid segment stays valid when we drop steps at its start, so in each column (fixed last step) the valid starts form one block that ends at the diagonal. For an increasing monotone criterion, a valid segment stays valid when we add steps in front, so the valid starts form one block that starts at the top. An AND or OR of a constant number k of such criteria has O(k) blocks per column: O(n) blocks in total, whereas the white cells alone can be Θ(n²). Here: at most one block per column, six in total (columns 1 and 5 have none).
+About 2 minutes; one click. The idea of the faster dynamic program; the general version for "stable" criteria is on additional slide 38. For a decreasing monotone criterion, a valid segment stays valid when we drop steps at its start, so in each column (fixed last step) the valid starts form one block that ends at the diagonal. For an increasing monotone criterion, a valid segment stays valid when we add steps in front, so the valid starts form one block that starts at the top. An AND or OR of a constant number k of such criteria has O(k) blocks per column: O(n) blocks in total, whereas the white cells alone can be Θ(n²). Here: at most one block per column, six in total (columns 1 and 5 have none).
 
 Click: for a block of starts a..b in column j, the recurrence needs the minimum of S(a−1), …, S(b−1), consecutive entries of the row S: a range-minimum query. With a balanced search tree over S(0), S(1), … that stores subtree minima, each query and each insertion of a new value S(j) takes O(log n). Column 8: starts 5–7, min(S(4), S(5), S(6)) = min(2, ∞, 3) = 2, so S(8) = 3. In total O(n log n), provided the blocks are computed within this time (Alewijnse et al. 2014 do this for their criteria). Aside: in this example both ends of the block only move to the right, so a sliding-window minimum would even give O(n).
 :::
@@ -386,6 +386,14 @@ About 3 minutes. Criteria as on slide 7 (disk of 30 km for at least 48 h, or 80%
 Where they differ: of the 142 hours with different labels, 135 are in the last week. The ecologists label 29 May to 4 June as flight, the final leg to the breeding site; but in these 135 hours the goose covers only about 100 km: it sits on 30–31 May and again on 2–3 June, with a flight on 1 June in between. The criteria call the two sitting periods stopovers (25 May to 1 June inside one disk of radius 30 km, then 1 to 4 June near Kolguev). Whether a pause just before arrival is a stopover is a matter of definition, not of the algorithm. The other 7 hours are short runs (five single hours, one of two hours) at the start or end of a flight. Not visible in the colours: the 22-day stopover in Russia is two segments (on 10 April the goose moved about 40 km to the north-north-east, and together the positions do not fit into one disk of radius 30 km; the ecologists treat it as one site), and flights consist of several segments (10 on 25–27 April), because the heading changes between night flights and rests; "fewest segments" does not care, the phases are the same. The track-wise agreement of 93% is in line with Alewijnse et al. (2014), who reported 96.3% and 92.6% for two goose tracks.
 :::
 
+# Change points {.section}
+
+Second method: a model and a penalty per segment
+
+::: notes
+A few seconds. The second of the three methods of slide 8. With criteria, experts said what a valid segment is. Now we only say what a homogeneous segment looks like (one simple model) and what every segment costs; the data decide where to cut.
+:::
+
 # Change points: optimal partitioning
 
 Each segment: **one simple model** (here its mean). Cost: **misfit** + **penalty $\beta$ per segment**.
@@ -401,7 +409,7 @@ Try every start of the **last segment**. Slide 17: ${c\in\{0,\infty\}}$ (valid o
 ::: notes
 About 3 minutes. Read the formula from the picture: F(t) is the cost of the cheapest segmentation of the first t values. Its last segment starts at some s + 1; before it, the cheapest segmentation of x_1, …, x_s costs F(s), which we know already; the last segment costs its misfit c(s, t) (for a constant model: the squared deviations from its mean, the sum of (x_i − mean)² over i = s+1, …, t; the vertical lines in the picture) plus β. Trying every s gives F(t). The penalty decides how many segments we get: with β = 0 every value would be its own segment (misfit 0), a huge β gives a single segment.
 
-This is optimal partitioning (Jackson et al. 2005): the dynamic program of slide 17 with costs; there, c was 0 for a valid segment and infinity otherwise, and β = 1. O(n²) evaluations of c; PELT (Killick et al. 2012) prunes candidates and is often linear (additional slide 37). Change points say where the behaviour changes; what the segments mean is up to us.
+This is optimal partitioning (Jackson et al. 2005): the dynamic program of slide 17 with costs; there, c was 0 for a valid segment and infinity otherwise, and β = 1. O(n²) evaluations of c; PELT (Killick et al. 2012) prunes candidates and is often linear (additional slide 39). Change points say where the behaviour changes; what the segments mean is up to us.
 :::
 
 # Global temperature: when did the trend change?
@@ -419,24 +427,32 @@ About 4 minutes. Cahill et al. (2015): change points around 1912, 1940 and 1970;
 
 Which penalty, which noise model? With independent errors, BIC prefers a fourth change point in 2012 (dashed: +0.35 °C per decade since then). Beaulieu, Gallagher, Killick, Lund and Shi (2024) model autocorrelated errors (AR(1)) and find no detectable change in the warming rate after the 1970s yet; an acceleration would have to be larger or last longer to be detectable. Lesson: the penalty and the noise model decide what counts as a change; claims about pauses or surges must state them. Warming itself is not in question.
 
-Answer to the question: no pause; a change in 1998 makes BIC worse, and 1998 was an exceptionally warm El Niño year, a classic cherry-pick. A surge since 2012 is preferred by BIC only with independent errors; with autocorrelated errors it is not detectable yet (Beaulieu et al. 2024). Details on additional slide 38.
+Answer to the question: no pause; a change in 1998 makes BIC worse, and 1998 was an exceptionally warm El Niño year, a classic cherry-pick. A surge since 2012 is preferred by BIC only with independent errors; with autocorrelated errors it is not detectable yet (Beaulieu et al. 2024). Details on additional slide 40.
 
-For the goose, change points on the log distance per hour (penalty 8, constant mean per segment) give 19 segments and 90% agreement with the ecologists (slide 31).
+For the goose, change points on the log distance per hour (penalty 8, constant mean per segment) give 19 segments and 90% agreement with the ecologists (slide 33).
 :::
 
-# Hidden Markov models
+# Hidden Markov models {.section}
+
+Third method: hidden states and a probabilistic model
+
+::: notes
+A few seconds. The third of the three methods of slide 8. Instead of segments with a model each, every hour has a hidden state; a probabilistic model says how the states follow each other and what each state produces. The data decide what the states look like and when they switch.
+:::
+
+# The model: hidden states and observations
 
 - **Hidden states** form a **Markov chain**: the next state depends only on the current one; from $r$ to $s$ with probability $a_{rs}$
 - Each state **generates** the distance of its hour, drawn from **its own distribution** $b_s$
 
 ![Schematic: five hours with the hidden states rest, rest, flight, flight, rest; arrows between consecutive states with the probability 0.9 to stay and 0.1 to switch; each state emits the distance of its hour: 0.1, 0.4, 52, 38 and 0.2 km; on the right the distribution of the distance in each state: rest around 0.2 km, flight around 45 km](figures/hmm-model.svg){.nocap height="215px"}
 
-We see only the distances. **Fitting:** estimate $a_{rs}$, $b_s$ (slide 28). **Decoding:** the most likely state sequence, with **Viterbi** (slide 25).
+We see only the distances. **Fitting:** estimate $a_{rs}$, $b_s$ (slide 30). **Decoding:** the most likely state sequence, with **Viterbi** (slide 27).
 
 [Langrock et al. (2012), McClintock et al. (2020)]{.source}
 
 ::: notes
-About 3 minutes. Read the picture from top to bottom. First the model produces a sequence of hidden states; the state of the next hour depends only on the current state (a Markov chain; here: stay with probability 0.9, switch with 0.1). Then the state of each hour produces the observation of that hour, here the distance flown, drawn from the distribution of that state (right: resting gives short distances, flying long ones). In data we see only the bottom row; the states are hidden. A single distance can be ambiguous (3 km: a slow flight, or restless resting?), but the chain makes long runs of the same state likely. Two tasks: fitting estimates the transition probabilities and the distributions from the data (slide 28; maximum likelihood, computed with the forward algorithm); decoding finds the most likely state sequence for given parameters, with the Viterbi algorithm (slides 25–26). For the goose: first fitted, then decoded; the colours on slides 24 and 31 are the Viterbi path. Nobody tells the model what the states mean; we name them afterwards. The numbers here are a schematic example, not fitted.
+About 3 minutes. Read the picture from top to bottom. First the model produces a sequence of hidden states; the state of the next hour depends only on the current state (a Markov chain; here: stay with probability 0.9, switch with 0.1). Then the state of each hour produces the observation of that hour, here the distance flown, drawn from the distribution of that state (right: resting gives short distances, flying long ones). In data we see only the bottom row; the states are hidden. A single distance can be ambiguous (3 km: a slow flight, or restless resting?), but the chain makes long runs of the same state likely. Two tasks: fitting estimates the transition probabilities and the distributions from the data (slide 30; maximum likelihood, computed with the forward algorithm); decoding finds the most likely state sequence for given parameters, with the Viterbi algorithm (slides 27–28). For the goose: first fitted, then decoded; the colours on slides 26 and 33 are the Viterbi path. Nobody tells the model what the states mean; we name them afterwards. The numbers here are a schematic example, not fitted.
 
 In movement ecology, hidden Markov models are a standard tool (R packages moveHMM and momentuHMM; introduction with extensions such as semi-Markov models: Langrock et al. 2012; review: McClintock et al. 2020); usually with step lengths (gamma distribution) and turning angles (von Mises), and covariates in the transition probabilities.
 :::
@@ -448,7 +464,7 @@ In movement ecology, hidden Markov models are a standard tool (R packages moveHM
 Fitted to the 1,959 hours of goose 3104: **four states**, each with its own distribution of the distance (curves). The model only finds the groups; the **names** are given afterwards. Also fitted: the transition probabilities, e.g. after an hour of migratory flight, another one with probability 0.77.
 
 ::: notes
-About 2 minutes. The observation is the logarithm of the distance per hour, with a normal distribution per state (a log-normal distribution of the distance). Nobody said what the states mean: the model finds four groups; we interpret them afterwards. Medians: at most 0.1 km per hour (resting; 71% of the hours), 0.6 km per hour (moving locally; 16%), 8.3 km per hour (local flights; 10%), 65 km per hour (migratory flight; 3%, 58 hours). Probability to stay in the state for another hour: 0.81, 0.40, 0.33 and 0.77 (expected stays 5.4, 1.7, 1.5 and 4.3 hours). Why four states: slide 28.
+About 2 minutes. The observation is the logarithm of the distance per hour, with a normal distribution per state (a log-normal distribution of the distance). Nobody said what the states mean: the model finds four groups; we interpret them afterwards. Medians: at most 0.1 km per hour (resting; 71% of the hours), 0.6 km per hour (moving locally; 16%), 8.3 km per hour (local flights; 10%), 65 km per hour (migratory flight; 3%, 58 hours). Probability to stay in the state for another hour: 0.81, 0.40, 0.33 and 0.77 (expected stays 5.4, 1.7, 1.5 and 4.3 hours). Why four states: slide 30.
 :::
 
 # Four days of goose 3104, hour by hour
@@ -462,7 +478,7 @@ Dots: distance per hour; colour and bar: the **most likely state sequence** (how
 ::: notes
 About 2 minutes. 24 April 12:00 to 28 April 12:00 (UTC): at the stopover near Kursk the goose rests (blue) and makes local flights (purple), e.g. between roost and fields; on 25 April from 16:00 the migratory flight (orange, 75–84 km per hour at first, then 40–66) lasts 11 hours, until 26 April 03:00; after a day of rest and local movement, three more hours on 27 April. In total 14 hours in the migratory state cover 886 km.
 
-Answer to the question: nothing about 30 km or 48 hours. The model describes behaviour hour by hour; a stopover is a definition on a scale of days. To get stopovers from the states, we add a rule (e.g., at least 48 hours without migratory flight) or a model with explicit state durations (hidden semi-Markov model, slide 28).
+Answer to the question: nothing about 30 km or 48 hours. The model describes behaviour hour by hour; a stopover is a definition on a scale of days. To get stopovers from the states, we add a rule (e.g., at least 48 hours without migratory flight) or a model with explicit state durations (hidden semi-Markov model, slide 30).
 :::
 
 # The most likely state sequence: Viterbi
@@ -488,7 +504,7 @@ Answer to the question: nothing about 30 km or 48 hours. The model describes beh
 [Find the cheapest path. What changes if switching is free?]{.ask}
 
 ::: notes
-About 6 minutes; two minutes in pairs, then six clicks. A path through the trellis is a state sequence; its cost is the sum of the costs in its nodes (the cost of that hour's distance in that state) plus the transition costs (staying 0, switching 2). Costs are negative logarithms of probabilities (rounded), so the cheapest path is the most likely state sequence: probabilities multiply along a path, costs add. The transition costs come from slide 22: switching with probability 0.1 costs −ln 0.1 ≈ 2.3, staying with 0.9 costs −ln 0.9 ≈ 0.1. The node costs are constructed.
+About 6 minutes; two minutes in pairs, then six clicks. A path through the trellis is a state sequence; its cost is the sum of the costs in its nodes (the cost of that hour's distance in that state) plus the transition costs (staying 0, switching 2). Costs are negative logarithms of probabilities (rounded), so the cheapest path is the most likely state sequence: probabilities multiply along a path, costs add. The transition costs come from slide 24: switching with probability 0.1 costs −ln 0.1 ≈ 2.3, staying with 0.9 costs −ln 0.9 ≈ 0.1. The node costs are constructed.
 
 Clicks: (1) hour 1, only the node costs; (2)–(5) hour by hour, each node takes the cheaper of its two predecessors plus its own cost, and the chosen edge is drawn; ask for each column before clicking. Hour 2: rest min(0 + 0, 5 + 2) + 8 = 8, flight min(0 + 2, 5 + 0) + 0 = 2. Hour 3: rest min(8 + 0, 2 + 2) + 1 = 5, flight min(8 + 2, 2 + 0) + 2 = 4. Hour 4: rest min(5 + 0, 4 + 2) + 8 = 13, flight min(5 + 2, 4 + 0) + 0 = 4. Hour 5: rest min(13 + 0, 4 + 2) + 0 = 6, flight min(13 + 2, 4 + 0) + 5 = 9. (6) The cheapest end is rest with 6; following the chosen edges backwards gives rest, flight, flight, flight, rest. The 3-km hour stays "flight": labelling it "rest" would save only 1 but needs two more switches (cost 4). With free switching, every hour takes its cheapest state: rest, flight, rest, flight, rest with cost 1 (with switching costs 2 this path would cost 9). The switching cost acts like the penalty per change point.
 :::
@@ -507,7 +523,7 @@ $$V_t(s)=c_s(x_t)+\min_{s'}\big(V_{t-1}(s')+c_{s's}\big),\qquad V_1(s)=c_s(x_1)\
 [Viterbi (1967), Rabiner (1989)]{.source}
 
 ::: notes
-About 2 minutes. This is what we just did on slide 25: the cheapest way to be in state s in hour t is the cost of that hour's distance in s plus the cheapest way to arrive, over all states s' of the previous hour, including the cost of the step from s' to s. Storing the minimizing s' for every node and following these choices back from the best final state gives the sequence. Here every start state is equally likely; with start probabilities π, add −ln π_s to V_1(s). Same pattern as S(j) on slide 17 and F(t) on slide 20: try every option for the last step.
+About 2 minutes. This is what we just did on slide 27: the cheapest way to be in state s in hour t is the cost of that hour's distance in s plus the cheapest way to arrive, over all states s' of the previous hour, including the cost of the step from s' to s. Storing the minimizing s' for every node and following these choices back from the best final state gives the sequence. Here every start state is equally likely; with start probabilities π, add −ln π_s to V_1(s). Same pattern as S(j) on slide 17 and F(t) on slide 21: try every option for the last step.
 
 The trellis is a directed acyclic graph with K nodes per hour; Viterbi is the shortest-path computation in topological order (next week: shortest paths in road networks, where the graph is not acyclic). Each of the n·K nodes looks at K predecessors: O(nK²).
 :::
@@ -542,7 +558,7 @@ Only if asked, the link to lecture 2: the same dynamic program with other operat
 ::: notes
 About 3 minutes. Baum–Welch alternates two steps: compute, with the forward and the backward algorithm, the probability of each state at each time (and of each transition) under the current parameters; then re-estimate the parameters as weighted averages. Each round does not decrease the likelihood; it converges to a local optimum. moveHMM instead maximizes the likelihood from the forward algorithm with a general-purpose optimizer.
 
-Number of states: for goose 3104, two states give medians of 0.1 and 2.2 km per hour (resting vs everything else); three states separate 0.7 and 18 km per hour, still mixing local and migratory flights; four states give the four on slide 23. Here BIC also points to four states (among two to five), but in general information criteria tend to favour too many states; choose a number you can interpret (Pohle et al. 2017).
+Number of states: for goose 3104, two states give medians of 0.1 and 2.2 km per hour (resting vs everything else); three states separate 0.7 and 18 km per hour, still mixing local and migratory flights; four states give the four on slide 25. Here BIC also points to four states (among two to five), but in general information criteria tend to favour too many states; choose a number you can interpret (Pohle et al. 2017).
 
 Assumptions: the transition probabilities refer to one time step, so the data need equal steps (or a continuous-time model); given the states, observations are independent, which ignores autocorrelation within a state; the time in a state is geometrically distributed (the most likely duration is one step). A hidden semi-Markov model specifies the distribution of durations directly, e.g. at least 48 hours for a stopover. Pitfalls of more advanced HMMs, and opportunities: Glennie et al. (2023).
 :::
@@ -568,7 +584,7 @@ The paper's findings: the geese fly 40–150 m higher on average (altitudes up t
 - **State-space model:** a hidden state that changes over time, seen through noisy observations; an HMM has **finitely many** states
 - **Continuous** state, e.g. the **true position** behind noisy fixes (Argos: errors of kilometres)
 - Or a drifting **movement parameter**, e.g. **move persistence**: 0 = turning, 1 = straight
-- **Kalman filter:** the forward algorithm for linear-Gaussian models, linear time (slide 40)
+- **Kalman filter:** the forward algorithm for linear-Gaussian models, linear time (slide 42)
 
 [For GPS geese, with errors of metres: what would a continuous state add?]{.ask}
 
@@ -577,7 +593,7 @@ The paper's findings: the geese fly 40–150 m higher on average (altitudes up t
 ::: notes
 About 2 minutes. In ecology, "state-space model" means: a hidden process (the state) and an observation model; an HMM is the special case with finitely many states. With a continuous state, two uses are common. First, the true location as the state and the GPS or Argos fix as a noisy observation: the model filters measurement error and regularizes irregular time steps (e.g., the continuous-time correlated random walk of Johnson et al. 2008). Second, a behavioural parameter that changes smoothly: move persistence γ_t between 0 (turning, staying) and 1 (directed travel), estimated by aniMotum (Jonsen et al. 2023); segmentation then means thresholding γ_t, or reading it as a continuous index instead of discrete states.
 
-Algorithmically, the Kalman filter (Kalman 1960) is the forward algorithm when the state is a vector with a Gaussian distribution: each step predicts (mean and covariance) and updates with the new observation, in constant time per step for fixed dimension; additional slide 40. Answer to the question: for GPS data of geese with errors of metres, the location error is not the problem; a continuous index could still describe behaviour that is not well captured by a few discrete states.
+Algorithmically, the Kalman filter (Kalman 1960) is the forward algorithm when the state is a vector with a Gaussian distribution: each step predicts (mean and covariance) and updates with the new observation, in constant time per step for fixed dimension; additional slide 42. Answer to the question: for GPS data of geese with errors of metres, the location error is not the problem; a continuous index could still describe behaviour that is not well captured by a few discrete states.
 :::
 
 # Three methods, one goose
@@ -720,7 +736,7 @@ When no criterion is known: assume a **movement model** with a parameter, e.g. a
 [Alewijnse et al. (2018); dynamic Brownian bridges: Kranstauber et al. (2012)]{.source}
 
 ::: notes
-This was the last part of last year's lecture (fisher example). With the negative log-likelihood of a segment as cost, the recurrence of slide 20 needs O(n²) segment evaluations per parameter value. For a fixed parameter value the cost is a sum over the points, so a Viterbi-like dynamic program over the m candidate values, with the penalty as switching cost (slides 25–26), takes O(nm).
+This was the last part of last year's lecture (fisher example). With the negative log-likelihood of a segment as cost, the recurrence of slide 21 needs O(n²) segment evaluations per parameter value. For a fixed parameter value the cost is a sum over the points, so a Viterbi-like dynamic program over the m candidate values, with the penalty as switching cost (slides 27–28), takes O(nm).
 :::
 
 # Check your understanding
