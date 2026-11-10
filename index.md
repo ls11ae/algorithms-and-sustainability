@@ -24,8 +24,11 @@ body.index table td:first-child, body.index table td:nth-child(n+3) { white-spac
 | 20&nbsp;Oct | Animal migration and trajectory similarity | [web](lectures/02-trajectory-similarity-deck.html)&nbsp;·&nbsp;[PDF](lectures/02-trajectory-similarity-deck.pdf) | [chapter&nbsp;2](notes/02-movement-analysis-page.html)&nbsp;·&nbsp;[PDF](notes/02-movement-analysis-notes.pdf) |
 | 27&nbsp;Oct | Clustering trajectories | [web](lectures/03-trajectory-clustering-deck.html)&nbsp;·&nbsp;[PDF](lectures/03-trajectory-clustering-deck.pdf) | [chapter&nbsp;2](notes/02-movement-analysis-page.html)&nbsp;·&nbsp;[PDF](notes/02-movement-analysis-notes.pdf) |
 | 3&nbsp;Nov | Segmenting trajectories | [web](lectures/04-trajectory-segmentation-deck.html)&nbsp;·&nbsp;[PDF](lectures/04-trajectory-segmentation-deck.pdf) | [chapter&nbsp;2](notes/02-movement-analysis-page.html)&nbsp;·&nbsp;[PDF](notes/02-movement-analysis-notes.pdf) |
+| 10&nbsp;Nov | Route planning: shortest paths for cycling | [web](lectures/05-route-planning-deck.html)&nbsp;·&nbsp;[PDF](lectures/05-route-planning-deck.pdf) | – |
 
 In the web version of the slides, press `?` for keyboard shortcuts and `f` for full screen.
+Lecture 5 has a live demo: [route planning on the Dortmund bicycle network](static/routing-demo/index.html)
+(map data © OpenStreetMap contributors, ODbL).
 The lecture notes have one chapter per block; see the [contents](notes/00-contents-page.html)
 for all chapters and their status.
 

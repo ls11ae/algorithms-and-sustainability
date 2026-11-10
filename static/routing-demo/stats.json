@@ -1,0 +1,69 @@
+{
+ "osm_base": "2026-11-09T19:54:06Z",
+ "nodes": 112743,
+ "edges": 264203,
+ "km": 5068.1,
+ "ch": {
+  "shortcuts": 185295,
+  "edges": 447751,
+  "seconds": 8.9,
+  "settleLimit": 100
+ },
+ "landmarks": [
+  112742,
+  5718,
+  15510,
+  94892,
+  53040,
+  51121,
+  14744,
+  38961
+ ],
+ "check": {
+  "pairs": 300,
+  "mismatches": 0,
+  "avgSettled": {
+   "dijkstra": 54587,
+   "bidirectional": 34990,
+   "astar": 13775,
+   "alt": 4896,
+   "ch": 249
+  }
+ },
+ "tuPhoenix": {
+  "dijkstra": {
+   "settled": 62880,
+   "dist_ds": 16428,
+   "minutes": 27.4,
+   "ms": 14.15
+  },
+  "bidirectional": {
+   "settled": 33547,
+   "dist_ds": 16428,
+   "minutes": 27.4,
+   "ms": 10.36
+  },
+  "astar": {
+   "settled": 8725,
+   "dist_ds": 16428,
+   "minutes": 27.4,
+   "ms": 2.8
+  },
+  "alt": {
+   "settled": 6123,
+   "dist_ds": 16428,
+   "minutes": 27.4,
+   "ms": 2.33
+  },
+  "ch": {
+   "settled": 239,
+   "dist_ds": 16428,
+   "minutes": 27.4,
+   "ms": 0.5
+  }
+ },
+ "quiet": {
+  "settled": 60459,
+  "dist_ds": 18178
+ }
+}
