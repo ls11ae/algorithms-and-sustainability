@@ -1,0 +1,207 @@
+[
+    {
+        "slideId": "title-slide",
+        "timeIn": "0",
+        "timeOut": "21.41"
+    },
+    {
+        "slideId": "plan-for-today",
+        "timeIn": "21.41",
+        "timeOut": "36.054"
+    },
+    {
+        "slideId": "recap-typical-routes",
+        "timeIn": "36.054",
+        "timeOut": "100.52"
+    },
+    {
+        "slideId": "block-1-computational-movement-analysis",
+        "timeIn": "100.52",
+        "timeOut": "108.006"
+    },
+    {
+        "slideId": "the-question",
+        "timeIn": "108.006",
+        "timeOut": "237.466"
+    },
+    {
+        "slideId": "one-goose-spring-2014",
+        "timeIn": "237.466",
+        "timeOut": "1114.816"
+    },
+    {
+        "slideId": "how-were-the-stopovers-found",
+        "timeIn": "1114.816",
+        "timeOut": "1352.955"
+    },
+    {
+        "slideId": "segmenting-time-series",
+        "timeIn": "1352.955",
+        "timeOut": "1556.872"
+    },
+    {
+        "slideId": "criteria-based-segmentation",
+        "timeIn": "1556.872",
+        "timeOut": "1698.421"
+    },
+    {
+        "slideId": "your-turn-cut-the-speeds",
+        "timeIn": "1698.421",
+        "timeOut": "2182.565"
+    },
+    {
+        "slideId": "why-greedy-works",
+        "timeIn": "2182.565",
+        "timeOut": "2285.718"
+    },
+    {
+        "slideId": "greedy-stays-ahead",
+        "timeIn": "2285.718",
+        "timeOut": "2337.87"
+    },
+    {
+        "slideId": "quiz-which-criterion-breaks-the-proof",
+        "timeIn": "2337.87",
+        "timeOut": "2499.829"
+    },
+    {
+        "slideId": "increasing-monotone",
+        "timeIn": "2499.829",
+        "timeOut": "2556.301"
+    },
+    {
+        "slideId": "increasing-decreasing-monotone-greedy-fails",
+        "timeIn": "2556.301",
+        "timeOut": "2626.378"
+    },
+    {
+        "slideId": "the-start-stop-diagram",
+        "timeIn": "2626.378",
+        "timeOut": "2910.403"
+    },
+    {
+        "slideId": "dynamic-programming",
+        "timeIn": "2910.403",
+        "timeOut": "3545.394"
+    },
+    {
+        "slideId": "faster-one-range-minimum-query-per-block",
+        "timeIn": "3545.394",
+        "timeOut": "3565.321"
+    },
+    {
+        "slideId": "dynamic-programming",
+        "timeIn": "3565.321",
+        "timeOut": "3575.346"
+    },
+    {
+        "slideId": "faster-one-range-minimum-query-per-block",
+        "timeIn": "3575.346",
+        "timeOut": "3730.924"
+    },
+    {
+        "slideId": "the-goose-segmented",
+        "timeIn": "3730.924",
+        "timeOut": "3941.299"
+    },
+    {
+        "slideId": "change-points",
+        "timeIn": "3941.299",
+        "timeOut": "3989.488"
+    },
+    {
+        "slideId": "change-points-optimal-partitioning",
+        "timeIn": "3989.488",
+        "timeOut": "4171.517"
+    },
+    {
+        "slideId": "global-temperature-when-did-the-trend-change",
+        "timeIn": "4171.517",
+        "timeOut": "4364.594"
+    },
+    {
+        "slideId": "hidden-markov-models",
+        "timeIn": "4364.594",
+        "timeOut": "4427.829"
+    },
+    {
+        "slideId": "the-model-hidden-states-and-observations",
+        "timeIn": "4427.829",
+        "timeOut": "4841.168"
+    },
+    {
+        "slideId": "fitted-to-goose-3104-four-states",
+        "timeIn": "4841.168",
+        "timeOut": "4877.664"
+    },
+    {
+        "slideId": "four-days-of-goose-3104-hour-by-hour",
+        "timeIn": "4877.664",
+        "timeOut": "4881.125"
+    },
+    {
+        "slideId": "fitted-to-goose-3104-four-states",
+        "timeIn": "4881.125",
+        "timeOut": "4884.161"
+    },
+    {
+        "slideId": "four-days-of-goose-3104-hour-by-hour",
+        "timeIn": "4884.161",
+        "timeOut": "4961.319"
+    },
+    {
+        "slideId": "the-most-likely-state-sequence-viterbi",
+        "timeIn": "4961.319",
+        "timeOut": "5234.434"
+    },
+    {
+        "slideId": "viterbi-the-recurrence",
+        "timeIn": "5234.434",
+        "timeOut": "5249.83"
+    },
+    {
+        "slideId": "the-forward-algorithm-sum-instead-of-min",
+        "timeIn": "5249.83",
+        "timeOut": "5257.102"
+    },
+    {
+        "slideId": "fitting-a-hidden-markov-model",
+        "timeIn": "5257.102",
+        "timeOut": "5258.456"
+    },
+    {
+        "slideId": "the-forward-algorithm-sum-instead-of-min",
+        "timeIn": "5258.456",
+        "timeOut": "5269.151"
+    },
+    {
+        "slideId": "fitting-a-hidden-markov-model",
+        "timeIn": "5269.151",
+        "timeOut": "5274.711"
+    },
+    {
+        "slideId": "new-years-eve-fireworks-make-geese-fly",
+        "timeIn": "5274.711",
+        "timeOut": "5386.395"
+    },
+    {
+        "slideId": "outlook-state-space-models",
+        "timeIn": "5386.395",
+        "timeOut": "5465.975"
+    },
+    {
+        "slideId": "three-methods-one-goose",
+        "timeIn": "5465.975",
+        "timeOut": "5571.423"
+    },
+    {
+        "slideId": "back-to-the-geese",
+        "timeIn": "5571.423",
+        "timeOut": "5586.702"
+    },
+    {
+        "slideId": "next-steps",
+        "timeIn": "5586.702",
+        "timeOut": "5629.577"
+    }
+]
