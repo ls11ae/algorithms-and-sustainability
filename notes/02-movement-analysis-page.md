@@ -4,12 +4,12 @@ subtitle: "Algorithms and Sustainability · Lecture Notes · Winter 2026/27"
 author: Kevin Buchin
 affiliation: TU Dortmund University
 copyright: "CC BY 4.0 ·"
-date: "version of 27 October 2026"
+date: "version of 10 November 2026"
 ---
 
-GPS tags show where animals move, when, and how their movement changes. This chapter develops algorithms for analyzing such tracking data. It accompanies Lectures 2 to 4 and grows with them: this version covers Lectures 2 and 3, on the similarity and the clustering of trajectories. A section on segmentation (Lecture 4) will follow.
+GPS tags show where animals move, when, and how their movement changes. This chapter develops algorithms for analyzing such tracking data. It accompanies Lectures 2 to 4, on the similarity, the clustering, and the segmentation of trajectories.
 
-After working through Sections 2.1 to 2.4, you should be able to
+After working through Sections 2.1 to 2.5, you should be able to
 
 - explain how tracking data can inform the conservation of migratory animals, and which computational problems arise;
 - define lock-step distances, the Hausdorff distance, the discrete and the continuous Fréchet distance, and dynamic time warping (DTW), and explain what each of them keeps and what it ignores;
@@ -19,7 +19,10 @@ After working through Sections 2.1 to 2.4, you should be able to
 - decide whether a question calls for clustering points or curves, and compare the $k$-center, $k$-median, and $k$-means objectives;
 - run Gonzalez's algorithm and prove that it is a 2-approximation for $k$-center clustering;
 - define $(k, \ell)$-center clustering, compute an optimal simplification under the discrete Fréchet distance, and prove that Gonzalez's algorithm with simplified centers is a 3-approximation;
-- interpret a clustering of tracking data: what it shows and what it does not show.
+- interpret a clustering of tracking data: what it shows and what it does not show;
+- decide whether a segmentation criterion is decreasing or increasing monotone, prove that greedy is optimal for decreasing monotone criteria, and compute an optimal segmentation by dynamic programming over the start-stop diagram;
+- formulate change point detection with a penalty per segment, and explain how the penalty and the noise model shape the result;
+- decode a hidden Markov model with the Viterbi algorithm, explain how the forward algorithm differs, and choose between criteria, change points, and hidden Markov models for a given question.
 
 # 2.1 Migration and conservation
 
@@ -393,7 +396,185 @@ The clustering also has limits. Whole routes mix origin and destination: storks 
 
 # 2.5 Segmentation
 
-This section follows after Lecture 4 (3 November). It covers how to split a trajectory into phases of homogeneous movement, such as migrating, resting, and foraging.
+Sections 2.3 and 2.4 treated a route as one object. Now we look inside a single track: when does an animal travel, and when does it stop? *Segmentation* splits a time series into consecutive *segments* of homogeneous behaviour; *classification* labels the segments with *states*, such as stopover and flight.
+
+## 2.5.1 Stopovers of geese
+
+Greater white-fronted geese (*Anser albifrons*) migrate between their wintering areas in the Netherlands and northern Germany and their breeding grounds in the Russian Arctic. Kölzsch et al. (2016) tracked 65 of them with GPS. Spring migration took 83 days on average, autumn migration only 42 days, and the difference was "mainly determined by time spent at stopovers". In spring, the geese spread over a wide front and stop at many sites to refuel, since they need to arrive at the breeding grounds with energy stores; in autumn, they fuel up near the breeding grounds, wait for good winds, and follow a narrow corridor (Figure 2.16). This contradicts the textbook expectation that birds hurry in spring. The spring stopovers are where the geese refuel for breeding; the authors point to food availability during spring migration, to changes in agricultural land use in Russia, and to hunting pressure. To study this, we need to know where and how long each goose stops.
+
+![Figure 2.16: GPS tracks of the geese of Kölzsch et al. (2016) between the wintering areas in the Netherlands and northern Germany and the breeding grounds in the Russian Arctic: in spring (52 tracks) they spread over a wide front, in autumn (49 tracks) they follow a narrow corridor. Data: Kölzsch et al. (2016), Movebank, CC0; map: Natural Earth.](../lectures/figures/geese-overview.svg){width="65%"}
+
+::: example
+**Example 2.4 (goose 3104).** Goose 3104 flew from the Netherlands (14 March 2014) to Kolguev Island in the Russian Arctic (4 June), 2,923 km in a straight line. We use one position per hour, the GPS fix nearest to the full hour: 1,960 positions. In 60% of the hours, the goose moves at most 0.1 km, which is GPS noise: it sits. Migration flights reach 30 to 130 km per hour; the first flight, in the night of 14/15 March, covered 1,102 km in 16.5 hours. Between flights, the goose stays in an area, but still moves, for instance between roost and fields. The ecologists labelled eight stopovers, 70 of the 82 days (Figure 2.17): north-eastern Poland (14 days), Ukraine (4 days), near Kursk in Russia (22 days), and five more in Russia (5, 7, 8, 6, and 3 days).
+:::
+
+![Figure 2.17: Goose 3104 from the Netherlands to Kolguev Island, spring 2014, with the ecologists' labels: eight stopovers (blue) and flight phases (orange), on the map and in the distance per hour (log scale). Data: Kölzsch et al. (2016), Movebank, CC0; map: Natural Earth.](../lectures/figures/geese-3104-experts.svg){width="85%"}
+
+How were the stopovers found? Kölzsch et al. (2016) define a stopover as a site where a bird "did not displace further than 30 km for at least 48 h", and they "manually extracted" the stopovers. This is a precise rule, applied by hand. An algorithm would be fast, consistent, and reproducible, and it could label all tracks the same way. As criteria for an algorithm, we use the ecologists' stopover rule and a flight criterion of Alewijnse et al. (2014) (Figure 2.18):
+
+- **stopover:** all positions lie within a disk of radius 30 km, for at least 48 hours;
+- **flight:** at least 80% of the headings lie within an arc of 1.7 rad (97°).
+
+![Figure 2.18: Criteria for geese, schematic: a stopover is a cluster of positions inside a disk of radius 30 km for at least 48 hours; in a flight, most headings (here 8 of 10) lie in one arc of 1.7 rad.](../lectures/figures/geese-criteria.svg){width="70%"}
+
+## 2.5.2 Three ways to segment a time series
+
+A trajectory is a time series of positions (Definition 2.1), and segmentation is a general task for time series. Table 2.4 shows three approaches; all three are solved by dynamic programming.
+
+| We specify | Solved by | Used for |
+|------------|-----------|----------|
+| **criteria**: what a valid segment is | greedy, dynamic programming | bird stopovers; stays and trips of people |
+| **change points**: a model and a penalty per segment | dynamic programming | animal behaviour, climate, sensor data |
+| **hidden states**: a probabilistic model | dynamic programming (Viterbi) | animal behaviour, speech, genomes |
+
+: Table 2.4: Three ways to segment a time series.
+
+The approaches differ in who defines the states. With criteria, *experts* define them, from what they know about the animal: the result is directly interpretable and answers the ecologists' question, but it is only as good as the definition, and thresholds transfer poorly to other species or sampling rates. Change points and hidden states let the *data* decide where the behaviour changes and what the states look like; experts interpret the result afterwards. Edelhoff et al. (2016) structure path segmentation methods by research question, and Gurarie et al. (2016) compare such methods, their assumptions, and how interpretable their output is. Change point methods are standard in movement ecology as well, for instance behavioural change point analysis [Gurarie et al. 2009] and segclust2d [Patin et al. 2020]; Truong et al. (2020) review change point methods in general.
+
+## 2.5.3 Criteria-based segmentation
+
+::: definition
+**Definition 2.8 (criteria-based segmentation) [Buchin et al. 2011].** Let $p_0, \ldots, p_n$ be the positions of a trajectory, and let a *criterion* decide for every segment $p_i, \ldots, p_j$ whether it is *valid*. A *segmentation* is a sequence of break points $0 = b_0 < b_1 < \cdots < b_k = n$; consecutive segments $p_{b_{i-1}}, \ldots, p_{b_i}$ share their break point. We look for a segmentation into valid segments with the smallest number $k$ of segments.
+:::
+
+Criteria are built from attributes, such as speed, heading, location, and duration, and combined with AND and OR: a stopover is "disk AND duration", and a valid segment is "stopover OR flight". Minimizing the number of segments is a modelling choice: it prefers long phases. In the examples below, we work with the steps between positions: step $t$ is the move from $p_{t-1}$ to $p_t$, and the steps $i, \ldots, j$ form the segment $p_{i-1}, \ldots, p_j$.
+
+::: definition
+**Definition 2.9 (monotone criteria).** A criterion is *decreasing monotone* if every subsegment of a valid segment is valid, and *increasing monotone* if every supersegment of a valid segment is valid.
+:::
+
+"The highest speed is at most twice the lowest", "all headings lie within an arc", and "all positions lie within a disk of radius $r$" are decreasing monotone: a subsegment has a smaller range of speeds, its headings fit into the same arc, and its positions into the same disk. "The segment lasts at least $\Delta t$" and "at least two steps" are increasing monotone. AND and OR of decreasing monotone criteria are again decreasing monotone, and likewise for increasing monotone criteria. The stopover criterion combines a decreasing and an increasing monotone criterion and is neither. Criteria that tolerate a few outliers, such as 20% of the headings outside the arc, are neither as well.
+
+**Greedy** makes the current segment as long as possible, that is, it takes the longest valid segment that starts at the current break point, and then starts the next segment.
+
+::: example
+**Example 2.5.** Cut the speeds 1, 2, 2, 3, 5, 4, 9, 8, 2, 1, 1 of eleven steps into as few segments as possible such that in each segment the highest speed is at most twice the lowest. Greedy takes $[1, 2, 2]$ (adding 3 would exceed $2 \cdot 1$), $[3, 5, 4]$ (9 exceeds $2 \cdot 3$), $[9, 8]$, and $[2, 1, 1]$: four segments. Fewer are impossible: steps 1 and 4 cannot lie in the same segment ($3 > 2 \cdot 1$), nor steps 4 and 7 ($9 > 2 \cdot 3$), nor steps 7 and 9 ($9 > 2 \cdot 2$). Since segments are intervals of steps, steps 1, 4, 7, and 9 lie in four different segments.
+:::
+
+::: theorem
+**Theorem 2.5 [Buchin et al. 2011].** For a decreasing monotone criterion, greedy finds a segmentation with the fewest segments, if a valid segmentation exists.
+
+*Proof.* Let $o_1 < \cdots < o_m = n$ be the ends of the segments of any valid segmentation, and $g_1 < g_2 < \cdots$ the ends of greedy's segments. We show $g_k \geq o_k$ for all $k$ as long as greedy has not reached the end ("greedy stays ahead", Figure 2.19). For $k = 1$, greedy takes the longest valid first segment, so $g_1 \geq o_1$. Now let $g_k \geq o_k$. If $g_k \geq o_{k+1}$, then $g_{k+1} > g_k \geq o_{k+1}$. Otherwise $o_k \leq g_k < o_{k+1}$, and the part of the other segmentation's $(k+1)$-th segment from $g_k$ to $o_{k+1}$ is a subsegment of a valid segment, hence valid. So greedy's next segment, which starts at $g_k$ and is as long as possible, ends at $g_{k+1} \geq o_{k+1}$. In particular, greedy reaches the end after at most $m$ segments. [∎]{.qed}
+:::
+
+![Figure 2.19: Greedy stays ahead: the speeds of Example 2.5 with greedy's segments, ending at steps 3, 6, 8, and 11, and another valid segmentation with five segments, ending at steps 2, 4, 6, 8, and 11. Greedy's k-th segment always ends at least as far to the right.](../lectures/figures/greedy-stays-ahead.svg){width="70%"}
+
+**Running time.** If the validity test can be updated in constant time when a step is added, as for the range of speeds or the arc of headings, greedy takes $O(n)$ time. For the disk criterion, adding a point can change the smallest enclosing disk completely; with exponential search followed by binary search for the end of each segment, and a smallest enclosing disk as the test, greedy takes $O(n \log n)$ time [Buchin et al. 2011].
+
+An increasing monotone criterion alone is easy: if any segment is valid, the whole track is valid. Combinations are not.
+
+::: example
+**Example 2.6.** Take the speeds 2, 3, 5, 8 and the criterion "at least two steps AND highest minus lowest speed at most 4", similar to "at least 48 h AND within 30 km". Greedy takes $[2, 3, 5]$ and is left with $[8]$ alone, which is too short: it is stuck. The segmentation $[2, 3]$, $[5, 8]$ is valid (Figure 2.20). Taking the longest first segment can be wrong.
+:::
+
+![Figure 2.20: Greedy fails for a combination of an increasing and a decreasing monotone criterion.](../lectures/figures/greedy-counterexample.svg){width="55%"}
+
+**The start-stop diagram** [Aronov et al. 2016] has a cell $(i, j)$ for every pair of steps $i \leq j$, which is white if the steps $i$ to $j$ form a valid segment. A segmentation is a *staircase* of white cells $(1, j_1), (j_1 + 1, j_2), \ldots, (j_{k-1} + 1, n)$: after a segment ending at step $j$, the next one starts in row $j + 1$. Finding the shortest staircase is a dynamic program. Let $S(j)$ be the fewest segments for the steps $1, \ldots, j$, with $S(j) = \infty$ if no segmentation of these steps exists. Then
+$$S(0) = 0, \qquad S(j) = \min\{\, S(i-1) + 1 \;:\; 1 \leq i \leq j,\ \text{steps } i, \ldots, j \text{ form a valid segment} \,\}.$$
+
+::: theorem
+**Lemma 2.4.** The recurrence computes the fewest segments of a valid segmentation of the steps $1, \ldots, j$, for every $j$.
+
+*Proof.* By induction on $j$; $S(0) = 0$ is correct. The last segment of a valid segmentation of the steps $1, \ldots, j$ consists of some steps $i, \ldots, j$ and is valid; the segments before it form a valid segmentation of the steps $1, \ldots, i - 1$, which has at least $S(i-1)$ segments by induction. Conversely, for every valid segment $i, \ldots, j$, a segmentation of the steps $1, \ldots, i-1$ with $S(i-1)$ segments, followed by this segment, is a valid segmentation of the steps $1, \ldots, j$. [∎]{.qed}
+:::
+
+Storing for every $j$ the $i$ that attains the minimum and following these choices back from $n$ gives the segments. The recurrence works for every criterion, monotone or not; it needs $O(n^2)$ validity tests.
+
+::: example
+**Example 2.7.** For the speeds 2, 3, 5, 8, 3, 3, 3, 7 and the criterion of Example 2.6, the recurrence gives $S(1) = \infty$ (a single step is too short), $S(2) = 1$ ($[2, 3]$), $S(3) = 1$ ($[2, 3, 5]$), $S(4) = 2$ ($[2, 3]$ and $[5, 8]$), $S(5) = \infty$ (every segment that ends at step 5 contains 8 and 3, or is too short), $S(6) = 3$, $S(7) = 3$, and $S(8) = S(4) + 1 = 3$ with the last segment $[3, 3, 3, 7]$. Backtracking gives $[2, 3]$, $[5, 8]$, $[3, 3, 3, 7]$ (Figure 2.21).
+:::
+
+![Figure 2.21: The start-stop diagram of Example 2.7 with the values S and the backtracking: segments 5 to 8, 3 to 4, and 1 to 2.](../lectures/figures/start-stop-dp-8.svg){width="50%"}
+
+**Faster.** For a decreasing monotone criterion, a valid segment stays valid when steps at its start are dropped, so in every column $j$ the valid starts form one block that ends at the diagonal. For an increasing monotone criterion, the valid starts form one block that begins at the top. For an AND or OR of a constant number of such criteria, every column therefore has $O(1)$ blocks, $O(n)$ in total, although there can be $\Theta(n^2)$ white cells. For a block of starts $a, \ldots, b$, the recurrence needs $\min\{S(a-1), \ldots, S(b-1)\}$, a *range-minimum query* over consecutive entries of $S$, which a balanced search tree with subtree minima answers in $O(\log n)$ time. In total, this takes $O(n \log n)$ time plus the time to find the blocks. Alewijnse et al. (2014) generalize this to *stable* criteria, whose start-stop diagram has only $O(n)$ changes between valid and invalid cells over all columns; this includes criteria with outliers up to an approximate fraction.
+
+::: example
+**Example 2.8 (goose 3104, segmented).** With the criteria of Figure 2.18, the dynamic program on the 1,960 hourly positions of goose 3104 (1.9 million cells in the start-stop diagram, of which 160,942 are valid) gives 37 segments, which form 18 phases when neighbouring segments of the same kind are merged. For 92.8% of the 1,959 hours, the segmentation gives the same label as the ecologists (Figure 2.22). Of the 142 hours with different labels, 135 lie in the last week: the ecologists label the days from 29 May to 4 June as flight, the final leg to the breeding site, but in these hours the goose covers only about 100 km. It sits on 30–31 May and again on 2–3 June, with a flight on 1 June in between, and the criteria call the two sitting periods stopovers. Whether a pause just before arrival is a stopover is a matter of definition, not of the algorithm. Alewijnse et al. (2014) reported agreements of 96.3% and 92.6% for two goose tracks.
+:::
+
+![Figure 2.22: Goose 3104 hour by hour: the ecologists' labels and the criteria-based segmentation. Both find the same eight stopover periods; at the end, the criteria see stops where the ecologists say flight.](../lectures/figures/geese-3104-criteria.svg){width="85%"}
+
+## 2.5.4 Change points
+
+With criteria, experts say what a valid segment is. *Change point* detection only says what a homogeneous segment looks like, one simple model per segment, for instance a constant mean, and what every segment costs; the data decide where to cut. Let $c(s, t)$ be the misfit of the model on the values $x_{s+1}, \ldots, x_t$, for a constant mean the sum of the squared deviations from their mean, and let $\beta$ be a *penalty* per segment. *Optimal partitioning* [Jackson et al. 2005] computes the cheapest segmentation of the first $t$ values with the recurrence
+$$F(0) = 0, \qquad F(t) = \min_{0 \leq s < t} \big( F(s) + c(s, t) + \beta \big),$$
+which tries every start of the last segment, like the recurrence of Section 2.5.3. There, the misfit was 0 for a valid and $\infty$ for an invalid segment, and $\beta = 1$. The penalty decides how many segments we get: with $\beta = 0$, every value is a segment of its own, and a huge $\beta$ gives a single segment. A common choice is $\beta \propto \log n$, as in the Bayesian information criterion (BIC); another is to look at the number of segments as a function of $\beta$.
+
+Optimal partitioning needs $O(n^2)$ evaluations of $c$. PELT [Killick et al. 2012] drops a candidate $s$ as soon as $F(s) + c(s, t) \geq F(t)$: then $s$ can never become the start of the last segment later. This is correct if adding a change point never increases the misfit, which holds for the usual costs, and often makes the computation linear. Binary segmentation, which splits at the best single change point and recurses, is faster but not always optimal. For goose 3104, change points in the logarithm of the distance per hour, with a constant mean per segment, give 83 segments for the penalty 3, 19 for 8, and 8 for 20.
+
+::: example
+**Example 2.9 (global temperature).** NASA's yearly global mean surface temperature from 1880 to 2025, as the deviation from the 1951–1980 mean [GISTEMP Team 2026; Lenssen et al. 2024], is a time series in which the trend has changed. As the model, we use one line per segment, with the lines joined at the change points, and fit it by least squares. Since the continuity couples neighbouring segments, the plain recurrence does not apply; we search all combinations of change years. With three change points, the best years are 1917, 1941, and 1971, with slopes of −0.04, +0.15, −0.02, and +0.20 °C per decade (Figure 2.23). Cahill et al. (2015) found change points around 1912, 1940, and 1970, and none after the 1970s. Table 2.5 shows what happens with further change points.
+:::
+
+![Figure 2.23: Global mean surface temperature 1880–2025 relative to 1951–1980 with a continuous piecewise-linear fit: change points in 1917, 1941, and 1971; dashed: a variant with a further change in 2012. Data: NASA GISTEMP v4.](../lectures/figures/gistemp-changepoints.svg){width="70%"}
+
+| Model for 1880–2025 | Change points | Trend since the last change |
+|---------------------|---------------|-----------------------------|
+| continuous trends, 3 changes | 1917, 1941, 1971 | +0.20 °C per decade |
+| plus a change in 1998 ("pause") | BIC worse | +0.24 °C per decade |
+| plus a change in 2012, independent errors | BIC better | +0.35 °C per decade |
+| autocorrelated errors [Beaulieu et al. 2024] | none after the 1970s | |
+
+: Table 2.5: Pauses and surges in global warming depend on the penalty and the noise model.
+
+A "pause" after 1998 is not supported: adding this change point makes BIC worse. Choosing the years by eye can suggest one: the trend from 1998 to 2012 is +0.13 °C per decade, against +0.16 from 1970 to 1997, but 1998 was an exceptionally warm El Niño year, a classic cherry-pick. With independent errors, BIC prefers a further change point in 2012, a surge. Beaulieu et al. (2024) model autocorrelated errors and find no detectable change in the warming rate after the 1970s yet; an acceleration would have to be larger or last longer to be detected. The lesson: the penalty and the noise model decide what counts as a change, so claims about pauses or surges must state them. Warming itself is not in question.
+
+## 2.5.5 Hidden Markov models
+
+::: definition
+**Definition 2.10 (hidden Markov model).** A *hidden Markov model* (HMM) with $K$ states has hidden states $s_1, \ldots, s_n$ that form a Markov chain: the first state is $s$ with probability $\pi_s$, and the state of the next time step is $s$ with probability $a_{rs}$ if the current state is $r$. In every time step $t$, the current state $s_t$ generates the observation $x_t$ from its own distribution $b_{s_t}$. We observe only $x_1, \ldots, x_n$.
+:::
+
+For the goose, the observation of an hour is its distance (Figure 2.24). A single distance can be ambiguous, for instance 3 km in an hour, but the Markov chain makes long runs of the same state likely. There are two tasks. *Fitting* estimates the transition probabilities and the distributions from the data. *Decoding* finds the most likely state sequence for given parameters. In movement ecology, hidden Markov models are a standard tool, usually with step lengths and turning angles as observations and with covariates, such as the time of day, in the transition probabilities [Langrock et al. 2012; Michelot et al. 2016; McClintock et al. 2020].
+
+![Figure 2.24: A hidden Markov model, schematic: hidden states (rest or flight) form a Markov chain, and each state emits the distance of its hour from its own distribution. The numbers are an example, not fitted.](../lectures/figures/hmm-model.svg){width="90%"}
+
+::: example
+**Example 2.10 (goose 3104, four states).** We fit an HMM with four states to the 1,959 hours of goose 3104, with a normal distribution of the logarithm of the distance in each state. The model only finds four groups; we name them afterwards (Figure 2.25): resting (median distance at most 0.1 km per hour; 71% of the hours), moving locally (0.6 km; 16%), local flights (8.3 km; 10%), and migratory flight (65 km per hour; 3%, 58 hours). After an hour in these states, the goose stays in the same state for another hour with probability 0.81, 0.40, 0.33, and 0.77, respectively. The decoded state sequence shows, for instance, an 11-hour night flight on 25/26 April at 40 to 84 km per hour.
+:::
+
+![Figure 2.25: Histogram of the distance per hour of goose 3104 (log scale) with the four fitted distributions.](../lectures/figures/geese-3104-hmm.svg){width="65%"}
+
+**Decoding: the Viterbi algorithm.** Write $c_s(x) = -\ln b_s(x)$ for the cost of the observation $x$ in state $s$ and $c_{rs} = -\ln a_{rs}$ for the cost of the step from state $r$ to state $s$. The probability of a state sequence together with the observations is a product of the start probability, the transition probabilities, and the probabilities of the observations; its negative logarithm is a sum of costs. So the most likely state sequence is a cheapest path through the *trellis*, the layered graph with one node per time step and state. Let $V_t(s)$ be the cost of the cheapest state sequence for the time steps $1, \ldots, t$ that ends in state $s$. Then [Viterbi 1967; Rabiner 1989]
+$$V_1(s) = c_s(x_1) - \ln \pi_s, \qquad V_t(s) = c_s(x_t) + \min_{r} \big( V_{t-1}(r) + c_{rs} \big).$$
+The most likely sequence has the cost $\min_s V_n(s)$; storing the minimizing $r$ for every node and following these choices back gives the states. With $n$ time steps and $K$ states, this takes $O(nK^2)$ time. It is a shortest path computation in a directed acyclic graph, in topological order.
+
+::: example
+**Example 2.11.** Five hours with the distances 0.2, 45, 3, 60, and 0.3 km and two states, rest and flight, with equally likely start states. The costs of the hours are 0, 8, 1, 8, 0 in the state rest and 5, 0, 2, 0, 5 in the state flight; staying costs 0, switching costs 2. Hour by hour, $V$ is 0 and 5 (rest and flight), then 8 and 2, 5 and 4, 13 and 4, and finally 6 and 9. The cheapest end is rest with cost 6, and backtracking gives rest, flight, flight, flight, rest (Figure 2.26). The 3-km hour stays "flight": labelling it "rest" would save 1 but needs two more switches, which cost 4. If switching were free, every hour would take its cheapest state, rest, flight, rest, flight, rest, at cost 1. The switching cost acts like the penalty per change point.
+:::
+
+![Figure 2.26: The Viterbi algorithm on Example 2.11: the cheapest cost to reach each node and the chosen predecessors; the cheapest path is rest, flight, flight, flight, rest with cost 6.](../lectures/figures/viterbi-trellis-solution.svg){width="65%"}
+
+**Fitting: the forward algorithm.** To fit an HMM, we need the probability of the observed data, the *likelihood*, summed over *all* state sequences, not only the best one. The forward algorithm computes it with the same table as Viterbi, with probabilities instead of costs and a sum instead of the minimum:
+$$\alpha_1(s) = \pi_s\, b_s(x_1), \qquad \alpha_t(s) = b_s(x_t) \sum_{r} \alpha_{t-1}(r)\, a_{rs}, \qquad P(x_1, \ldots, x_n) = \sum_s \alpha_n(s).$$
+Here $\alpha_t(s)$ is the probability of the observations $x_1, \ldots, x_t$ together with the state $s$ at time $t$. In practice, the values are scaled or kept as logarithms to avoid underflow. The parameters are fitted by maximizing the likelihood, numerically, as in the R package moveHMM [Michelot et al. 2016], or with the EM algorithm of Baum and Welch; since the likelihood can have local optima, one starts several times. The number of states is our choice. For goose 3104, two states separate resting (median 0.1 km per hour) from everything else (2.2 km), and four states also separate local from migratory flights. Information criteria tend to favour too many states; a number of states that we can interpret is a good choice [Pohle et al. 2017]. The model assumes equal time steps, observations that are independent given the states, and a geometrically distributed time in each state, whose most likely value is a single step. It knows nothing about 30 km or 48 hours; *hidden semi-Markov models* model the durations of the states directly [Langrock et al. 2012].
+
+Dynamic programs of the same shape appeared in Section 2.3. They differ only in how values are combined along a path and over all paths (Table 2.6).
+
+| Dynamic program | Along a path | Over all paths |
+|-----------------|--------------|----------------|
+| discrete Fréchet distance | maximum | minimum |
+| dynamic time warping | sum | minimum |
+| Viterbi (costs) | sum | minimum |
+| forward algorithm (probabilities) | product | sum |
+
+: Table 2.6: One dynamic program, different operations. Mathematically, each pair of operations forms a semiring.
+
+::: example
+**Example 2.12 (New Year's Eve).** Kölzsch et al. (2023) studied geese of four species (white-fronted, bean, barnacle, and pink-footed geese) wintering in the Netherlands, northern Germany, and Denmark around New Year, from 2013/14 to 2020/21. On the published data [Kölzsch et al. 2022], we fitted a three-state HMM to the logarithm of the GPS ground speed of each fix (medians 0.1, 0.3, and 11 m/s) and decoded 697 tracks of 345 geese. Between 0:00 and 0:30 on New Year's night, 43% of the fixes are in the flight state; on other nights, about 3% (Figure 2.27). By species: bean geese 65%, white-fronted geese 53%, barnacle geese 36%, pink-footed geese 16%. The fixes are not equally spaced, which the model ignores. The study itself found that the geese fly 40 to 150 m higher on average after the fireworks and farther, change their roosts more often, and forage longer during at least the following 11 days. The responses persisted in 2020/21, when the sale or ignition of fireworks was banned in all countries with tagged geese except Denmark, at least for white-fronted and bean geese.
+:::
+
+![Figure 2.27: Left: one pink-footed goose on New Year's night 2018/19, the speed of every GPS fix coloured by its decoded state. Right: share of the fixes of all 697 tracks in the flight state per half hour, New Year's night against other nights. Data: Kölzsch et al. (2022), Movebank, CC0.](../lectures/figures/geese-new-year.svg){width="85%"}
+
+**Outlook: state-space models.** In ecology, a *state-space model* is a hidden process observed with noise; an HMM is the special case with finitely many states [Patterson et al. 2008; Auger-Méthé et al. 2021]. With a continuous state, the hidden state can be the true position behind noisy fixes, which matters for Argos tags with errors of kilometres [Jonsen et al. 2005], or a movement parameter that changes smoothly, such as the move persistence between 0 (turning) and 1 (straight) [Jonsen et al. 2023]. The Kalman filter [Kalman 1960] is the forward algorithm for linear models with Gaussian noise: the distribution of the state is described by a mean and a covariance, and each time step predicts and then updates them, in constant time per step for a fixed dimension.
+
+## 2.5.6 Three methods, one goose
+
+Figure 2.28 compares the three methods on goose 3104, with every hour labelled stopover or flight; for the HMM, only the migratory flight counts as flight, and for change points (penalty 8), segments with a mean above 1 km per hour. The labels agree with the ecologists for 92.8% (criteria), 89.9% (change points), and 88.2% (HMM) of the hours, and with each other for 95–97%. The largest difference is the same for all three: the last six days, which the ecologists call flight. The HMM and the change points also label only the flying hours as flight, whereas the ecologists' flight phases include the rests between flights.
+
+![Figure 2.28: Goose 3104 hour by hour: the ecologists' labels, criteria, change points (penalty 8), and the migratory-flight state of the HMM. All three methods find the eight stopover periods.](../lectures/figures/geese-3104-methods.svg){width="85%"}
+
+Which method fits which question? To measure stopovers as the ecologists define them, use criteria, since they encode the definition. To find where the behaviour changes without a definition, use change points. To describe behaviour hour by hour, such as resting and local and migratory flights, use an HMM. In each case, the criteria, the penalty, or the model decide what a "stopover" is, so they belong to the results. An algorithm labels all tracks the same way; the ecologists' labels of all 79,234 GPS fixes of the study are a test bed for segmentation algorithms.
 
 # 2.6 Check your understanding
 
@@ -481,12 +662,58 @@ This section follows after Lecture 4 (3 November). It covers how to split a traj
     Every clustering with five centers puts two of the six routes into the same cluster. If its radius is $r$, both routes are within $r$ of the same center curve, so by the triangle inequality their distance is at most $2 r$. Hence $2{,}266 \leq 2 r$ for every clustering with five centers, in particular for an optimal one.
     </details>
 
+13. Why does the proof of Theorem 2.5 fail for the criterion "the segment lasts at least 48 h"?
+
+    <details>
+    <summary>Answer</summary>
+    The proof cuts the other segmentation's $(k+1)$-th segment at $g_k$ and uses that the part from $g_k$ to $o_{k+1}$ is valid. For a minimum duration, this part can be too short, so greedy's next segment need not reach $o_{k+1}$. Example 2.6 shows that greedy can even get stuck.
+    </details>
+
+14. Show that the AND and the OR of two decreasing monotone criteria are decreasing monotone. Is the AND of a decreasing and an increasing monotone criterion monotone?
+
+    <details>
+    <summary>Answer</summary>
+    If a segment satisfies both criteria, every subsegment satisfies both; if it satisfies one of them, every subsegment satisfies that one. The AND of a decreasing and an increasing monotone criterion is in general neither: in Example 2.6, $[2, 3, 5]$ is valid, its subsegment $[5]$ is too short, and its supersegment $[2, 3, 5, 8]$ has the range 6.
+    </details>
+
+15. In Example 2.7, why is $S(5) = \infty$, and how do you obtain the segments from the values $S(j)$?
+
+    <details>
+    <summary>Answer</summary>
+    Step 5 has the speed 3 and step 4 the speed 8, so every segment that ends at step 5 and has at least two steps contains 8 and a speed of at most 3, a range of at least 5; a single step is too short. To obtain the segments, store for every $j$ the start $i$ that attains the minimum, and follow these starts back from $j = n$: here $S(8)$ comes from start 5, $S(4)$ from start 3, and $S(2)$ from start 1.
+    </details>
+
+16. In change point detection, what happens for the penalty $\beta = 0$ and for a very large $\beta$? Why must a claim about a "pause" in global warming state the penalty and the noise model?
+
+    <details>
+    <summary>Answer</summary>
+    With $\beta = 0$, every value becomes a segment of its own, since this has misfit 0; with a very large $\beta$, the whole series is one segment. Whether an additional change point pays off depends on the penalty and on how much variation the noise model explains: in Table 2.5, a change in 2012 improves BIC with independent errors, but with autocorrelated errors no change after the 1970s is detectable.
+    </details>
+
+17. In Example 2.11, for which switching costs $c$ is the path rest, flight, rest, flight, rest with four switches a cheapest path?
+
+    <details>
+    <summary>Answer</summary>
+    Its cost is $1 + 4c$. The best path with two switches, rest, flight, flight, flight, rest, costs $2 + 2c$, and all other paths cost more for small $c$. So the path with four switches is a cheapest path for $1 + 4c \leq 2 + 2c$, that is, $c \leq 1/2$, and the only one for $c < 1/2$.
+    </details>
+
+18. Why does the forward algorithm take sums where the Viterbi algorithm takes minima?
+
+    <details>
+    <summary>Answer</summary>
+    Viterbi looks for the single most likely state sequence, the cheapest path through the trellis. The forward algorithm computes the probability of the observations, which is the sum of the probabilities of all state sequences; fitting maximizes this likelihood.
+    </details>
+
 # References
 
 ::: refs
 - Agarwal, P. K., Ben Avraham, R., Kaplan, H., Sharir, M. (2014). Computing the discrete Fréchet distance in subquadratic time. *SIAM Journal on Computing* 43(2), 429–449.
 - Aghabozorgi, S., Shirkhorshidi, A. S., Wah, T. Y. (2015). Time-series clustering – A decade review. *Information Systems* 53, 16–38.
+- Alewijnse, S. P. A., Buchin, K., Buchin, M., Kölzsch, A., Kruckenberg, H., Westenberg, M. A. (2014). A framework for trajectory segmentation by stable criteria. *22nd ACM SIGSPATIAL International Conference on Advances in Geographic Information Systems*, 351–360. <https://doi.org/10.1145/2666310.2666415>
 - Alt, H., Godau, M. (1995). Computing the Fréchet distance between two polygonal curves. *International Journal of Computational Geometry & Applications* 5(1–2), 75–91.
+- Aronov, B., Driemel, A., van Kreveld, M., Löffler, M., Staals, F. (2016). Segmentation of trajectories on nonmonotone criteria. *ACM Transactions on Algorithms* 12(2), 26. <https://doi.org/10.1145/2660772>
+- Auger-Méthé, M., et al. (2021). A guide to state–space modeling of ecological time series. *Ecological Monographs* 91(4), e01470.
+- Beaulieu, C., Gallagher, C., Killick, R., Lund, R., Shi, X. (2024). A recent surge in global warming is not detectable yet. *Communications Earth & Environment* 5, 576. <https://doi.org/10.1038/s43247-024-01711-1>
 - Bereg, S., Jiang, M., Wang, W., Yang, B., Zhu, B. (2008). Simplifying 3D polygonal chains under the discrete Fréchet distance. *LATIN 2008*, LNCS 4957, 630–641.
 - Brankovic, M., Buchin, K., Klaren, K., Nusser, A., Popov, A., Wong, S. (2020). (k, l)-medians clustering of trajectories using continuous dynamic time warping. *SIGSPATIAL 2020*, 99–110.
 - Bringmann, K. (2014). Why walking the dog takes time: Fréchet distance has no strongly subquadratic algorithms unless SETH fails. *55th IEEE Symposium on Foundations of Computer Science (FOCS)*, 661–670.
@@ -495,38 +722,62 @@ This section follows after Lecture 4 (3 November). It covers how to split a traj
 - Buchin, K., Conradi, J., Deryckere, L., Hagedoorn, M., Rehs, C. (2025). Tight lower bound for approximating (k, ℓ)-center clustering under the Fréchet distance. *XXI Spanish Meeting on Computational Geometry (EGC 2025)*, Santander. <https://egc2025.unican.es/wp-content/uploads/2025/06/paper_20.pdf>
 - Buchin, K., Driemel, A., Gudmundsson, J., Horton, M., Kostitsyna, I., Löffler, M., Struijs, M. (2019). Approximating (k, ℓ)-center clustering for curves. *30th ACM-SIAM Symposium on Discrete Algorithms (SODA)*, 2922–2938.
 - Buchin, K., Driemel, A., Struijs, M. (2020). On the hardness of computing an average curve. *17th Scandinavian Symposium and Workshops on Algorithm Theory (SWAT)*, LIPIcs 162, 19:1–19:19.
+- Buchin, M., Driemel, A., van Kreveld, M., Sacristán, V. (2011). Segmenting trajectories: A framework and algorithms using spatiotemporal criteria. *Journal of Spatial Information Science* 3, 33–63. <https://doi.org/10.5311/JOSIS.2011.3.66>
+- Cahill, N., Rahmstorf, S., Parnell, A. C. (2015). Change points of global temperature. *Environmental Research Letters* 10(8), 084002. <https://doi.org/10.1088/1748-9326/10/8/084002>
 - Charikar, M., Khuller, S., Mount, D. M., Narasimhan, G. (2001). Algorithms for facility location problems with outliers. *12th ACM-SIAM Symposium on Discrete Algorithms (SODA)*, 642–651.
 - Chen, L., Özsu, M. T., Oria, V. (2005). Robust and fast similarity search for moving object trajectories. *ACM SIGMOD International Conference on Management of Data*, 491–502.
 - Cheng, Y., Fiedler, W., Wikelski, M., Flack, A. (2019). "Closer-to-home" strategy benefits juvenile survival in a long-distance migratory bird. *Ecology and Evolution* 9(16), 8945–8952. <https://doi.org/10.1002/ece3.5395>
 - Driemel, A., Har-Peled, S., Wenk, C. (2012). Approximating the Fréchet distance for realistic curves in near linear time. *Discrete & Computational Geometry* 48(1), 94–127.
 - Driemel, A., Krivošija, A., Sohler, C. (2016). Clustering time series under the Fréchet distance. *27th ACM-SIAM Symposium on Discrete Algorithms (SODA)*, 766–785.
+- Edelhoff, H., Signer, J., Balkenhol, N. (2016). Path segmentation for beginners: an overview of current methods for detecting changes in animal movement patterns. *Movement Ecology* 4, 21. <https://doi.org/10.1186/s40462-016-0086-5>
 - Eiter, T., Mannila, H. (1994). Computing discrete Fréchet distance. Technical Report CD-TR 94/64, TU Wien.
 - Ester, M., Kriegel, H.-P., Sander, J., Xu, X. (1996). A density-based algorithm for discovering clusters in large spatial databases with noise. *2nd International Conference on Knowledge Discovery and Data Mining (KDD)*, 226–231.
 - Feder, T., Greene, D. (1988). Optimal algorithms for approximate clustering. *20th ACM Symposium on Theory of Computing (STOC)*, 434–444.
 - Flack, A., Fiedler, W., Blas, J., et al. (2015). Data from: Costs of migratory decisions: a comparison across eight white stork populations. Movebank Data Repository, CC0. <https://doi.org/10.5441/001/1.78152p3q>
 - Flack, A., Fiedler, W., Blas, J., et al. (2016). Costs of migratory decisions: A comparison across eight white stork populations. *Science Advances* 2(1), e1500931. <https://doi.org/10.1126/sciadv.1500931>
 - Fréchet, M. (1906). Sur quelques points du calcul fonctionnel. *Rendiconti del Circolo Matematico di Palermo* 22, 1–72.
+- GISTEMP Team (2026). GISS Surface Temperature Analysis (GISTEMP), version 4. NASA Goddard Institute for Space Studies. Dataset accessed 2026-10-30 at <https://data.giss.nasa.gov/gistemp/>
 - Gonzalez, T. F. (1985). Clustering to minimize the maximum intercluster distance. *Theoretical Computer Science* 38, 293–306.
+- Gurarie, E., Andrews, R. D., Laidre, K. L. (2009). A novel method for identifying behavioural changes in animal movement data. *Ecology Letters* 12(5), 395–408.
+- Gurarie, E., Bracis, C., Delgado, M., Meckley, T. D., Kojola, I., Wagner, C. M. (2016). What is the animal doing? Tools for exploring behavioural structure in animal movements. *Journal of Animal Ecology* 85(1), 69–84. <https://doi.org/10.1111/1365-2656.12379>
 - Hochbaum, D. S., Shmoys, D. B. (1985). A best possible heuristic for the k-center problem. *Mathematics of Operations Research* 10(2), 180–184.
 - Hsu, W.-L., Nemhauser, G. L. (1979). Easy and hard bottleneck location problems. *Discrete Applied Mathematics* 1, 209–216.
 - Impagliazzo, R., Paturi, R. (2001). On the complexity of k-SAT. *Journal of Computer and System Sciences* 62(2), 367–375.
+- Jackson, B., Scargle, J. D., Barnes, D., et al. (2005). An algorithm for optimal partitioning of data on an interval. *IEEE Signal Processing Letters* 12(2), 105–108.
+- Jonsen, I. D., Flemming, J. M., Myers, R. A. (2005). Robust state–space modeling of animal movement data. *Ecology* 86(11), 2874–2880.
+- Jonsen, I. D., et al. (2023). aniMotum, an R package for animal movement data: Rapid quality control, behavioural estimation and simulation. *Methods in Ecology and Evolution* 14(3), 806–816.
 - Jorzik, I., Fiedler, W., Kaatz, M., Rotics, S., Nathan, R., Wikelski, M., Flack, A. (2026). Timing shapes flyway selection in juvenile white storks at the European migratory divide. *Journal of Ornithology* 167(1), 131–142. <https://doi.org/10.1007/s10336-025-02322-z>
+- Kalman, R. E. (1960). A new approach to linear filtering and prediction problems. *Journal of Basic Engineering* 82(1), 35–45.
+- Killick, R., Fearnhead, P., Eckley, I. A. (2012). Optimal detection of changepoints with a linear computational cost. *Journal of the American Statistical Association* 107(500), 1590–1598.
+- Kölzsch, A., Lameris, T. K., Müskens, G. J. D. M., Schreven, K. H. T., Buitendijk, N. H., Kruckenberg, H., Moonen, S., Heinicke, T., Cao, L., Madsen, J., Wikelski, M., Nolet, B. A. (2023). Wild goose chase: Geese flee high and far, and with aftereffects from New Year's fireworks. *Conservation Letters* 16(1), e12927. <https://doi.org/10.1111/conl.12927>
+- Kölzsch, A., Müskens, G. J. D. M., Kruckenberg, H., Glazov, P., Weinzierl, R., Nolet, B. A., Wikelski, M. (2016). Towards a new understanding of migration timing: slower spring than autumn migration in geese reflects different decision rules for stopover use and departure. *Oikos* 125(10), 1496–1507. <https://doi.org/10.1111/oik.03121>; data: Kölzsch, A., Kruckenberg, H., Glazov, P., Müskens, G. J. D. M., Wikelski, M. (2016), Movebank Data Repository, CC0, <https://doi.org/10.5441/001/1.31c2v92f>
+- Kölzsch, A., et al. (2022). Data from: Wild goose chase: Geese flee high and far, and with aftereffects from New Year's fireworks. Movebank Data Repository, CC0. <https://doi.org/10.5441/001/1.g51fs0jv>
 - Kölzsch, A., et al. (2025). Citizen scientists for MoveApps: Innovations and insights from volunteer coders in wildlife conservation. *Methods in Ecology and Evolution* 16, 1550–1563. <https://doi.org/10.1111/2041-210X.70101>
 - Kotsakos, D., Trajcevski, G., Gunopulos, D., Aggarwal, C. C. (2014). Time-series data clustering. In C. C. Aggarwal, C. K. Reddy (eds.), *Data Clustering: Algorithms and Applications*, Chapter 15. Chapman & Hall/CRC.
+- Langrock, R., King, R., Matthiopoulos, J., Thomas, L., Fortin, D., Morales, J. M. (2012). Flexible and practical modeling of animal telemetry data: hidden Markov models and extensions. *Ecology* 93(11), 2336–2342.
+- Lenssen, N., Schmidt, G. A., Hendrickson, M., Jacobs, P., Menne, M., Ruedy, R. (2024). A NASA GISTEMPv4 observational uncertainty ensemble. *Journal of Geophysical Research: Atmospheres* 129(17), e2023JD040179.
 - Liao, T. W. (2005). Clustering of time series data – a survey. *Pattern Recognition* 38(11), 1857–1874.
+- McClintock, B. T., Langrock, R., Gimenez, O., Cam, E., Borchers, D. L., Glennie, R., Patterson, T. A. (2020). Uncovering ecological state dynamics with hidden Markov models. *Ecology Letters* 23(12), 1878–1903.
+- Michelot, T., Langrock, R., Patterson, T. A. (2016). moveHMM: an R package for the statistical modelling of animal movement data using hidden Markov models. *Methods in Ecology and Evolution* 7(11), 1308–1315.
 - Müller, M. (2007). Dynamic time warping. Chapter 4 in *Information Retrieval for Music and Motion*, 69–84. Springer.
+- Patin, R., Etienne, M.-P., Lebarbier, E., Chamaillé-Jammes, S., Benhamou, S. (2020). Identifying stationary phases in multivariate time series for highlighting behavioural modes and home range settlements. *Journal of Animal Ecology* 89(1), 44–56. <https://doi.org/10.1111/1365-2656.13105>
+- Patterson, T. A., Thomas, L., Wilcox, C., Ovaskainen, O., Matthiopoulos, J. (2008). State–space models of individual animal movement. *Trends in Ecology & Evolution* 23(2), 87–94.
 - Petitjean, F., Ketterlin, A., Gançarski, P. (2011). A global averaging method for dynamic time warping, with applications to clustering. *Pattern Recognition* 44(3), 678–693.
 - Picardi, S., Smith, B. J., Boone, M. E., et al. (2020). Analysis of movement recursions to detect reproductive events and estimate their fate in central place foragers. *Movement Ecology* 8, 24. <https://doi.org/10.1186/s40462-020-00201-1>
+- Pohle, J., Langrock, R., van Beest, F. M., Schmidt, N. M. (2017). Selecting the number of states in hidden Markov models: pragmatic solutions illustrated using animal movement. *Journal of Agricultural, Biological and Environmental Statistics* 22(3), 270–293.
+- Rabiner, L. R. (1989). A tutorial on hidden Markov models and selected applications in speech recognition. *Proceedings of the IEEE* 77(2), 257–286.
 - Rast, W., Portas, R., Shatumbu, G. I., et al. (2024). Death detector: Using vultures as sentinels to detect carcasses by combining bio-logging and machine learning. *Journal of Applied Ecology* 61, 2936–2945. <https://doi.org/10.1111/1365-2664.14810>
 - Sakoe, H., Chiba, S. (1978). Dynamic programming algorithm optimization for spoken word recognition. *IEEE Transactions on Acoustics, Speech, and Signal Processing* 26(1), 43–49.
 - Serratosa, J., Oppel, S., Santangeli, A., et al. (2024). Tracking data highlight the importance of human-induced mortality for large migratory birds at a flyway scale. *Biological Conservation* 293, 110525. <https://doi.org/10.1016/j.biocon.2024.110525>
 - Tao, Y., Both, A., Silveira, R. I., Buchin, K., Sijben, S., Purves, R. S., Laube, P., Peng, D., Toohey, K., Duckham, M. (2021). A comparative analysis of trajectory similarity measures. *GIScience & Remote Sensing* 58(5), 643–669. <https://doi.org/10.1080/15481603.2021.1908927>
+- Truong, C., Oudre, L., Vayatis, N. (2020). Selective review of offline change point detection methods. *Signal Processing* 167, 107299.
 - UNEP (2024). Landmark UN report reveals shocking state of wildlife: the world's migratory species. Press release, 12 February 2024. <https://www.unep.org/news-and-stories/press-release/landmark-un-report-reveals-shocking-state-wildlife-worlds-migratory>
 - United Nations (2015). *Transforming our world: the 2030 Agenda for Sustainable Development*. Resolution A/RES/70/1.
 - Vardanis, Y., Klaassen, R. H. G., Strandberg, R., Alerstam, T. (2011). Individuality in bird migration: routes and timing. *Biology Letters* 7, 502–505. <https://doi.org/10.1098/rsbl.2010.1180>
+- Viterbi, A. J. (1967). Error bounds for convolutional codes and an asymptotically optimum decoding algorithm. *IEEE Transactions on Information Theory* 13(2), 260–269.
 - Vlachos, M., Kollios, G., Gunopulos, D. (2002). Discovering similar multidimensional trajectories. *18th International Conference on Data Engineering (ICDE)*, 673–684.
 :::
 
 # License
 
-These notes are licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Suggested attribution: "Kevin Buchin, Algorithms and Sustainability, Lecture Notes, TU Dortmund University, CC BY 4.0". All figures are own work under the same license. The stork figures are based on data from Flack et al. (2015), Movebank Data Repository, CC0; the maps use Natural Earth (public domain). The demand profiles in Figure 2.6 and the schematic Figures 2.8, 2.10, 2.11, and 2.13 are constructed examples, not measured data. The colors of the Sustainable Development Goals are used for orientation only; these notes are not endorsed by the United Nations. Not covered by the license: the TU Dortmund logo and the Decker software and its themes.
+These notes are licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Suggested attribution: "Kevin Buchin, Algorithms and Sustainability, Lecture Notes, TU Dortmund University, CC BY 4.0". All figures are own work under the same license. The stork figures are based on data from Flack et al. (2015), Movebank Data Repository, CC0; the maps use Natural Earth (public domain). The demand profiles in Figure 2.6 and the schematic Figures 2.8, 2.10, 2.11, and 2.13 are constructed examples, not measured data. The goose figures are based on data from Kölzsch et al. (2016) and Kölzsch et al. (2022), Movebank Data Repository, CC0, and the temperature figure on NASA GISS/GISTEMP v4. The speed examples and the Viterbi example are constructed data; Figures 2.18 and 2.24 are schematic. The colors of the Sustainable Development Goals are used for orientation only; these notes are not endorsed by the United Nations. Not covered by the license: the TU Dortmund logo and the Decker software and its themes.
