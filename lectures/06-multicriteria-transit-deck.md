@@ -15,7 +15,7 @@ date: Tuesday, 24 November 2026
 ::: notes
 Live demos on slides 5 (the Dortmund map of lecture 5), 9 (weighted sums with a slider), 13 (MC-Dijkstra on the Dortmund map) and 26 (Connection Scan). The Dortmund running example (bicycle, Hbf → Phoenix-See, OpenStreetMap, as in lecture 5) is on slides 5, 9 and 13. The public transit example uses real stop names, a simplified network and invented times; it is replaced by VRR data once the GTFS feed is available.
 
-Timing (90 min, main part slides 2–29): the times in the notes add up to 81 minutes, at the pace of lecture 5 (1.26 × plan) about 102 minutes. With the cuts below about 69 plan minutes, about 86 minutes: 10:15 plan and recap (slides 2–3) · 10:20 several criteria, Pareto optimality, weighted sums (slides 5–9) · 10:37 MC-Dijkstra (slides 10–13; step by step 7 min) · 10:56 how many Pareto-optimal routes, contraction hierarchies for several criteria (slides 14–18: 14 short; 15–16 as a recap of the guest lecture, about 5 min; of 17 only the table; 18 personalized or customizable, about 3 min) · 11:10 public transit and Connection Scan (slides 20–27: GTFS and graph models short; skip the live demo on 26) · 11:38 outlook and next steps (slides 28–29) · 11:42 end, about 3 minutes buffer. Emergency brake: not at slide 20 by 11:15 → show 21 and 23 only briefly, 27 in one sentence. In 2025 the same material took about 105 minutes in two lectures.
+Timing (90 min, main part slides 2–29): the times in the notes add up to 81 minutes, at the pace of lecture 5 (1.26 × plan) about 102 minutes. With the cuts below about 69 plan minutes, about 86 minutes: 10:15 plan and recap (slides 2–3) · 10:20 several criteria, Pareto optimality, weighted sums (slides 5–9) · 10:37 MC-Dijkstra (slides 10–13; step by step 7 min) · 10:56 how many Pareto-optimal routes, contraction hierarchies for several criteria (slides 14–18: 14 short; 15–16 as a recap of the guest lecture, about 5 min; of 17 only the table; 18 personalized or customizable, about 3 min) · 11:10 public transit and Connection Scan (slides 20–27: GTFS and graph models short; skip the live demo on 26) · 11:38 outlook and next steps (slides 28–29) · 11:42 end, about 3 minutes buffer. If time is left: RAPTOR as additional material (slides 35–38, round by round about 8 min). Emergency brake: not at slide 20 by 11:15 → show 21 and 23 only briefly, 27 in one sentence. In 2025 the same material took about 105 minutes in two lectures.
 :::
 
 # Recap: contraction hierarchies {.columns}
@@ -289,15 +289,23 @@ Week 7, part 2: timetables
 
 [1 · Question]{.step}
 
-![Schematic network: H-Bahn Campus Süd to Dortmund Universität, S1 Dortmund Hbf – Dortmund Universität – Bochum Hbf – Essen Hbf, RE Dortmund Hbf – Bochum Hbf – Essen Hbf; minimum change times 2, 5, 4 and 4 minutes](figures/transit-terms.svg){.nocap height="265px"}
+![Schematic network: H-Bahn Campus Süd to Dortmund Universität, S1 Dortmund Hbf – Dortmund Universität – Bochum Hbf – Essen Hbf, RE Dortmund Hbf – Bochum Hbf – Essen Hbf; minimum change times 2, 5, 4 and 4 minutes](figures/transit-terms.svg){.nocap height="170px"}
 
-- **Stop**; **trip**: one run of a vehicle; **route**: trips with the same stops; **connection**: one hop of a trip
-- **Transfer**: change time at a stop, or a footpath; **journey**: trips and transfers
+::: {.tablefit style="font-size: 0.62em"}
+| term | meaning | in the example |
+|---|---|---|
+| **stop** | where vehicles halt | Dortmund Universität |
+| **trip** | one run of one vehicle | the S1 leaving Dortmund Hbf at 8:12 |
+| **route** | trips with the same stop sequence (≈ a line in one direction) | S1 Dortmund Hbf → Essen Hbf |
+| **connection** | one hop of a trip | S1, Universität 8:04 → Dortmund Hbf 8:12 |
+| **transfer** | change between trips: change time or footpath | at least 2 min at Universität |
+| **journey** | trips and transfers: what a planner returns | H-Bahn, S1, RE: 7:56 → 8:39 in Essen |
+:::
 
 [Stop names real, network simplified, times invented]{.source}
 
 ::: notes
-About 4 minutes. Public transport is the backbone of SDG target 11.2 (accessible and sustainable transport systems for all); the algorithmic question is journey planning. Why not just Dijkstra on the network? Because the cost of an edge depends on the time you arrive there: you wait for the next train. Example: from Campus Süd (H-Bahn) at 7:50 to Essen Hbf.
+About 4 minutes. Public transport is the backbone of SDG target 11.2 (accessible and sustainable transport systems for all); the algorithmic question is journey planning. Why not just Dijkstra on the network? Because the cost of an edge depends on the time you arrive there: you wait for the next train. Example: from Campus Süd (H-Bahn) at 7:50 to Essen Hbf. The terms matter later: CSA scans connections, RAPTOR (part 2) scans routes; a line like the S1 consists of two routes, one per direction (and more if some trips skip stops).
 :::
 
 # Timetables as data: GTFS
@@ -473,6 +481,65 @@ Additional material (from last year's slides, compressed). Pareto-SHARC: Delling
 - One pass gives the best journeys for **all** departure times
 
 [Dibbelt, Pajor, Strasser, Wagner (2018)]{.source}
+
+# Preview of part 2: RAPTOR, rounds
+
+- **Round $k$:** earliest arrival at every stop with at most $k$ trips: $\tau_k(p)$
+- Round $k$ only starts from stops that **improved** in round $k-1$ (**marked**)
+- Each **route** (trips with the same stop sequence) is scanned at most **once per round**
+- No graph, no priority queue: arrays of stops, routes and trips
+
+[Delling, Pajor, Werneck (2015)]{.source}
+
+::: notes
+About 4 minutes. Rounds = number of trips = transfers + 1. After round k, τ_k(t) is the best arrival with at most k trips, so the rounds directly give the Pareto set over (arrival time, number of trips): keep τ_k(t) whenever it improves on τ_{k-1}(t). Usually few rounds are needed: journeys with more than about five trips are rarely useful.
+:::
+
+# Scanning a route
+
+Walk along the stops of the route, from the first marked stop:
+
+- **Get off:** if the current trip reaches stop $p$ earlier than $\tau^*(p)$ (best so far): $\tau_k(p)\gets$ arrival, mark $p$
+- **Get on:** if $\tau_{k-1}(p)$ plus change time allows an **earlier** trip at $p$: switch to it
+- After all routes: walk along **footpaths** from the marked stops
+
+## Pruning {.info}
+
+Only mark $p$ if the arrival is also earlier than $\tau^*(t)$: a journey that is already later than the best at the target cannot win.
+
+::: notes
+About 5 minutes. Draw one route as a line of stops on the board: the "current trip" starts empty; at each stop first check getting off (it may improve the stop), then getting on (an earlier trip may be catchable from what we had with k−1 trips). Trips of a route are sorted by departure, and trips of a route do not overtake each other, so "earliest catchable trip" is a binary search or a linear step back. Local pruning: compare with τ*(p), the best arrival at p in any round, not only τ_{k-1}(p).
+:::
+
+# RAPTOR, round by round
+
+::: {.r-stack}
+![Round 0: only Campus Süd at 7:50](figures/raptor-round-0.svg){.nocap height="470px"}
+
+![Round 1: the H-Bahn reaches Universität at 8:00](figures/raptor-round-1.svg){.fragment .nocap height="470px"}
+
+![Round 2: from Universität, the S1 eastwards reaches Dortmund Hbf at 8:12, the S1 at 8:21 westwards reaches Bochum at 8:40 and Essen at 9:01](figures/raptor-round-2.svg){.fragment .nocap height="470px"}
+
+![Round 3: from Dortmund Hbf, the RE reaches Bochum at 8:27 and Essen at 8:39](figures/raptor-round-3.svg){.fragment .nocap height="470px"}
+:::
+
+[What does round 4 do?]{.ask}
+
+::: notes
+About 8 minutes; three clicks. Round 1: route H-Bahn from Campus Süd: board 7:56, get off at Universität 8:00. Round 2: marked: Universität. S1 eastwards: board S1 b at 8:04 (8:00 + 2 min change), Dortmund Hbf 8:12. S1 westwards: S1 a at 8:01 is too early, board S1 c at 8:21: Bochum 8:40, Essen 9:01. Round 3: marked Dortmund Hbf, Bochum, Essen. RE from Dortmund Hbf: RE a (8:09) too early, RE b at 8:17: Bochum 8:27, Essen 8:39. Answer: round 4 starts from Bochum (8:27) but finds no improvement (the next S1 from Bochum arrives at 9:01); no stop is marked, RAPTOR stops. Result: Essen with 2 trips at 9:01, with 3 trips at 8:39: both Pareto-optimal.
+:::
+
+# RAPTOR, live
+
+**Step** scans one route, round by round; at the end: the **Pareto set** of arrival time and number of trips. [Which routes does round 3 scan?]{.ask}
+
+<iframe class="demo wide" data-src="../static/transit-demo/index.html?ui=compact&amp;algo=raptor" title="Interactive RAPTOR on the example: round by round, the scanned routes on the right, arrival times and numbers of trips on the map"></iframe>
+
+![RAPTOR on the example, Campus Süd 7:50 to Essen Hbf: after round 3 the Pareto set is 9:01 with two trips and 8:39 with three trips](figures/transit-raptor.png){.demo-print .wide .nocap}
+
+::: notes
+About 3 minutes. Round k scans every route that serves a stop improved in round k − 1, from the first such stop on; in the list, "board 8:32 at DO, then 8:21 at UNI" is the step "catch an earlier trip": a later stop of the route was reached in the previous round early enough for an earlier trip. Answer to the question: round 2 improved Dortmund Hbf (8:12), Bochum Hbf (8:40) and Essen Hbf (9:01), so round 3 scans every route that leaves one of them: the S1 towards Essen from Dortmund Hbf (it catches the 8:21 at Universität again, no improvement), the S1 towards Dortmund from Bochum Hbf (nothing new) and the RE from Dortmund Hbf (8:17: Bochum 8:27, Essen 8:39). Essen Hbf is the last stop of its routes, so no route starts there. Round 4 improves nothing, so RAPTOR stops. "full timetable" and the slider as for Connection Scan. With a GTFS feed (tools/make_transit_demo.py) the same code runs on a real network.
+:::
 
 # Check your understanding
 
