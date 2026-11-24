@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fairness: interactive demo</title>
+<link rel="stylesheet" href="../../support/fonts/lato.css">
+<style>
+  :root { --ink: #282a2e; --grey: #6b6e73; --light: #b9bcc0; --line: #d6d8db; }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #ffffff; color: var(--ink);
+               font-family: "Lato", "LatoLatin", "Helvetica Neue", Arial, sans-serif; }
+  #bar { position: absolute; left: 0; right: 0; top: 0; padding: 6px 10px; display: flex; flex-wrap: wrap; gap: 5px;
+         align-items: center; border-bottom: 1px solid var(--line); background: #fbfbfa; font-size: 14px; min-height: 30px; }
+  button { font: inherit; font-size: 14px; padding: 3px 9px; border: 1px solid var(--light); border-radius: 4px;
+           background: #ffffff; color: var(--ink); cursor: pointer; }
+  button.on { background: var(--ink); color: #ffffff; border-color: var(--ink); }
+  button.run { font-weight: 700; }
+  .sep { width: 1px; height: 22px; background: var(--line); margin: 0 4px; }
+  input[type=range] { width: 130px; }
+  .lbl { color: var(--grey); }
+  #info { font-variant-numeric: tabular-nums; flex-basis: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+          min-height: 1.35em; padding-left: 2px; }
+  canvas { position: absolute; left: 0; touch-action: none; }
+  #attrib { position: absolute; right: 6px; bottom: 3px; font-size: 11px; color: var(--grey); }
+  body.compact #bar { font-size: 15px; }
+  body.compact button { font-size: 15px; }
+  .hide { display: none !important; }
+</style>
+</head>
+<body>
+<div id="bar">
+  <span id="modes"><button data-mode="cluster">Fair clustering</button> <button data-mode="share">Sharing a connection</button></span>
+  <span class="sep" id="modesep"></span>
+  <span id="ctl"></span>
+  <span id="info"></span>
+</div>
+<canvas id="cv"></canvas>
+<div id="attrib">Algorithms and Sustainability, TU Dortmund · CC BY 4.0 · constructed examples</div>
+<script src="fair.js"></script>
+<script src="demo.js"></script>
+</body>
+</html>

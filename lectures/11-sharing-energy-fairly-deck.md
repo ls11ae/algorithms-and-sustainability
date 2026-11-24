@@ -12,7 +12,7 @@ date: Tuesday, 19 January 2027
 4. Indivisible charging slots: envy-free up to one slot
 
 ::: notes
-DRAFT (24 October 2026), proposal for "More fairness" on 19 January. It connects block 4 with block 3 (energy). If lecture 10 moves to 19 January because of a guest on 12 January, this deck fits 26 January (further topics). All examples are constructed; the legal facts on slides 4–5 must be checked again before the lecture.
+Live demo added on 16 November 2026: slide 9 (water-filling); the timing below does not include it (about +3 minutes). DRAFT (24 October 2026), proposal for "More fairness" on 19 January. It connects block 4 with block 3 (energy). If lecture 10 moves to 19 January because of a guest on 12 January, this deck fits 26 January (further topics). All examples are constructed; the legal facts on slides 4–5 must be checked again before the lecture.
 
 Timing (90 min, main part slides 2–18): 10:15 plan, block, energy sharing, congested grids (slides 2–5, 10 min) · 10:25 model, max-min fairness, water-filling, strategy-proofness, exercise (slides 6–10, 25 min) · 10:50 proportional fairness, price of fairness (slides 11–12, 12 min) · 11:02 indivisible slots, round robin, Nash welfare (slides 13–15, 15 min) · 11:17 which key, summary (slides 16–17, 7 min) · 11:24 next steps (slide 18, 2 min) · about 19 min buffer.
 :::
@@ -104,6 +104,18 @@ About 6 minutes. Equivalent description: make the smallest share as large as pos
 
 ::: notes
 About 5 minutes. Step rule: when the smallest open demand is at most the equal share of the rest, fill it and continue; otherwise all remaining households get the equal share. Invariant: the equal share of the rest never decreases (d ≤ C'/k implies (C' − d)/(k − 1) ≥ C'/k). Correctness in both directions: (1) a max-min fair allocation uses all of C (or meets all demands), and no unsaturated household gets less than another (otherwise move power from the larger share to the smaller), so all unsaturated households share one level λ and the saturated ones are exactly those with d_i ≤ λ; (2) conversely, in the water-filling allocation, raising an unsaturated share (which equals λ) forces lowering another share, and every other share is at most λ.
+:::
+
+# Water-filling, live
+
+Five wallboxes behind 30 kW: **▶ fill**, the other rules, the **capacity**; **drag** a demand. [E asks for 40 kW instead of 22: who gains under which rule?]{.ask}
+
+<iframe class="demo wide" data-src="../static/fairness-demo/index.html?ui=compact&amp;modes=0&amp;mode=share&amp;rule=water" title="Interactive water-filling for five wallboxes behind a congested connection, compared with the proportional rule and the equal split"></iframe>
+
+![Water-filling for five wallboxes (demands 3.7, 7.4, 11, 11, 22 kW) at 30 kW: A gets 3.7 kW, B–E 6.575 kW each; Jain's index 0.965](figures/share-live.png){.demo-print .wide .nocap}
+
+::: notes
+About 3 minutes. Answer: under the proportional rule E's share grows from 11.98 to 16.42 kW (40/73.1 of 30 kW) and everybody else loses; under water-filling nothing changes (E was already above the level 6.575). This is the next slide (strategy-proofness) in one drag. Equal split: everybody gets 6 kW (A only 3.7, the rest of A's share is lost): only 27.7 kW of 30 are used, so equal split is not efficient. Jain's index: 0.965 for water-filling, 0.764 for the proportional rule (higher is more equal; 1 = all equal).
 :::
 
 # Honest demands pay off

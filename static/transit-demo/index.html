@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Public transit routing: interactive demo</title>
+<link rel="stylesheet" href="../../support/fonts/lato.css">
+<style>
+  :root { --ink: #282a2e; --grey: #6b6e73; --light: #b9bcc0; --line: #d6d8db; --blue: #0A97D9; --orange: #E8700A;
+          --green: #3F7E44; --red: #DD1367; --panel: rgba(255, 255, 255, 0.96); }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #ffffff; color: var(--ink);
+               font-family: "Lato", "LatoLatin", "Helvetica Neue", Arial, sans-serif; }
+  #map { position: absolute; left: 0; top: 0; height: 100%; touch-action: none; }
+  #side { position: absolute; right: 0; top: 0; bottom: 0; border-left: 1px solid var(--line); background: #fbfbfa;
+          display: flex; flex-direction: column; font-size: 14px; line-height: 1.35; }
+  #controls { padding: 8px 10px 6px 10px; border-bottom: 1px solid var(--line); }
+  .row { display: flex; flex-wrap: wrap; gap: 4px; margin: 3px 0; align-items: center; }
+  button { font: inherit; font-size: 13px; padding: 3px 8px; border: 1px solid var(--light); border-radius: 4px;
+           background: #ffffff; color: var(--ink); cursor: pointer; }
+  button.on { background: var(--ink); color: #ffffff; border-color: var(--ink); }
+  button.run { font-weight: 700; }
+  input[type=range] { flex: 1; min-width: 100px; }
+  #time { font-variant-numeric: tabular-nums; font-weight: 700; min-width: 3em; }
+  #status { padding: 6px 10px; border-bottom: 1px solid var(--line); min-height: 2.6em; }
+  #list { flex: 1; overflow-y: auto; padding: 2px 0; font-variant-numeric: tabular-nums; }
+  .conn { display: grid; grid-template-columns: 2.9em 1fr 2.9em; gap: 0 6px; padding: 1px 10px; color: var(--ink); }
+  .conn .what { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .conn .st { grid-column: 1 / span 3; font-size: 12px; color: var(--grey); margin-top: -2px; }
+  .conn.done { color: #9a9da1; }
+  .conn.improves { color: var(--ink); }
+  .conn.improves .st { color: var(--blue); font-weight: 700; }
+  .conn.cur { background: #fdf0e3; outline: 1.5px solid var(--orange); }
+  .conn.stop .st { color: var(--red); font-weight: 700; }
+  .round { padding: 4px 10px 2px 10px; font-weight: 700; }
+  .scan { padding: 1px 10px 1px 22px; }
+  .scan.cur { background: #fdf0e3; outline: 1.5px solid var(--orange); }
+  .scan .imp { color: var(--blue); font-weight: 700; }
+  .hint { color: var(--grey); font-size: 12px; }
+  .key { display: inline-block; width: 18px; height: 4px; vertical-align: middle; margin-right: 4px; border-radius: 2px; }
+  #result { padding: 6px 10px; border-top: 1px solid var(--line); display: none; }
+  #result.on { display: block; }
+  #attrib { position: absolute; left: 6px; bottom: 4px; font-size: 11px; color: var(--grey); }
+  #loading { position: absolute; left: 30%; top: 45%; transform: translate(-50%, -50%); font-size: 18px; color: var(--grey); }
+  body.compact #side { font-size: 15px; }
+  body.compact button { font-size: 14px; }
+</style>
+</head>
+<body>
+<canvas id="map"></canvas>
+<div id="loading">Loading the timetable …</div>
+<div id="side">
+  <div id="controls">
+    <div class="row">
+      <button data-algo="csa">Connection Scan</button>
+      <button data-algo="raptor">RAPTOR</button>
+      <span style="flex:1"></span>
+      <button id="other" style="display:none"></button>
+    </div>
+    <div class="row"><span>depart</span><input id="t" type="range" min="420" max="540" step="1"><span id="time"></span></div>
+    <div class="row">
+      <button id="step">Step</button>
+      <button id="run" class="run">▶ Run</button>
+      <button id="final">Result</button>
+      <button id="reset">Reset</button>
+    </div>
+  </div>
+  <div id="status"></div>
+  <div id="list"></div>
+  <div id="result"></div>
+</div>
+<div id="attrib"></div>
+<script src="transit.js"></script>
+<script src="demo.js"></script>
+</body>
+</html>

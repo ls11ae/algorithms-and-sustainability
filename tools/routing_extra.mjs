@@ -1,5 +1,5 @@
 // Extra numbers for lecture 5: street names along the fast and the quiet route, the weighted sums
-// lambda*time + (1-lambda)*quiet, and all Pareto-optimal routes (time, quiet) with Martins' algorithm.
+// lambda*time + (1-lambda)*quiet, and all Pareto-optimal routes (time, quiet) with multi-criteria Dijkstra (MC-Dijkstra).
 // Usage: node tools/routing_extra.mjs static/routing-demo  -> prints and writes extra.json
 import fs from 'node:fs'; import zlib from 'node:zlib'; import path from 'node:path';
 import { createRequire } from 'node:module';
@@ -39,7 +39,7 @@ for (const [a, b] of [['hbf', 'phoenix'], ['tu', 'phoenix']]) {
     if (!seen.has(key)) seen.set(key, { lambdaFrom: lam, time: tt, quiet: qq });
   }
   res.weighted = [...seen.values()];
-  // Martins: label setting with Pareto sets (time, quiet), pruning by the target's labels
+  // MC-Dijkstra: label setting with Pareto sets (time, quiet), pruning by the target's labels
   const t0 = Date.now();
   const labels = Array.from({ length: G.n }, () => []);    // settled labels per node: [t, q]
   const heap = new R.Heap(1 << 16);                         // key: t + q * 1e-7 (lexicographic), payload index

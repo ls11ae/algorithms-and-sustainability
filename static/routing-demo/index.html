@@ -43,6 +43,17 @@
   body.compact button { font-size: 15px; padding: 3px 9px; }
   body.compact #stats .hint { display: block; font-size: 13px; }
   #more { padding: 3px 6px; }
+  #chart { position: absolute; right: 8px; top: 10px; left: auto; bottom: auto; width: 300px; height: 215px;
+           background: rgba(255, 255, 255, 0.94); border: 1px solid var(--line); border-radius: 6px;
+           display: none; touch-action: auto; }
+  body.chart #chart { display: block; }
+  .lamrow { display: none; align-items: center; gap: 6px; }
+  body.lam .lamrow { display: flex; }
+  .lamrow input { flex: 1; min-width: 120px; }
+  #lamval { font-variant-numeric: tabular-nums; min-width: 2.6em; }
+  body.compact .lamrow { display: none; }
+  body.compact.lam .lamrow { display: flex; }
+  body.legend.lam #legend .lamrow { display: flex; }
   body.compact.algosfilter #algos { display: flex; }
 </style>
 </head>
@@ -50,6 +61,7 @@
 <canvas id="base"></canvas>
 <canvas id="search"></canvas>
 <canvas id="top"></canvas>
+<canvas id="chart"></canvas>
 <div id="loading">Loading the Dortmund street network …</div>
 <div id="panel">
   <h1>Dortmund by bike: shortest paths</h1>
@@ -60,6 +72,11 @@
     <button data-algo="alt">ALT</button>
     <button data-algo="ch">CH</button>
     <button data-algo="compare">fast vs quiet</button>
+    <button data-algo="mcdijkstra">Pareto (MC-Dijkstra)</button>
+    <button data-algo="lambda">weighted sum</button>
+  </div>
+  <div class="row lamrow">
+    <span>λ</span><input id="lam" type="range" min="0" max="1" step="0.01" value="0.5"><span id="lamval">0.50</span>
   </div>
   <div class="row">
     <button id="run" class="run">▶ Run</button>

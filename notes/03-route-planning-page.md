@@ -4,12 +4,12 @@ subtitle: "Algorithms and Sustainability · Lecture Notes · Winter 2026/27"
 author: Kevin Buchin
 affiliation: TU Dortmund University
 copyright: "CC BY 4.0 ·"
-date: "version of 10 November 2026"
+date: "version of 17 November 2026"
 ---
 
-Route planners decide which options people see: the fastest way by car, a quiet route for a cautious cyclist, a step-free route for a wheelchair user, a connection by bike and train. This chapter develops the algorithms behind them. It accompanies the route planning block of the course and grows with it: this version covers Lecture 5 (10 November) on shortest paths in road networks, with a running example on the street network of Dortmund. Sections on several criteria and on public transport will follow.
+Route planners decide which options people see: the fastest way by car, a quiet route for a cautious cyclist, a step-free route for a wheelchair user, a connection by bike and train. This chapter develops the algorithms behind them. It accompanies the route planning block of the course and grows with it: this version covers Lecture 5 (10 November) on shortest paths in road networks and Lecture 6 (24 November) on several criteria and on timetables, with running examples in Dortmund. Lecture 7 on public transport will follow.
 
-After working through Sections 3.1 to 3.7, you should be able to
+After working through Sections 3.1 to 3.9, you should be able to
 
 - explain why route planning matters for sustainable mobility and inclusion, and why the fastest route is often not the one people want;
 - model a street network as a weighted graph and choose an edge weight for a given question;
@@ -17,7 +17,11 @@ After working through Sections 3.1 to 3.7, you should be able to
 - run bidirectional search and prove its stopping criterion correct;
 - decide whether a heuristic for A\* is a lower bound and whether it is consistent, explain A\* as Dijkstra's algorithm on reduced costs, and derive landmark bounds from the triangle inequality;
 - contract nodes, decide which shortcuts are needed, run a contraction hierarchy query, and prove that two upward searches suffice;
-- explain how customizable contraction hierarchies make personal profiles practical, and what Pareto-optimal routes are.
+- explain how customizable contraction hierarchies make personal profiles practical;
+- decide which routes are Pareto-optimal and which of them a weighted sum finds;
+- run multi-criteria Dijkstra, prove it correct, and explain why the Pareto front can be exponentially large;
+- explain how contraction hierarchies handle all weighted sums of two criteria at once;
+- model timetables as graphs, run the Connection Scan Algorithm, and prove it correct.
 
 # 3.1 Route planning and sustainable mobility
 
@@ -211,7 +215,7 @@ The first bound is exact if $t$ lies on a shortest path from $v$ to $L$, that is
 
 # 3.6 Contraction hierarchies
 
-Long routes use few important roads: a trip across Dortmund leaves the residential streets soon and returns to them only near the target. *Contraction hierarchies* [Geisberger et al. 2008] exploit this without being told which roads are important. They order the nodes by importance and *contract* them one by one, from the least important to the most important; a query then searches only *upwards* in this order, from $s$ and from $t$. Contraction hierarchies are, among other techniques, the basis of open-source route planners such as OSRM and GraphHopper, of the customizable variant in Section 3.7, and of the multi-criteria variant in Lecture 6.
+Long routes use few important roads: a trip across Dortmund leaves the residential streets soon and returns to them only near the target. *Contraction hierarchies* [Geisberger et al. 2008] exploit this without being told which roads are important. They order the nodes by importance and *contract* them one by one, from the least important to the most important; a query then searches only *upwards* in this order, from $s$ and from $t$. Contraction hierarchies are, among other techniques, the basis of open-source route planners such as OSRM and GraphHopper, of the customizable variant in Section 3.7, and of the multi-criteria variant in Section 3.8.
 
 ## Contracting a node
 
@@ -281,9 +285,7 @@ Settled nodes measure the work independently of the computer. On the road networ
 - *Transit node routing* [Bast et al. 2007] uses that long routes leave the neighbourhood of the start through a few *access nodes*; distances between all such transit nodes, and from every node to its access nodes, are precomputed.
 - *Hub labels* store for every node a list of hubs with their distances, such that every pair of nodes has a common hub on a shortest path; a query intersects two lists. Hub labels are the fastest exact method in practice, at about a microsecond per query, at the price of a lot of memory; they are often computed from a contraction hierarchy.
 
-# 3.7 Personal profiles and several criteria
-
-## One profile per person: customizable contraction hierarchies
+# 3.7 Personal profiles
 
 Inclusive route planning needs a weight per group or even per person: for a wheelchair user, a parent with a pram, a cautious cyclist, an e-bike. Weights also change with building sites and traffic. A contraction hierarchy is built for one weight, since its shortcuts and witnesses depend on it; the hierarchy of the Dortmund demo is built for travel time and cannot answer queries for the quiet weight. *Customizable contraction hierarchies* [Dibbelt et al. 2014, 2016] split the preprocessing into three phases:
 
@@ -291,23 +293,163 @@ Inclusive route planning needs a weight per group or even per person: for a whee
 2. **Customization**, for every new weight: the lengths of all shortcuts, in 0.74 seconds for Western Europe on 16 threads.
 3. **Queries** as in a contraction hierarchy: 0.41 ms for Western Europe.
 
-This makes personal profiles practical. The guest lecture on 17 November is about accessibility-aware route planning.
+This makes personal profiles practical. Accessibility-aware route planning was the topic of the guest lecture by Sabine Storandt on 17 November.
 
-## Several criteria at once
+# 3.8 Several criteria
+
+Faster is often louder, steeper, or dirtier. In Example 3.1, the fastest bike route from Dortmund Hbf to the Phoenix-See takes 19.2 minutes, 5.2 km of it on busy roads; a quieter one takes 21.1 minutes, with only 0.2 km on busy roads. There is no single best route. Let every edge $e$ have two costs $c(e) = (c_1(e), c_2(e))$, for instance travel time and quiet weight, both to be minimized. There are three common ways to combine them:
+
+| model | question | difficulty |
+|---|---|---|
+| weighted sum | minimize $\lambda c_1 + (1 - \lambda) c_2$ for a given $\lambda \in [0, 1]$ | one Dijkstra run |
+| constraint | minimize $c_1$ subject to $c_2 \leq B$ | NP-hard |
+| Pareto set | all routes that no other route beats in every criterion | can be exponentially large |
+
+A weighted sum is just a new edge weight, $\lambda c_1(e) + (1 - \lambda) c_2(e)$, so everything from Sections 3.3 to 3.7 applies. The constrained problem is known as the shortest weight-constrained path problem and is NP-hard [Garey and Johnson 1979]; Storandt (2012) solves it exactly for bicycle routes with a bound on the height difference, using contraction hierarchies. The Pareto set is the most complete answer: it shows all sensible trade-offs and leaves the choice to the person.
 
 ::: definition
-**Definition 3.4 (Pareto-optimal).** Let every path have several costs that are all to be minimized, such as travel time and quiet weight. A path $P$ *dominates* a path $Q$ if $P$ is at least as good as $Q$ in every criterion and better in at least one. An $s$–$t$ path is *Pareto-optimal* if no $s$–$t$ path dominates it.
+**Definition 3.4 (Pareto-optimal).** Let every path have several costs that are all to be minimized, such as travel time and quiet weight. A path $P$ *dominates* a path $Q$ if $P$ is at least as good as $Q$ in every criterion and better in at least one. An $s$–$t$ path is *Pareto-optimal* if no $s$–$t$ path dominates it. The costs of the Pareto-optimal $s$–$t$ paths form the *Pareto front*.
+:::
+
+## Weighted sums find only part of the Pareto front
+
+For two criteria, the costs of the $s$–$t$ paths are points in the plane. For $\lambda \in (0, 1)$, every path that minimizes the weighted sum $f_\lambda(x) = \lambda x_1 + (1 - \lambda) x_2$ is Pareto-optimal, since a path that dominates it would have a smaller weighted sum. The converse is false.
+
+::: theorem
+**Lemma 3.6.** Let $p$, $q$, $r$ be costs of $s$–$t$ paths, and let $p$ lie above the segment from $q$ to $r$: $p \geq \mu q + (1 - \mu) r$ in both components for some $\mu \in [0, 1]$, and $p \neq \mu q + (1 - \mu) r$. Then $f_\lambda(p) > \min\{f_\lambda(q), f_\lambda(r)\}$ for every $\lambda \in (0, 1)$.
+
+*Proof.* The function $f_\lambda$ is linear with positive coefficients, so $f_\lambda(p) > f_\lambda(\mu q + (1 - \mu) r) = \mu f_\lambda(q) + (1 - \mu) f_\lambda(r) \geq \min\{f_\lambda(q), f_\lambda(r)\}$. [∎]{.qed}
+:::
+
+So only routes on the *lower convex hull* of the Pareto front can be optimal for a weighted sum, and apart from ties only its corners; a Pareto-optimal route in a dent between two corners is optimal for no $\lambda \in (0, 1)$. Conversely, every corner of the lower convex hull is the unique optimum for all $\lambda$ in an open interval: a line through the corner can be tilted between the directions of the two hull edges at the corner without meeting the rest of the front.
+
+::: definition
+**Definition 3.5 (supported).** A Pareto-optimal route is *supported* if it minimizes a weighted sum $f_\lambda$ for some $\lambda \in [0, 1]$, and *unsupported* otherwise.
 :::
 
 ::: example
-**Example 3.8.** From Dortmund Hbf to the Phoenix-See, there are 115 Pareto-optimal routes for travel time and quiet weight, between the fastest route (19.2 minutes) and the quietest one (21.1 minutes). Minimizing a weighted sum $\lambda \cdot \text{time} + (1 - \lambda) \cdot \text{quiet}$ for $\lambda = 0, 0.01, \ldots, 1$ finds only 13 of them (Figure 3.12). A weighted sum is a linear function: its optima lie on the lower convex hull of the Pareto front, and the routes in the dents between them are not optimal for any $\lambda$. We computed all 115 routes with the multi-criteria Dijkstra algorithm of Martins (1984), which keeps a set of non-dominated labels per node; it settled 1.36 million labels, about 12 per node, in about 7 seconds.
+**Example 3.8.** From Dortmund Hbf to the Phoenix-See, there are 115 Pareto-optimal routes for travel time and quiet weight, between the fastest route (19.2 minutes) and the quietest one (21.1 minutes). Minimizing the weighted sum $\lambda \cdot \text{time} + (1 - \lambda) \cdot \text{quiet}$ for $\lambda = 0, 0.01, \ldots, 1$ finds only 13 of them, the corners of the lower convex hull (Figure 3.12); the other 102 routes are unsupported. Each $\lambda$ is one run of Dijkstra's algorithm, about 15 ms.
 :::
 
 ![Figure 3.12: The 115 Pareto-optimal routes from Dortmund Hbf to the Phoenix-See (grey); the 13 routes found by weighted sums (blue circles) lie on the lower convex hull.](../lectures/figures/dortmund-pareto.svg){width="60%"}
 
-How to compute Pareto-optimal routes efficiently, how many there can be, and how contraction hierarchies extend to all weighted sums at once [Funke and Storandt 2013] are topics of Lecture 6, together with public transport.
+## Multi-criteria Dijkstra (MC-Dijkstra)
 
-# 3.8 Check your understanding
+To compute the whole Pareto front, *multi-criteria Dijkstra* (MC-Dijkstra) [Martins 1984] keeps *labels* instead of distances: a label $\ell = (\ell_1, \ell_2)$ at a node $v$ is the cost of one $s$–$v$ path. Every node $v$ has a *bag* $B_v$ of labels of which none dominates another, and a priority queue holds the labels that are not settled yet, ordered *lexicographically*: by the first component, ties by the second.
+
+1. Put the label $(0, 0)$ into $B_s$ and into the queue.
+2. Repeat until the queue is empty: extract the lexicographically smallest label $\ell$, at node $u$, and *settle* it. For each edge $(u, v)$, let $\ell' = \ell + c(u, v)$. If no label in $B_v$ dominates or equals $\ell'$, insert $\ell'$ into $B_v$ and into the queue, and remove all labels that $\ell'$ dominates from $B_v$ and from the queue.
+3. At the end, $B_t$ contains the costs of the Pareto-optimal $s$–$t$ paths. Following the labels back, as with the parents in Dijkstra's algorithm, gives one path for each cost.
+
+With a single criterion, every bag holds at most one label, and MC-Dijkstra is Dijkstra's algorithm.
+
+::: example
+**Example 3.9.** Consider the graph of Figure 3.13 with the costs (time, stress) $s \to a$ (1, 3), $s \to b$ (3, 1), $a \leftrightarrow b$ (1, 1), $a \to t$ (2, 4), and $b \to t$ (2, 2). MC-Dijkstra settles the labels $s$ (0, 0), $a$ (1, 3), $b$ (2, 4), $b$ (3, 1), $t$ (3, 7), $a$ (4, 2), $t$ (4, 6), $t$ (5, 3), in this order. Settling $b$ (2, 4) creates $(3, 5)$ at $a$, which $(1, 3)$ dominates. Settling $a$ (4, 2) creates $(5, 3)$ at $b$, dominated by $(3, 1)$, and $(6, 6)$ at $t$, dominated by $(4, 6)$. The node $b$ keeps two labels, $(2, 4)$ via $a$ and $(3, 1)$ directly, since neither dominates the other. At the end, $B_t$ holds three labels: $(3, 7)$ for the path $s, a, t$, $(4, 6)$ for $s, a, b, t$, and $(5, 3)$ for $s, b, t$.
+:::
+
+![Figure 3.13: The end of Example 3.9: the final labels at every node (blue) and the rejected ones (red, struck through); three Pareto-optimal labels at t.](../lectures/figures/martins-step-6.svg){width="60%"}
+
+::: theorem
+**Theorem 3.7.** If all edge costs are non-negative, then MC-Dijkstra never removes a settled label, and at the end, $B_t$ consists of the costs of the Pareto-optimal $s$–$t$ paths.
+
+*Proof.* A new label is a settled label plus a non-negative cost, so it is lexicographically at least as large as the label just settled. Hence labels are settled in lexicographically non-decreasing order, and every label created after the settling of $\ell$ is lexicographically at least $\ell$. A label that dominates $\ell$ is lexicographically smaller than $\ell$, so no later label dominates a settled label: settled labels are never removed.
+
+Every label is the cost of an $s$–$v$ walk. A walk that returns to a node $x$ cannot create a new label there: when it first reached $x$, the label it had then was settled, and the label after the cycle is at least as large in both components. So all labels belong to paths, there are finitely many of them, and MC-Dijkstra terminates.
+
+Let $P = (s = v_0, v_1, \ldots, v_k = t)$ be a Pareto-optimal path and $P_i$ its part up to $v_i$. No $s$–$v_i$ path dominates $P_i$: followed by the rest of $P$, it would give an $s$–$t$ walk, and after removing cycles an $s$–$t$ path, that dominates $P$. So no label at $v_i$ dominates $c(P_i)$. By induction over $i$, a label with the cost $c(P_i)$ is settled at $v_i$: for $i = 0$, this is $(0, 0)$, and extending it over the edge $(v_i, v_{i+1})$ gives $c(P_{i+1})$, which is inserted unless a label with the same cost is already in $B_{v_{i+1}}$, and is never removed. So $c(P) \in B_t$ at the end. Conversely, if an $s$–$t$ path dominated a label $\ell \in B_t$, then so would a Pareto-optimal path, whose cost is in $B_t$ as well; but no label in a bag dominates another. [∎]{.qed}
+:::
+
+**When to stop.** Unlike Dijkstra's algorithm, MC-Dijkstra must not stop at the first label at $t$: further Pareto-optimal labels at $t$ may still be in the queue, as in Example 3.9. It may, however, discard every label that a label at $t$ already dominates (*target pruning*): extending it only gives labels that are dominated at $t$. Lower bounds on the remaining costs to $t$, as in A\*, make the pruning stronger [Mandow and Pérez de la Cruz 2010].
+
+**Implementation.** The Dortmund demo compares a new label only with the settled labels at its node and checks it again when it comes out of the queue. Then one number per node suffices for the test. Every settled label at $v$ is lexicographically at most the new label $\ell'$, so it is at most as large in the first component, and it dominates or equals $\ell'$ if and only if its second component is at most $\ell'_2$. So $\ell'$ is rejected if and only if $\ell'_2 \geq \min\{\ell_2 : \ell \text{ settled at } v\}$ [Hernández et al. 2023].
+
+::: example
+**Example 3.10 (MC-Dijkstra in Dortmund).** From Dortmund Hbf to the Phoenix-See, MC-Dijkstra with target pruning settles 1,364,095 labels at 43,797 nodes, 31 per node on average and at most 291 (Figure 3.14); Dijkstra's algorithm settles 39,856 nodes for travel time. It finds the 115 Pareto-optimal routes of Example 3.8 in about 0.4 seconds in JavaScript, against 15 ms for one Dijkstra run; comparing each new label with the whole bag, the same search took 7 seconds. There are so many labels because every node has its own Pareto front of partial routes from $s$, fast but busy against slow but quiet, and each of them may be the beginning of a Pareto-optimal route to another node.
+:::
+
+![Figure 3.14: MC-Dijkstra from Dortmund Hbf to the Phoenix-See: settled labels (blue), the 115 Pareto-optimal routes (grey), the fastest (blue) and the quietest (green); right, the Pareto front with 13 routes on the convex hull. Map data © OpenStreetMap contributors, ODbL.](../lectures/figures/dortmund-martins.png){width="100%"}
+
+## How many Pareto-optimal routes?
+
+::: theorem
+**Lemma 3.8.** For every $k \geq 1$, there is a graph with $2^k$ Pareto-optimal $s$–$t$ paths, all with different costs.
+
+*Proof.* Take a chain of $k$ sections, where section $i = 0, \ldots, k - 1$ offers an upper edge with the cost $(2^i, 0)$ and a lower edge with the cost $(0, 2^i)$ (Figure 3.15; to avoid parallel edges, subdivide each upper edge by a node). A path chooses one edge per section. If $x$ is the sum of $2^i$ over the sections where it takes the upper edge, its cost is $(x, 2^k - 1 - x)$. By the binary representation, the $2^k$ paths have the $2^k$ different values $x = 0, \ldots, 2^k - 1$. Of two of them, the one with the smaller first component has the larger second component, so none dominates another. [∎]{.qed}
+:::
+
+![Figure 3.15: The chain of Lemma 3.8 with four sections: all 16 paths have costs $(x, y)$ with $x + y = 15$.](../lectures/figures/pareto-chain.svg){width="70%"}
+
+So no algorithm that outputs the whole Pareto front runs in polynomial time in the worst case. In practice, the fronts are smaller, but still large. For bicycle routes in Prague with three criteria (travel time, comfort, and elevation gain), Hrnčíř et al. (2017) find 1,647 Pareto-optimal routes per query on average on neighbourhood graphs of about 10 km², and 2,984 on the whole city with 69,544 nodes, where NAMOA\*, a multi-criteria A\*, takes 106 seconds on average. Heuristics, which prune by an ellipse around $s$ and $t$, by ratios of the criteria, and by $\varepsilon$-dominance, bring this down to about 81 ms on the neighbourhood graphs, and 56 % of the routes they find are optimal ones. Nobody wants to look at 3,000 routes; a route planner shows a few diverse ones.
+
+## Contraction hierarchies for several criteria
+
+For weighted sums, contraction hierarchies extend to all $\lambda$ at once. Funke and Storandt (2013) compute one hierarchy for all weighted sums of two criteria, with $\lambda$ chosen at query time. When $v$ is contracted, the shortcut $(u, w)$ is needed if and only if the path $\pi = u, v, w$ is a best $u$–$w$ path for some $\lambda \in [0, 1]$. For a path $p$, the weighted cost $\lambda c_1(p) + (1 - \lambda) c_2(p)$ is a linear function of $\lambda$. So every $u$–$w$ path is a line over $[0, 1]$, and $\pi$ needs a shortcut if and only if its line touches the lower envelope of all these lines (Figure 3.16). This is the dual view of Lemma 3.6: the corners of the lower convex hull of the costs correspond to the segments of the lower envelope of the lines.
+
+The witness search becomes a binary search over $\lambda$. It starts with the interval $[0, 1]$ of weights for which $\pi$ might be best, and runs Dijkstra's algorithm for the weight $\lambda$ in the middle of the interval. If it finds $\pi$, the shortcut is added. Otherwise it finds a path $p$ that is at least as good as $\pi$ at $\lambda$. The lines of $p$ and $\pi$ cross at most once, so $\pi$ can only be better than $p$ on one side of the crossing, and the interval shrinks to the part on this side. If the interval becomes empty, no shortcut is needed.
+
+::: example
+**Example 3.11.** Let $\pi = u, v, w$ cost $(5, 7)$, and let there be two other $u$–$w$ paths, via $x$ with the cost $(8, 2)$ and via $y$ with $(2, 10)$ (Figure 3.16). For $\lambda = 0.5$, the path via $x$ is best, with the weighted cost 5 against 6 for $\pi$. Their lines, $2 + 6\lambda$ and $7 - 2\lambda$, cross at $\lambda = 0.625$, and $\pi$ is below only for larger $\lambda$; the interval becomes $[0.625, 1]$. For its middle, $\lambda = 0.8125$, the path via $y$ is best, with 3.5 against 5.375 for $\pi$. Their lines cross at $\lambda = 0.5$, and $\pi$ would need $\lambda < 0.5$. The interval is empty, and no shortcut is needed, although neither path alone is a witness for all $\lambda$. Both together are: $\pi$ is Pareto-optimal, but unsupported.
+:::
+
+![Figure 3.16: The three u–w paths of Example 3.11 as lines over λ: via y (2, 10), via x (8, 2), and π via v (5, 7, orange and dashed), which lies above the lower envelope.](../lectures/figures/mcch-envelope.svg){width="50%"}
+
+In every round, $\lambda$ is the middle of the interval and $p$ is at least as good as $\pi$ there, so the interval at least halves. With integer edge costs of at most $M$ in a graph with $n$ nodes, all crossings are fractions with denominators of at most $2nM$, and two different crossings differ by at least $1/(4n^2M^2)$. So $O(\log(nM))$ runs of Dijkstra's algorithm suffice for one witness search, and the preprocessing takes polynomial time [Funke and Storandt 2013]; in their experiments, a witness search needed at most 8 rounds. On OpenStreetMap graphs with travel time and fuel cost as criteria and a random $\lambda$ per query, they report queries of 0.42 ms for Baden-Württemberg (2.5 million nodes) and 1.98 ms for California (11.3 million nodes), against 410 ms and 2,100 ms for Dijkstra's algorithm, a speed-up of about 1,000. The preprocessing took 2 and 18 minutes on one core; the hierarchy has about twice as many edges as the graph, and about 0.05 % of the nodes stay uncontracted, as a core at the top.
+
+**Other techniques.** Goal direction carries over: NAMOA\* uses one potential per criterion [Mandow and Pérez de la Cruz 2010], and BOA\* tests dominance in constant time for two criteria [Hernández et al. 2023]. Arc flags carry over if a flag marks the edges on some Pareto-optimal route into a region [Delling and Wagner 2009], which works when the Pareto fronts are small. Techniques that store one distance per pair of nodes, such as transit node routing, suffer most: with several criteria, a distance becomes a set.
+
+# 3.9 Public transport
+
+Public transport is the backbone of SDG target 11.2, access to safe, affordable, accessible, and sustainable transport systems for all. Why not run Dijkstra's algorithm on the network of lines? Because the cost of an edge depends on when one gets there: one waits for the next train.
+
+## Timetables
+
+A timetable consists of *stops* and *trips*. A trip is one run of a vehicle; trips with the same sequence of stops form a *route*. We split every trip into *connections*, its hops from one stop to the next.
+
+::: definition
+**Definition 3.6 (connection, journey).** A *connection* $c$ goes from the stop $\text{from}(c)$, departing at $\text{dep}(c)$, to the stop $\text{to}(c)$, arriving at $\text{arr}(c) > \text{dep}(c)$, with the trip $\text{trip}(c)$. Changing trips at a stop $v$ takes at least the *change time* $\text{ch}(v) \geq 0$. A *journey* from $s$ to $t$, departing not before $\tau$, is a sequence of connections $c_1, \ldots, c_k$ with $\text{from}(c_1) = s$, $\text{dep}(c_1) \geq \tau$, $\text{to}(c_k) = t$, and $\text{to}(c_i) = \text{from}(c_{i+1})$ for all $i$, such that $c_{i+1}$ is the next connection of the same trip as $c_i$, or $\text{arr}(c_i) + \text{ch}(\text{to}(c_i)) \leq \text{dep}(c_{i+1})$. Its arrival time is $\text{arr}(c_k)$.
+:::
+
+::: example
+**Example 3.12.** Figure 3.17 shows a small example around TU Dortmund, with real stop names, a simplified network, and invented times: the H-Bahn from Campus Süd to Dortmund Universität, the S1 between Dortmund Hbf and Essen Hbf via Dortmund Universität and Bochum Hbf, and the RE from Dortmund Hbf via Bochum Hbf to Essen Hbf. Changing takes 2 minutes at Dortmund Universität, 5 at Dortmund Hbf, and 4 at Bochum Hbf and Essen Hbf. Six trips give 13 connections. Leaving Campus Süd at 7:50, one arrives in Essen at 8:39 with three trips (H-Bahn 7:56–8:00, S1 8:04–8:12 to Dortmund Hbf, RE 8:17–8:39), or at 9:01 with two trips (H-Bahn, then the S1 from Dortmund Universität at 8:21).
+:::
+
+![Figure 3.17: The network of Example 3.12, with real stop names, a simplified network, and invented times; minimum change times of 2, 5, 4, and 4 minutes.](../lectures/figures/transit-terms.svg){width="75%"}
+
+**Data.** Timetables are published in the General Transit Feed Specification (GTFS), a set of CSV files: `stops.txt`, `routes.txt`, `trips.txt`, `stop_times.txt` with one line per stop of a trip, `calendar.txt`, and `transfers.txt` with minimum change times. Consecutive lines of a trip in `stop_times.txt` give its connections. Timetables for all of Germany are open data, for instance from DELFI and gtfs.de, and the VRR publishes its timetable for the Rhine-Ruhr area.
+
+**Queries.** An *earliest arrival query* asks, for $s$, $t$, and $\tau$, for a journey that arrives as early as possible. A *profile query* asks for the best journeys for all departure times in an interval, and a *multi-criteria query* for the Pareto set with respect to arrival time and number of trips. In Example 3.12, the two journeys form this Pareto set; an earliest arrival query finds only the first.
+
+## Timetables as graphs
+
+In the *time-expanded graph*, every departure and every arrival is a node, the connections are edges, and waiting edges link the events at each stop in the order of time (Figure 3.18, left); changes need additional nodes. Dijkstra's algorithm works without any change, but the graph is huge: for one day of a country-wide timetable, it has tens of millions of nodes. In the *time-dependent graph*, every stop is a node, and the cost of an edge depends on the time at which one is at its tail: $f_{uv}(\tau)$ is the earliest arrival at $v$ for someone at $u$ at time $\tau$, a step function (Figure 3.18, right). Dijkstra's algorithm, with earliest arrival times as labels, remains correct if every edge is *FIFO*: $f_{uv}$ is non-decreasing, so being somewhere later never gets one anywhere earlier. Timetables are FIFO, since one can always wait for a later trip.
+
+![Figure 3.18: Left, the time-expanded graph with one node per departure and arrival and waiting edges at every stop; right, the time-dependent edge from Dortmund Hbf to Bochum Hbf: the arrival time as a step function of the departure time.](../lectures/figures/transit-graphs.svg){width="90%"}
+
+## The Connection Scan Algorithm
+
+The Connection Scan Algorithm (CSA) [Dibbelt et al. 2018] needs neither a graph nor a priority queue. The connections are sorted by departure time once, in a preprocessing step. A query keeps an arrival time $d[v]$ for every stop and a flag for every trip.
+
+1. Set $d[s] = \tau$ and $d[v] = \infty$ for all other stops $v$; no trip is reached.
+2. Scan the connections $c$ with $\text{dep}(c) \geq \tau$ in the order of departure. The connection $c$ is *usable* if its trip is reached, or if $d[\text{from}(c)] + \text{ch}(\text{from}(c)) \leq \text{dep}(c)$, where no change time is needed at $s$. If $c$ is usable, mark its trip as reached and set $d[\text{to}(c)] = \min\{d[\text{to}(c)], \text{arr}(c)\}$.
+3. Stop as soon as $\text{dep}(c) \geq d[t]$.
+
+To output the journey, store for every trip the connection where it was entered, and for every stop the connection that last improved it. Footpaths between stops can be added by updating, after an improvement of $d[v]$, the stops within walking distance of $v$.
+
+::: example
+**Example 3.13.** We run CSA from Campus Süd at 7:50 in Example 3.12 (Figure 3.19). The S1 from Bochum Hbf at 7:45 departs too early and is not scanned; the S1 from Dortmund Hbf at 7:52 is not usable, since Dortmund Hbf is not reached yet. The H-Bahn at 7:56 is usable and sets Dortmund Universität to 8:00. The S1 from there at 8:01 is not usable, since changing takes until 8:02, but the S1 at 8:04 is, and it sets Dortmund Hbf to 8:12. The RE at 8:09 and the S1 at 8:12 leave Dortmund Hbf before 8:17; the RE at 8:17 is usable and sets Bochum Hbf to 8:27. There, the RE at 8:19 and the S1 at 8:20 leave before 8:31. The S1 from Dortmund Universität at 8:21 is usable, but its arrival at Bochum Hbf at 8:40 does not improve 8:27. The RE from Bochum Hbf at 8:27 belongs to a reached trip and sets Essen Hbf to 8:39. The next connection departs at 8:40, so the scan stops. The earliest arrival is 8:39, with the journey of Example 3.12.
+:::
+
+![Figure 3.19: Example 3.13: the 13 connections sorted by departure time; usable connections in green, the others in grey; the scan stops at the last row.](../lectures/figures/csa-step-5.svg){width="70%"}
+
+::: theorem
+**Theorem 3.9.** If every connection takes positive time and all change times are non-negative, CSA computes the earliest arrival time at $t$.
+
+*Proof.* By induction over the scan, every value $d[v]$ that CSA sets is the arrival time of a journey, so $d[t]$ is never too small. Conversely, let $c_1, \ldots, c_k$ be a journey with the earliest arrival time at $t$. Its connections depart in increasing order: $\text{dep}(c_{i+1}) \geq \text{arr}(c_i) > \text{dep}(c_i)$. We show by induction that every $c_i$ that is scanned is usable. The connection $c_1$ departs from $s$ at or after $\tau = d[s]$. If $c_{i+1}$ is the next connection of the trip of $c_i$, this trip was marked when $c_i$ was scanned. Otherwise the journey changes at $v = \text{to}(c_i)$, and $d[v] + \text{ch}(v) \leq \text{arr}(c_i) + \text{ch}(v) \leq \text{dep}(c_{i+1})$. If the scan reaches $c_k$, then $d[t] \leq \text{arr}(c_k)$ afterwards. If it stops before, at a connection $c$ with $\text{dep}(c) \geq d[t]$, then $d[t] \leq \text{dep}(c) \leq \text{dep}(c_k) < \text{arr}(c_k)$ already. In both cases, $d[t] \leq \text{arr}(c_k)$. [∎]{.qed}
+:::
+
+The order of departure is a topological order of the time-expanded graph: every connection that can come before $c$ in a journey departs earlier and is scanned before $c$. So CSA is a dynamic program over an acyclic graph, like the segmentation algorithms of Lecture 4, and needs no priority queue. A query is one pass over an array, which suits the cache. On the timetable of London with 4.85 million connections, a query takes 41 ms, and 2.7 ms when it starts the scan at $\tau$ by binary search and uses the stopping criterion; on the timetable of Germany with 46 million connections, 329 ms and 68 ms [Dibbelt et al. 2018]. Scanning the connections in decreasing order of departure, with a list of Pareto-optimal pairs of departure and arrival time per stop, answers profile queries in one pass. Lecture 7 (8 December) treats journeys with few changes (RAPTOR [Delling et al. 2015]), several criteria, and bikes on the first and last mile.
+
+# 3.10 Check your understanding
 
 1. Give a directed graph with a negative edge for which Dijkstra's algorithm computes a wrong distance. Which step of the proof of Theorem 3.1 fails?
 
@@ -379,13 +521,58 @@ How to compute Pareto-optimal routes efficiently, how many there can be, and how
     A witness depends on the weights: a path that is at most as long as $u, v, w$ for one weight can be longer for another. The shortcuts of the first phase must be correct for every weight, so they are added for all pairs; only the customization uses the weights, to compute the lengths of the shortcuts.
     </details>
 
+11. Why must MC-Dijkstra continue after it has settled the first label at $t$, while Dijkstra's algorithm may stop when it settles $t$?
+
+    <details>
+    <summary>Answer</summary>
+    The first label at $t$ is only best in the first criterion. Other Pareto-optimal labels at $t$, larger in the first criterion but smaller in the second, may still be in the queue: in Example 3.9, $(3, 7)$ is settled first, and $(4, 6)$ and $(5, 3)$ come later. With target pruning, the search still ends early in practice, since it discards all labels that a label at $t$ dominates.
+    </details>
+
+12. In Example 3.9, the label $(3, 5)$ at $a$ is rejected. Which path does it belong to, and why can no Pareto-optimal $s$–$t$ path begin with it?
+
+    <details>
+    <summary>Answer</summary>
+    It belongs to $s, a, b, a$, a walk with a cycle. The label $(1, 3)$ of $s, a$ dominates it, so every continuation of $s, a, b, a$ is dominated by the same continuation of $s, a$. This is the argument of Theorem 3.7: prefixes of Pareto-optimal paths are Pareto-optimal.
+    </details>
+
+13. The chain of Lemma 3.8 uses costs that double from section to section. What changes if every section offers the costs $(1, 0)$ and $(0, 1)$?
+
+    <details>
+    <summary>Answer</summary>
+    All $2^k$ paths are still Pareto-optimal, but they have only $k + 1$ different costs $(j, k - j)$. MC-Dijkstra keeps one label per cost, since it rejects labels that equal one in the bag, so it settles at most $i + 1$ labels at the node after $i$ sections and runs in polynomial time. With doubling costs, all $2^k$ costs are different.
+    </details>
+
+14. In the witness search for contraction hierarchies with several criteria, why does the interval at least halve in every round?
+
+    <details>
+    <summary>Answer</summary>
+    The search runs Dijkstra's algorithm for the middle $\lambda$ of the interval and finds a path $p$ that is at least as good as $\pi$ at $\lambda$. The lines of $p$ and $\pi$ cross at most once, and $\pi$ can only be better on one side of the crossing, which does not contain $\lambda$. So the new interval lies on one side of the middle.
+    </details>
+
+15. Why does the Connection Scan Algorithm need no priority queue?
+
+    <details>
+    <summary>Answer</summary>
+    Every connection that can come before $c$ in a journey departs earlier than $c$. So the order of departure, computed once in the preprocessing, is a topological order of the time-expanded graph, and scanning in this order is a dynamic program over an acyclic graph. The order does not depend on the query, unlike the order in which Dijkstra's algorithm settles nodes.
+    </details>
+
+16. In Example 3.13, which arrival time does CSA compute for Essen Hbf if the H-Bahn leaves Campus Süd at 8:06 instead of 7:56 (arriving at 8:10)? Which step of the scan changes?
+
+    <details>
+    <summary>Answer</summary>
+    9:01. Dortmund Universität is now reached at 8:10, too late for the S1 at 8:04 to Dortmund Hbf, so the RE at 8:17 cannot be reached. The S1 from Dortmund Universität at 8:21 is usable, since $8{:}10 + 2 \leq 8{:}21$, and arrives in Essen at 9:01, with one change.
+    </details>
+
 # References
 
 ::: refs
 - Bast, H., Delling, D., Goldberg, A., Müller-Hannemann, M., Pajor, T., Sanders, P., Wagner, D., Werneck, R. F. (2016). Route planning in transportation networks. In *Algorithm Engineering*, LNCS 9220, 19–80. <https://doi.org/10.1007/978-3-319-49487-6_2>
 - Bast, H., Funke, S., Matijevic, D., Sanders, P., Schultes, D. (2007). In transit to constant time shortest-path queries in road networks. *9th Workshop on Algorithm Engineering and Experiments (ALENEX)*, 46–59.
 - Cohen, A., Dalyot, S. (2021). Route planning for blind pedestrians using OpenStreetMap. *Environment and Planning B* 48(6), 1511–1526.
+- Delling, D., Pajor, T., Werneck, R. F. (2015). Round-based public transit routing. *Transportation Science* 49(3), 591–604.
+- Delling, D., Wagner, D. (2009). Pareto paths with SHARC. *8th International Symposium on Experimental Algorithms (SEA)*, LNCS 5526, 125–136.
 - Destatis (2026). 7,8 Millionen schwerbehinderte Menschen leben in Deutschland. Press release 246, 13 July 2026.
+- Dibbelt, J., Pajor, T., Strasser, B., Wagner, D. (2018). Connection scan algorithm. *ACM Journal of Experimental Algorithmics* 23, 1.7. <https://doi.org/10.1145/3274661>
 - Dibbelt, J., Strasser, B., Wagner, D. (2014). Customizable contraction hierarchies. *13th International Symposium on Experimental Algorithms (SEA)*, LNCS 8504; journal version: *ACM Journal of Experimental Algorithmics* 21 (2016).
 - Dijkstra, E. W. (1959). A note on two problems in connexion with graphs. *Numerische Mathematik* 1, 269–271.
 - Dill, J., McNeil, N. (2013). Four types of cyclists? Examination of typology for better understanding of bicycling behavior and potential. *Transportation Research Record* 2387, 129–138.
@@ -393,13 +580,18 @@ How to compute Pareto-optimal routes efficiently, how many there can be, and how
 - Ehrgott, M., Wang, J. Y. T., Raith, A., van Houtte, C. (2012). A bi-objective cyclist route choice model. *Transportation Research Part A* 46(4), 652–663.
 - Fredman, M. L., Tarjan, R. E. (1987). Fibonacci heaps and their uses in improved network optimization algorithms. *Journal of the ACM* 34(3), 596–615.
 - Funke, S., Storandt, S. (2013). Polynomial-time construction of contraction hierarchies for multi-criteria objectives. *15th Workshop on Algorithm Engineering and Experiments (ALENEX)*.
+- Garey, M. R., Johnson, D. S. (1979). *Computers and Intractability: A Guide to the Theory of NP-Completeness*. W. H. Freeman.
 - Geisberger, R., Sanders, P., Schultes, D., Delling, D. (2008). Contraction hierarchies: faster and simpler hierarchical routing in road networks. *7th Workshop on Experimental Algorithms (WEA)*, LNCS 5038, 319–333.
 - Goldberg, A. V., Harrelson, C. (2005). Computing the shortest path: A\* search meets graph theory. *16th ACM-SIAM Symposium on Discrete Algorithms (SODA)*, 156–165.
 - Haeupler, B., Hladík, R., Rozhoň, V., Tarjan, R. E., Tětek, J. (2024). Universal optimality of Dijkstra via beyond-worst-case heaps. *65th IEEE Symposium on Foundations of Computer Science (FOCS)*. <https://arxiv.org/abs/2311.11793>
 - Hart, P. E., Nilsson, N. J., Raphael, B. (1968). A formal basis for the heuristic determination of minimum cost paths. *IEEE Transactions on Systems Science and Cybernetics* 4(2), 100–107.
+- Hernández, C., Yeoh, W., Baier, J. A., Zhang, H., Suazo, L., Koenig, S., Salzman, O. (2023). Simple and efficient bi-objective search algorithms via fast dominance checks. *Artificial Intelligence* 314, 103807.
+- Hrnčíř, J., Žilecký, P., Song, Q., Jakob, M. (2017). Practical multicriteria urban bicycle routing. *IEEE Transactions on Intelligent Transportation Systems* 18(3), 493–504.
+- Mandow, L., Pérez de la Cruz, J. L. (2010). Multiobjective A\* search with consistent heuristics. *Journal of the ACM* 57(5), 27.
 - Martins, E. Q. V. (1984). On a multicriteria shortest path problem. *European Journal of Operational Research* 16(2), 236–245.
 - Minett, C. F., Salomons, A. M., Daamen, W., van Arem, B., Kuijpers, S. (2011). Eco-routing: comparing the fuel consumption of different routes between an origin and destination using field test speed profiles and synthetic speed profiles. *IEEE Forum on Integrated and Sustainable Transportation Systems*, 32–39.
 - OpenStreetMap contributors (2026). Street network of Dortmund, downloaded on 9 November 2026 via the Overpass API. Open Database License. <https://www.openstreetmap.org/copyright>
+- Storandt, S. (2012). Route planning for bicycles – exact constrained shortest paths made practical via contraction hierarchy. *22nd International Conference on Automated Planning and Scheduling (ICAPS)*, 234–242.
 - Umweltbundesamt (2026a). Treibhausgasdaten 2025. Press release 08/2026, 14 March 2026.
 - Umweltbundesamt (2026b). Radverkehr. Web page, citing *Mobilität in Deutschland 2023*.
 - United Nations (2015). *Transforming our world: the 2030 Agenda for Sustainable Development*. Resolution A/RES/70/1.

@@ -1,7 +1,10 @@
 /* Interactive route planning demo on the Dortmund bicycle network (lecture 5, Algorithms and
    Sustainability). Own work, CC BY 4.0; map data (c) OpenStreetMap contributors, ODbL 1.0.
-   URL parameters: algo=dijkstra|bidir|astar|alt|ch|compare  metric=fast|quiet  s=, t= (place or node id)
-   state=final|start|anim  ui=full|legend|none  speed=<factor>  view=x0,y0,x1,y1 (metres) */
+   URL parameters: algo=dijkstra|bidir|astar|alt|ch|compare|mcdijkstra|lambda  metric=fast|quiet
+   s=, t= (place or node id)  state=final|start|anim  ui=full|legend|none|compact  speed=<factor>
+   view=x0,y0,x1,y1 (metres)  lam=<0..1> (weighted sum)  sel=<index of the Pareto route to highlight>
+   Lecture 6 added two criteria: mcdijkstra (multi-criteria Dijkstra, all Pareto-optimal routes, time and "quiet" weight, with the
+   Pareto front as a chart) and lambda (weighted sum lam*time + (1-lam)*quiet, with a slider). */
 (async function () {
   'use strict';
   const R = window.Routing;
@@ -9,8 +12,10 @@
   const COL = { blue: '#0A97D9', orange: '#E8700A', green: '#3F7E44', red: '#DD1367', ink: '#282a2e',
                 grey: '#8e908c' };
   const NAMES = { dijkstra: 'Dijkstra', bidir: 'Bidirectional Dijkstra', astar: 'A* (straight line)',
-                  alt: 'ALT (A*, landmarks)', ch: 'Contraction hierarchies', compare: 'Fast vs quiet' };
-  const RATE = { dijkstra: 140, bidir: 140, astar: 140, alt: 140, ch: 1.5 };   // nodes per frame
+                  alt: 'ALT (A*, landmarks)', ch: 'Contraction hierarchies', compare: 'Fast vs quiet',
+                  mcdijkstra: 'MC-Dijkstra: all Pareto-optimal routes', lambda: 'Weighted sum' };
+  const RATE = { dijkstra: 140, bidir: 140, astar: 140, alt: 140, ch: 1.5, mcdijkstra: 3000 };   // nodes (labels) per frame
+  const MAX_LABELS = 6e6;                       // MC-Dijkstra stops here (memory of the browser)
   const ui = P.get('ui') || 'full';
   document.body.classList.add(ui === 'none' ? 'noui' : ui === 'legend' ? 'legend' : ui === 'compact' ? 'compact' : 'fullui');
   if (P.get('algos')) {                         // only some algorithm buttons (e.g. algos=astar,alt)
@@ -95,6 +100,7 @@
   function resize(refit) {
     dpr = window.devicePixelRatio || 1;
     W = window.innerWidth; H = window.innerHeight;
+    if (typeof chartSize === 'function') chartSize();
     for (const k of Object.keys(cv)) {
       cv[k].width = Math.round(W * dpr); cv[k].height = Math.round(H * dpr);
       ctx[k].setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -130,6 +136,8 @@
     algo: P.get('algo') || 'dijkstra', metric: P.get('metric') || 'fast',
     s: -1, t: -1, res: null, shown: 0, anim: false, speed: parseFloat(P.get('speed') || '1'),
     tables: {}, compare: null,
+    lam: Math.min(1, Math.max(0, parseFloat(P.get('lam') || '0.5'))), sel: P.get('sel') !== null ? +P.get('sel') : -1,
+    pcache: null,
   };
   const placeNode = v => (D.places[v] ? D.places[v].node : (v !== null && v !== '' && isFinite(+v) ? +v : -1));
   st.s = placeNode(P.get('s') || 'tu');
@@ -158,6 +166,23 @@
     }
     return { km: len / 1000, busyKm: busy / 1000, min: time / 600 };
   }
+  function paretoFor(s, t) {                  // MC-Dijkstra from s to t (cached): Pareto set, hull, routes
+    const key = s + ',' + t;
+    if (st.pcache && st.pcache.key === key) return st.pcache.res;
+    const M = new R.MCDijkstra(G, s, t, G.w.fast, G.w.quiet);
+    while (!M.step(200000) && M.settled < MAX_LABELS) { /* run */ }
+    const ids = M.target.slice();
+    const pts = ids.map(id => [M.a[id], M.b[id]]);
+    const pos = new Map();                       // when each Pareto label was settled (for the animation)
+    for (let i = 0; i < M.settled; i++) if (M.node[M.order[i]] === t) pos.set(M.order[i], i);
+    const hull = new Set(R.lowerHull(pts));
+    const res = { mcd: M, order: M.order, settled: M.settled, side: new Uint8Array(M.settled),
+                  ids, pts, at: ids.map(id => pos.get(id)), hull, routes: ids.map(id => M.edgesOf(id)),
+                  stopped: !M.done };
+    res.info = res.routes.map(es => routeInfo(es));
+    st.pcache = { key, res };
+    return res;
+  }
   function compute() {
     const { algo, metric, s, t } = st;
     if (s < 0 || t < 0) { st.res = null; return; }
@@ -170,6 +195,22 @@
       if (metric !== 'fast') { st.res = { note: 'The contraction hierarchy was computed for travel time only. Another weight needs a new preprocessing (or a customizable CH).' }; return; }
       r = R.chQuery(CH, s, t);
       r.edges = r.origEdges;
+    } else if (algo === 'mcdijkstra') {
+      st.res = paretoFor(s, t);
+      return;
+    } else if (algo === 'lambda') {
+      const pf = paretoFor(s, t);
+      const lam = st.lam, w = new Float64Array(G.m), wf = G.w.fast, wq = G.w.quiet;
+      for (let e = 0; e < G.m; e++) w[e] = lam * wf[e] + (1 - lam) * wq[e];
+      G.w.mix = w;
+      const d = R.dijkstra(G, s, t, 'mix');
+      const es = edgesOfPath(d.path, 'mix');
+      let ta = 0, tb = 0;
+      for (const e of es) { ta += wf[e]; tb += wq[e]; }
+      let hit = -1;                              // the Pareto point it found (same costs)
+      for (let i = 0; i < pf.pts.length; i++) if (pf.pts[i][0] === ta && pf.pts[i][1] === tb) hit = i;
+      st.res = { lambda: true, pf, edges: es, a: ta, b: tb, hit, info: routeInfo(es) };
+      return;
     } else if (algo === 'compare') {
       const f = R.dijkstra(G, s, t, 'fast'), q = R.dijkstra(G, s, t, 'quiet');
       const fe = edgesOfPath(f.path, 'fast'), qe = edgesOfPath(q.path, 'quiet');
@@ -188,6 +229,13 @@
     if (!r || !r.order) return;
     const c = ctx.search, ls = lineScale();
     c.lineCap = 'round'; c.lineJoin = 'round';
+    if (r.mcd) {                             // the edge by which each settled label was reached
+      const M = r.mcd;
+      c.beginPath();
+      for (let i = k0; i < k1; i++) { const e = M.edge[r.order[i]]; if (e >= 0) addPiece(c, pieceOf(e)); }
+      c.strokeStyle = COL.blue; c.globalAlpha = 0.13; c.lineWidth = 1.5 * ls; c.stroke(); c.globalAlpha = 1;
+      return;
+    }
     for (const side of [0, 1]) {
       c.beginPath();
       const sc = new Path2D();
@@ -253,6 +301,18 @@
     if (done && r.compare) {
       drawRoute(c, r.quiet.edges, COL.green, 4.5);
       drawRoute(c, r.fast.edges, COL.blue, 3);
+    } else if (done && r.mcd) {             // all Pareto-optimal routes, fastest and quietest in colour
+      const ls = Math.min(1.6, lineScale());
+      c.lineCap = 'round'; c.lineJoin = 'round';
+      c.beginPath();
+      for (const es of r.routes) for (const e of es) addPiece(c, pieceOf(e));
+      c.strokeStyle = '#ffffff'; c.lineWidth = 6 * ls; c.stroke();
+      c.strokeStyle = '#7a7d82'; c.lineWidth = 2.2 * ls; c.stroke();
+      const last = r.routes.length - 1;
+      if (last >= 0) { drawRoute(c, r.routes[last], COL.green, 4); drawRoute(c, r.routes[0], COL.blue, 3); }
+      if (st.sel >= 0 && st.sel <= last) drawRoute(c, r.routes[st.sel], COL.orange, 4);
+    } else if (r && r.lambda) {
+      drawRoute(c, r.edges, COL.orange, 4);
     } else if (done && r.edges && r.edges.length) {
       drawRoute(c, r.edges, COL.ink, 3.5);
     }
@@ -283,14 +343,106 @@
     ctx.search.clearRect(0, 0, W, H);
     if (st.res && st.res.order) drawSearch(0, Math.floor(st.shown));
     drawTop();
+    drawChart();
     updateStats();
   }
+
+  // ------------------------------------------------------------ the Pareto front as a chart (lecture 6)
+  const cc = $('chart'), cx = cc.getContext('2d');
+  let CW = 300, CH_ = 215, chartBox = null;
+  function chartSize() {
+    const big = ui === 'compact' || ui === 'legend';
+    CW = big ? 330 : 300; CH_ = big ? 235 : 215;
+    cc.style.width = CW + 'px'; cc.style.height = CH_ + 'px';
+    cc.width = Math.round(CW * dpr); cc.height = Math.round(CH_ * dpr);
+    cx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  function drawChart() {
+    const r = st.res, on = r && (r.mcd || r.lambda);
+    document.body.classList.toggle('chart', !!on);
+    document.body.classList.toggle('lam', st.algo === 'lambda');
+    if (!on) { chartBox = null; return; }
+    const pf = r.mcd ? r : r.pf, pts = pf.pts;
+    if (!pts.length) return;
+    const shownPts = [];                          // during the animation: the Pareto labels found so far
+    for (let i = 0; i < pts.length; i++) if (!r.mcd || !st.anim || pf.at[i] < st.shown) shownPts.push(i);
+    const c = cx, fs = CW > 310 ? 13 : 12;
+    c.clearRect(0, 0, CW, CH_);
+    const L = 46, Rr = 12, T = 26, B = 36, w = CW - L - Rr, h = CH_ - T - B;
+    let ax0 = Infinity, ax1 = -Infinity, ay0 = Infinity, ay1 = -Infinity;
+    for (const [a, b] of pts) { ax0 = Math.min(ax0, a); ax1 = Math.max(ax1, a); ay0 = Math.min(ay0, b); ay1 = Math.max(ay1, b); }
+    const padx = Math.max(6, (ax1 - ax0) * 0.08), pady = Math.max(6, (ay1 - ay0) * 0.08);
+    ax0 -= padx; ax1 += padx; ay0 -= pady; ay1 += pady;
+    const X = a => L + (a - ax0) / (ax1 - ax0) * w, Y = b => T + h - (b - ay0) / (ay1 - ay0) * h;
+    chartBox = { X, Y, L, T, w, h };
+    c.font = `${fs}px Lato, LatoLatin, Helvetica, Arial, sans-serif`; c.fillStyle = COL.ink;
+    c.textAlign = 'left'; c.textBaseline = 'top';
+    c.font = `700 ${fs}px Lato, LatoLatin, Helvetica, Arial, sans-serif`;
+    c.fillText(r.mcd ? `Pareto front: ${shownPts.length} route${shownPts.length === 1 ? '' : 's'}` : 'Pareto front and weighted sum', 8, 6);
+    c.font = `${fs}px Lato, LatoLatin, Helvetica, Arial, sans-serif`;
+    c.strokeStyle = '#b9bcc0'; c.lineWidth = 1;
+    c.beginPath(); c.moveTo(L, T); c.lineTo(L, T + h); c.lineTo(L + w, T + h); c.stroke();
+    const ticks = (v0, v1) => { const step = [0.5, 1, 2, 5, 10, 20][[0.5, 1, 2, 5, 10, 20].findIndex(s => (v1 - v0) / s <= 6)] || 50;
+                                const out = []; for (let v = Math.ceil(v0 / step) * step; v <= v1; v += step) out.push(+v.toFixed(2)); return out; };
+    c.fillStyle = COL.grey; c.textAlign = 'center'; c.textBaseline = 'top';
+    for (const v of ticks(ax0 / 600, ax1 / 600)) { c.fillText(v, X(v * 600), T + h + 3); }
+    c.textAlign = 'right'; c.textBaseline = 'middle';
+    for (const v of ticks(ay0 / 600, ay1 / 600)) { c.fillText(v, L - 4, Y(v * 600)); }
+    c.fillStyle = COL.ink; c.textAlign = 'center'; c.textBaseline = 'bottom';
+    c.fillText('travel time (min)', L + w / 2, CH_ - 2);
+    c.save(); c.translate(11, T + h / 2); c.rotate(-Math.PI / 2); c.textBaseline = 'middle';
+    c.fillText('stress-weighted time (min)', 0, 0); c.restore();
+    const done = !st.anim || !r.mcd;
+    if (done) {                                   // the convex hull: what weighted sums can find
+      const hs = [...pf.hull].sort((i, j) => pts[i][0] - pts[j][0]);
+      c.beginPath(); hs.forEach((i, k) => (k ? c.lineTo : c.moveTo).call(c, X(pts[i][0]), Y(pts[i][1])));
+      c.strokeStyle = 'rgba(63, 126, 68, 0.55)'; c.lineWidth = 1.5; c.setLineDash([4, 3]); c.stroke(); c.setLineDash([]);
+    }
+    if (r.lambda) {                               // the line lam*a + (1-lam)*b = const through the optimum
+      const lam = st.lam, k0 = lam * r.a + (1 - lam) * r.b;
+      const yAt = a => (k0 - lam * a) / (1 - lam || 1e-9);
+      c.save(); c.beginPath(); c.rect(L, T, w, h); c.clip();
+      c.beginPath();
+      if (lam > 0.999) { c.moveTo(X(r.a), T); c.lineTo(X(r.a), T + h); }
+      else { c.moveTo(X(ax0), Y(yAt(ax0))); c.lineTo(X(ax1), Y(yAt(ax1))); }
+      c.strokeStyle = COL.orange; c.lineWidth = 1.6; c.stroke(); c.restore();
+    }
+    for (const i of shownPts) {
+      const [a, b] = pts[i], sup = done && pf.hull.has(i);
+      c.beginPath(); c.arc(X(a), Y(b), sup ? 4.2 : 3.2, 0, 2 * Math.PI);
+      c.fillStyle = sup ? COL.green : '#ffffff'; c.fill();
+      c.strokeStyle = sup ? COL.green : '#5c5f64'; c.lineWidth = 1.3; c.stroke();
+    }
+    const mark = (i, col) => { if (i < 0 || i >= pts.length) return; c.beginPath(); c.arc(X(pts[i][0]), Y(pts[i][1]), 6.5, 0, 2 * Math.PI); c.strokeStyle = col; c.lineWidth = 2.4; c.stroke(); };
+    if (done && r.mcd) { mark(0, COL.blue); mark(pts.length - 1, COL.green); mark(st.sel, COL.orange); }
+    if (r.lambda) mark(r.hit, COL.orange);
+  }
+  cc.addEventListener('click', ev => {
+    if (!chartBox || !st.res || st.anim) return;
+    const r = st.res, pf = r.mcd ? r : r.pf;
+    const rect = cc.getBoundingClientRect(), mx = ev.clientX - rect.left, my = ev.clientY - rect.top;
+    let best = -1, bd = 14 * 14;
+    pf.pts.forEach(([a, b], i) => { const d = (chartBox.X(a) - mx) ** 2 + (chartBox.Y(b) - my) ** 2; if (d < bd) { bd = d; best = i; } });
+    if (r.mcd) { st.sel = best; drawTop(); drawChart(); updateStats(); }
+    else if (best >= 0) {                         // weighted sum mode: jump to a lambda that finds it, if any
+      const [a, b] = pf.pts[best];
+      if (pf.hull.has(best)) {
+        const hs = [...pf.hull].sort((i, j) => pf.pts[i][0] - pf.pts[j][0]), k = hs.indexOf(best);
+        const slope = (i, j) => (pf.pts[j][1] - pf.pts[i][1]) / (pf.pts[j][0] - pf.pts[i][0]);   // < 0
+        const lamOf = sl => -sl / (1 - sl);       // the line a*lam + b*(1-lam) is parallel to a hull edge
+        const lo = k + 1 < hs.length ? lamOf(slope(hs[k], hs[k + 1])) : 0;
+        const hi = k > 0 ? lamOf(slope(hs[k - 1], hs[k])) : 1;
+        setLam((lo + hi) / 2);
+      }
+    }
+  });
 
   // ------------------------------------------------------------ text
   const fmt = x => Math.round(x).toLocaleString('en-US');
   function updateStats() {
     const r = st.res;
-    let html = `<b>${NAMES[st.algo]}</b>` + (st.algo === 'compare' ? '' : ` · weight: ${st.metric === 'fast' ? 'travel time' : 'quiet'}`);
+    const two = st.algo === 'compare' || st.algo === 'mcdijkstra' || st.algo === 'lambda';
+    let html = `<b>${NAMES[st.algo]}</b>` + (two ? '' : ` · weight: ${st.metric === 'fast' ? 'travel time' : 'quiet'}`);
     let leg = '';
     if (r && r.note) html += `<br>${r.note}`;
     else if (r && r.compare) {
@@ -299,6 +451,27 @@
       html += `<br>${line(COL.blue, 'fastest', f)}<br>${line(COL.green, 'quieter', q)}`;
       const nm = v => { for (const p of Object.values(D.places)) if (p.node === v) return p.label; return 'node ' + v; };
       leg = `<b>${nm(st.s)} → ${nm(st.t)} by bike</b><br>${line(COL.blue, 'fastest', f)}<br>${line(COL.green, 'quieter', q)}`;
+    } else if (r && r.mcd) {
+      const k = Math.floor(st.shown), found = st.anim ? r.at.filter(x => x < st.shown).length : r.pts.length;
+      const sel = st.sel >= 0 && st.sel < r.info.length ? r.info[st.sel] : null;
+      const rl = (col, name, i) => `<span class="key" style="background:${col}"></span>${name}: <b>${i.min.toFixed(1)} min</b>, ${i.busyKm.toFixed(1)} km on busy roads`;
+      html += `<br>settled labels: <b>${fmt(k)}</b> · Pareto-optimal routes: <b>${found}</b>` +
+              (st.anim ? '' : `<br><span class="hint">${r.hull.size} of them on the convex hull (found by weighted sums); click a point</span>`) +
+              (r.stopped ? '<br>stopped early (too many labels)' : '');
+      leg = `<b>All Pareto-optimal routes (MC-Dijkstra)</b><br>settled labels: <b>${fmt(k)}</b> (Dijkstra: one label per node)` +
+            `<br>Pareto-optimal routes: <b>${found}</b>` + (st.anim ? '' : `, ${r.hull.size} on the convex hull`);
+      if (!st.anim && r.info.length) {
+        const extra = `<br>${rl(COL.blue, 'fastest', r.info[0])}<br>${rl(COL.green, 'quietest', r.info[r.info.length - 1])}` +
+                      (sel ? `<br>${rl(COL.orange, 'selected', sel)}` : '');
+        html += extra; leg += extra;
+      }
+    } else if (r && r.lambda) {
+      const i = r.info, lam = st.lam.toFixed(2), lam1 = (1 - st.lam).toFixed(2);
+      const line = `minimise <b>${lam}</b> · time + <b>${lam1}</b> · stress-weighted time`;
+      const found = `<span class="key" style="background:${COL.orange}"></span>route: <b>${i.min.toFixed(1)} min</b>, ${i.busyKm.toFixed(1)} km on busy roads`;
+      const where = r.hit >= 0 ? (r.pf.hull.has(r.hit) ? 'a corner of the convex hull' : 'on the hull') : 'not in the Pareto set?';
+      html += `<br>${line}<br>${found}<br><span class="hint">Pareto front: ${r.pf.pts.length} routes; this one is ${where}. Weighted sums find only the ${r.pf.hull.size} corners.</span>`;
+      leg = `<b>Weighted sum, λ = ${lam}</b><br>${line}<br>${found}<br>finds only the ${r.pf.hull.size} corners of the convex hull (green)<br>of the ${r.pf.pts.length} Pareto-optimal routes`;
     } else if (r) {
       const k = Math.floor(st.shown);
       html += `<br>settled nodes: <b>${fmt(k)}</b>` + (st.anim ? '' : ` of ${fmt(G.n)}`);
@@ -328,9 +501,9 @@
     if (!r || !r.order || !animated || r.settled === 0) {
       st.anim = false; st.shown = r && r.order ? r.settled : 0;
       if (r && r.order) drawSearch(0, r.settled);
-      drawTop(); updateStats(); return;
+      drawTop(); drawChart(); updateStats(); return;
     }
-    st.anim = true; st.shown = 0; drawTop();
+    st.anim = true; st.shown = 0; drawTop(); drawChart();
     const rate = (RATE[st.algo] || 100) * st.speed;
     const step = () => {
       const k0 = Math.floor(st.shown);
@@ -338,6 +511,7 @@
       const k1 = Math.floor(st.shown);
       drawSearch(k0, k1);
       if (k1 >= r.settled) { st.anim = false; drawTop(); }
+      if (r.mcd) drawChart();
       updateStats();
       if (st.anim) raf = requestAnimationFrame(step);
     };
@@ -345,11 +519,18 @@
   }
   function clearSearch() {
     cancelAnimationFrame(raf); st.anim = false; st.res = null; st.shown = 0;
-    ctx.search.clearRect(0, 0, W, H); drawTop(); updateStats();
+    ctx.search.clearRect(0, 0, W, H); drawTop(); drawChart(); updateStats();
+  }
+  function setLam(v) {
+    st.lam = Math.min(1, Math.max(0, v));
+    $('lam').value = st.lam; $('lamval').textContent = st.lam.toFixed(2);
+    if (st.algo === 'lambda') run(false);
   }
 
   // ------------------------------------------------------------ interaction
-  for (const b of document.querySelectorAll('[data-algo]')) b.onclick = () => { st.algo = b.dataset.algo; run(st.algo !== 'compare'); };
+  for (const b of document.querySelectorAll('[data-algo]')) b.onclick = () => { st.algo = b.dataset.algo; st.sel = -1; run(st.algo !== 'compare' && st.algo !== 'lambda'); };
+  $('lam').addEventListener('input', () => setLam(+$('lam').value));
+  $('lam').value = st.lam; $('lamval').textContent = st.lam.toFixed(2);
   for (const b of document.querySelectorAll('[data-metric]')) b.onclick = () => { st.metric = b.dataset.metric; run(false); };
   for (const b of document.querySelectorAll('[data-speed]')) b.onclick = () => { st.speed = +b.dataset.speed; updateStats(); };
   $('run').onclick = () => run(true);
@@ -371,7 +552,7 @@
     if (down && !dragged) {
       const x = (ev.clientX - W / 2) / view.scale + view.cx, y = view.cy - (ev.clientY - H / 2) / view.scale;
       const v = nearest(x, y);
-      if (ev.shiftKey || nextIsT) { st.t = v; nextIsT = false; run(st.algo !== 'compare'); }
+      if (ev.shiftKey || nextIsT) { st.t = v; nextIsT = false; st.sel = -1; run(st.algo !== 'compare' && st.algo !== 'lambda'); }
       else { st.s = v; st.t = -1; nextIsT = true; clearSearch(); }
     }
     down = null;
@@ -392,7 +573,9 @@
       window.parent.postMessage(JSON.stringify({ method: nav[ev.key], args: [] }), '*');
       return;
     }
-    if (ev.key === 'r' || ev.key === 'Enter') run(true);
+    if (ev.key === 'r' || ev.key === 'Enter') run(st.algo !== 'lambda');
+    if (st.algo === 'lambda' && (ev.key === 'ArrowUp' || ev.key === '+')) { ev.preventDefault(); setLam(st.lam + 0.05); }
+    if (st.algo === 'lambda' && (ev.key === 'ArrowDown' || ev.key === '-')) { ev.preventDefault(); setLam(st.lam - 0.05); }
     if (ev.key === '0') { resize(true); redrawAll(); }
   });
   let rt = 0;
@@ -404,7 +587,7 @@
   resize(true);
   drawBase();
   const state = P.get('state') || 'final';
-  if (state === 'start') { drawTop(); updateStats(); }
-  else run(state === 'anim');
+  if (state === 'start') { drawTop(); drawChart(); updateStats(); }
+  else run(state === 'anim' && st.algo !== 'lambda');
   window.demoReady = true;
 })();

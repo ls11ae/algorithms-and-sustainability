@@ -13,9 +13,9 @@ date: Tuesday, 24 November 2026
 5. Public transit: timetables, models, Connection Scan
 
 ::: notes
-DRAFT (24 October 2026). The Dortmund running example (bicycle, TU Dortmund Campus Nord → Phoenix-See, OpenStreetMap) is not in this draft; where its maps belong, the notes say so. The public transit example uses real stop names, a simplified network and invented times; it is replaced by VRR data once the GTFS feed is available.
+Live demos on slides 5 (the Dortmund map of lecture 5), 9 (weighted sums with a slider), 13 (MC-Dijkstra on the Dortmund map) and 27 (Connection Scan). The Dortmund running example (bicycle, Hbf → Phoenix-See, OpenStreetMap, as in lecture 5) is on slides 5, 9 and 13. The public transit example uses real stop names, a simplified network and invented times; it is replaced by VRR data once the GTFS feed is available.
 
-Timing (90 min, main part slides 2–27): 10:15 plan and recap (slides 2–3, 3 min) · 10:18 several criteria and Pareto optimality (slides 4–8, 12 min) · 10:30 multi-criteria Dijkstra (slides 9–12, 16 min) · 10:46 contraction hierarchies for several criteria (slides 13–17, 15 min) · 11:01 public transit: terms, GTFS, queries, graph models (slides 18–22, 14 min) · 11:15 Connection Scan (slides 23–25, 12 min) · 11:27 outlook and next steps (slides 26–27, 3 min) · about 15 min buffer. 2025 the same material took about 105 minutes in two lectures (multi-criteria about 65, public transit basics about 38); the cuts: shorter motivation (lecture 5 had it), the Pareto set of a point set as a quiz instead of a derivation, the adaptations of the other speed-up techniques as one table.
+Timing (90 min, main part slides 2–30): the times in the notes add up to 82 minutes, at the pace of lecture 5 (1.26 × plan) about 103 minutes. With the cuts below about 69 plan minutes, about 86 minutes: 10:15 plan and recap (slides 2–3) · 10:20 several criteria, Pareto optimality, weighted sums (slides 5–9) · 10:37 MC-Dijkstra (slides 10–13; step by step 7 min) · 10:56 how many Pareto-optimal routes, contraction hierarchies for several criteria (slides 14–18: 14 short, of 18 only the table; skip 17 and 19) · 11:10 public transit and Connection Scan (slides 21–28: GTFS and graph models short; skip the live demo on 27) · 11:38 outlook and next steps (slides 29–30) · 11:42 end, about 3 minutes buffer. Emergency brake: not at slide 21 by 11:15 → show 22 and 24 only briefly, 28 in one sentence. In 2025 the same material took about 105 minutes in two lectures.
 :::
 
 # Recap: contraction hierarchies {.columns}
@@ -40,25 +40,27 @@ About 2 minutes. Answer: whether there is a path from u to w that avoids v and i
 
 Week 7 · today: several criteria, and timetables
 
-# Which cycling route?
+# Which cycling route? {.columns}
+
+## {.left grow="2"}
 
 [1 · Question]{.step}
 
-::: columns-1-1
-::: col
-- **Cycling in Prague:** travel time, **comfort** (surface, traffic) and **elevation gain** (Hrnčíř et al. 2017)
-- **Driving in the Saarland:** 37 min for €4.61, 44 min for €3.81, or 40 min for €3.87 (Funke and Storandt 2013)
-:::
-::: col
-- Faster is often **louder, steeper or dirtier**
-- No single "best" route: it depends on the person
-:::
-:::
+Last week, **Hbf → Phoenix-See**:
 
-[Which of the three Saarland routes would you take, and why?]{.ask}
+- **fastest:** 19.2 min, 5.2 km busy
+- **quieter:** 21.1 min, 0.2 km busy
+
+[Are there good routes in between? How many?]{.ask}
+
+## {.right grow="3"}
+
+<iframe class="demo" data-src="../static/routing-demo/index.html?ui=compact&amp;algo=compare&amp;s=hbf&amp;t=phoenix&amp;view=-300,-1700,7300,4400" title="Interactive map: fastest and quieter bicycle route from Dortmund Hbf to the Phoenix-See"></iframe>
+
+![Fastest route (blue, 19.2 min, 5.2 km on busy roads) and quieter route (green, 21.1 min, 0.2 km on busy roads) from Dortmund Hbf to the Phoenix-See](figures/dortmund-fast-quiet.png){.demo-print .nocap}
 
 ::: notes
-About 3 minutes. Most students pick the 40-minute route: almost as cheap as the cheapest, only 3 minutes slower than the fastest. That intuition is the "fair trade-off" of today. The fuel prices are from the figure in Funke and Storandt (2013), computed on OpenStreetMap data. Map (to come): three bicycle routes from TU Dortmund Campus Nord to the Phoenix-See (fastest, quietest, flattest) from the routing-viz project.
+About 2 minutes. The same map as in lecture 5 (slide 5 there); the students know both routes. Collect guesses: how many routes are "reasonable" between the two? (Answer later today: 115 Pareto-optimal routes, slide "MC-Dijkstra in Dortmund".) Faster is often louder, steeper or dirtier: there is no single "best" route. Research context: Hrnčíř et al. (2017) plan bicycle routes in Prague with three criteria (travel time, comfort, elevation gain). Driving example from the earlier draft, if wanted: in the Saarland, 37 min for €4.61, 44 min for €3.81 or 40 min for €3.87 (Funke and Storandt 2013).
 :::
 
 # Three ways to combine criteria
@@ -117,7 +119,19 @@ The contraction hierarchy for several criteria keeps exactly the routes that are
 About 2 minutes. Answer: C lies above the segment between B and D; for every λ, the weighted cost of C is at least the smaller of those of B and D (a weighted sum is a linear function, and on a segment a linear function is minimised at an end point). So weighted sums cannot produce every Pareto route, but they produce good trade-offs quickly, and they can be computed with ordinary shortest-path machinery.
 :::
 
-# Multi-criteria Dijkstra
+# Weighted sums in Dortmund
+
+Hbf → Phoenix-See, minimise $\lambda\cdot\text{time}+(1-\lambda)\cdot\text{stress}$: the route jumps between only **13** of the **115** Pareto-optimal routes. [Which λ would you choose?]{.ask}
+
+<iframe class="demo wide" data-src="../static/routing-demo/index.html?ui=compact&amp;algo=lambda&amp;lam=0.5&amp;s=hbf&amp;t=phoenix&amp;view=-1500,-1000,8000,4900" title="Interactive map: weighted sum of travel time and stress from Dortmund Hbf to the Phoenix-See, with a slider for lambda and the Pareto front"></iframe>
+
+![Weighted sum with lambda = 0.5 (orange route, 20.8 min, 0.4 km on busy roads); the chart shows all 115 Pareto-optimal routes, 13 of them on the convex hull (green)](figures/dortmund-lambda.png){.demo-print .wide .nocap}
+
+::: notes
+About 3 minutes. Drag the slider (or press ↑/↓ in the demo): λ = 1 gives the fastest route, λ = 0 the quietest; each λ is one ordinary Dijkstra with the edge weight λ·time + (1 − λ)·stress (about 15 ms). The orange line in the chart is the set of points with the same weighted cost; the optimum is where it touches the front, always a corner of the lower convex hull. Clicking a green point in the chart jumps to a λ that finds it. Stress = travel time × stress factor of the street (lecture 5, slide 32), so it is measured in "stress-weighted minutes". The front (115 routes) was computed with MC-Dijkstra (next slides) when the demo loaded.
+:::
+
+# Multi-criteria Dijkstra (MC-Dijkstra)
 
 [3 · Algorithms]{.step}
 
@@ -134,7 +148,7 @@ About 2 minutes. Answer: C lies above the segment between B and D; for every λ,
 About 3 minutes. Compare line by line with Dijkstra from lecture 5: distance → bag of labels, settle a node → settle a label, relax → insert unless dominated. Lexicographic order: first by the first criterion, ties by the second. Any order that is compatible with dominance works (e.g. by the sum).
 :::
 
-# Multi-criteria Dijkstra, step by step
+# MC-Dijkstra, step by step
 
 ::: {.r-stack}
 ![Four nodes s, a, b, t; edges with (time, stress): s→a (1, 3), s→b (3, 1), a↔b (1, 1), a→t (2, 4), b→t (2, 2); one label (0, 0) at s](figures/martins-step-0.svg){.nocap height="500px"}
@@ -166,6 +180,18 @@ About 7 minutes; six clicks. Ask before each click which label comes next (lexic
 
 ::: notes
 About 2 minutes. Proof sketch: a later label ℓ'' at v comes from a label extracted later, so it is lexicographically at least as large; extending by non-negative costs keeps it at least as large, so ℓ'' cannot be strictly smaller in the first criterion with the second also not larger, i.e. it cannot dominate an extracted label. With a negative cost, a later path could become cheaper in every criterion.
+:::
+
+# MC-Dijkstra in Dortmund
+
+**▶ Run**: **1,364,095** labels at 43,797 nodes (Dijkstra: 39,856 nodes), **115** Pareto-optimal routes; 0.4 s instead of 15 ms. [Why so many labels per node?]{.ask}
+
+<iframe class="demo wide" data-src="../static/routing-demo/index.html?ui=compact&amp;algo=mcdijkstra&amp;s=hbf&amp;t=phoenix&amp;state=start&amp;view=-1500,-1000,8000,4900" title="Interactive map: multi-criteria Dijkstra from Dortmund Hbf to the Phoenix-See; the Pareto front grows in a chart"></iframe>
+
+![MC-Dijkstra from Dortmund Hbf to the Phoenix-See: 1,364,095 labels settled (blue); the 115 Pareto-optimal routes (grey), the fastest (blue) and the quietest (green); the chart shows the Pareto front with 13 routes on the convex hull](figures/dortmund-martins.png){.demo-print .wide .nocap}
+
+::: notes
+About 3 minutes. Press ▶ Run: the labels are settled in lexicographic order, so the Pareto routes appear in the chart from left to right (fastest first). Clicking a point in the chart shows its route (orange). Answer to the question: every node has its own Pareto set of partial routes from s (fast-but-busy against slow-but-quiet), and all of them must be kept, because any of them could be the start of a Pareto-optimal route to some node. Only at t do they compete with each other; and target pruning drops a label only once a route to t already dominates it. Dijkstra for the same pair settles 39,856 of the 112,743 nodes (travel time; 42,595 with the quiet weight); MC-Dijkstra reaches 43,797 nodes. Implementation detail (BOA*-style): because labels come out in lexicographic order, the dominance test at a node is one comparison with the smallest stress settled there (O(1)); with the naive test over the whole bag the same search took 7 s. In the demo, other start and target points: click twice on the map; for points far apart the search can take a few seconds.
 :::
 
 # How many Pareto-optimal routes?
@@ -367,6 +393,18 @@ About 3 minutes. No priority queue, no graph: one array of connections, one arra
 About 6 minutes; five clicks. Green: usable; grey: not usable; orange frame: the connection just scanned; red: stop. Change times: Universität 2 min, Dortmund Hbf 5, Bochum Hbf 4. Row 4: S1 at 8:01 from Universität, but we arrive there at 8:00 and need 2 minutes. Rows 6–7: we are at Dortmund Hbf at 8:12 and need until 8:17. Rows 9–10: at Bochum 8:27 + 4 = 8:31 > 8:19, 8:20. Row 11: S1 c is reachable from Universität (8:02 ≤ 8:21), the trip is marked, but 8:40 does not improve Bochum (8:27). Row 12: RE b is already reached: Essen 8:39. Journey: H-Bahn 7:56–8:00, S1 8:04–8:12, RE 8:17–8:39.
 :::
 
+# Connection Scan, live
+
+The same 13 connections: **Step** scans one, **▶ Run** all. Then: another departure time, another start (click two stops), or the **full timetable**.
+
+<iframe class="demo wide" data-src="../static/transit-demo/index.html?ui=compact&amp;algo=csa" title="Interactive Connection Scan on the example: the connections in order of departure on the right, earliest arrival times on the map"></iframe>
+
+![Connection Scan on the example, Campus Süd 7:50 to Essen Hbf: all 13 connections scanned, earliest arrival 8:39 (H-Bahn 7:56 to Dortmund Universität, S1 8:04 to Dortmund Hbf, RE 8:17 to Essen Hbf)](figures/transit-csa.png){.demo-print .wide .nocap}
+
+::: notes
+About 3 minutes, or skip if the step-by-step slide took long. The demo has exactly the 13 connections of the previous slide (same statuses: departs before 7:50, not reachable with the change time, board, stay on the trip, improves, stop). "full timetable" switches to the same network with all trips from 7:00 to 10:00 (H-Bahn every 10 minutes, S1 every 20, RE twice an hour; still invented times): from 7:50 the scan now sees 31 connections, the answer is the same. With the slider, e.g., 8:05: the H-Bahn at 8:06 is too late for the S1 at 8:04, and the earliest arrival in Essen becomes 9:01. Real data: tools/make_transit_demo.py converts a GTFS feed (e.g., the German local transport feed of gtfs.de, CC BY 4.0) for a box around Dortmund; the demo then colours all stations by their earliest arrival time while the scan runs.
+:::
+
 # Why CSA is correct, and fast
 
 - Sorted by departure time = a **topological order** of the time-expanded graph: when $c$ is scanned, every connection that can lead to it was scanned before
@@ -384,21 +422,22 @@ About 3 minutes. Correctness: like Dijkstra on a DAG in topological order (lectu
 # Outlook: more criteria, more modes
 
 - Earliest arrival is not enough: **fewer transfers**, walking or cycling to the stop
-- Next week: **RAPTOR** (rounds = number of trips), its multi-criteria version, and journeys with a bike on the first and last mile
+- In **part 2**: **RAPTOR** (rounds = number of trips), its multi-criteria version, and journeys with a bike on the first and last mile
 - The same theme as today: Pareto sets, and preprocessing that keeps them small
 
 ::: notes
-About 2 minutes. Teaser: in the example, RAPTOR finds both journeys (8:39 with three trips, 9:01 with two). Next week: RAPTOR, McRAPTOR, Trip-Based Routing, ULTRA, with examples from the VRR network.
+About 2 minutes. Teaser: in the example, RAPTOR finds both journeys (8:39 with three trips, 9:01 with two). Part 2 (8 December or later, see the next slide): RAPTOR, McRAPTOR, Trip-Based Routing, ULTRA.
 :::
 
 # Next steps
 
-- **Tuesday, 1 December:** public transit, part 2 (RAPTOR and beyond)
-- **8 December:** block 3, energy-efficient algorithms
-- Exercise: Pareto sets and the Connection Scan Algorithm by hand
+- **Today, 14:15, OH14 E02:** in-class exercise *Routes for whom?*, bring a laptop or a phone
+- **Tuesday, 1 December:** no lecture and no tutorial
+- **8 December:** public transit, part 2, or energy efficiency in software engineering? We decide together.
+- **15 December:** energy-efficient algorithms
 
 ::: notes
-Closing sentence: several criteria turn a distance into a set of trade-offs; algorithms either compute the whole Pareto set (exponential in the worst case, often large in practice) or restrict to weighted sums, which keeps the speed-up techniques fast. The exercise line is a suggestion; adapt it to the sheet that is actually handed out.
+Closing sentence: several criteria turn a distance into a set of trade-offs; algorithms either compute the whole Pareto set (exponential in the worst case, often large in practice) or restrict to weighted sums, which keeps the speed-up techniques fast. Then ask about 8 December (Kevin, 24 November: decide together with the students): public transit, part 2 (lecture 7: RAPTOR, McRAPTOR, Trip-Based Routing, ULTRA) or energy efficiency in software engineering (as in the Moodle schedule, week 50); 15 December stays energy-efficient algorithms. Today's tutorial: the in-class exercise with the web demo of the BSc course (four personas) and two-dimensional Pareto sets; MC-Dijkstra and CSA by hand come later.
 :::
 
 # Additional material {.section}

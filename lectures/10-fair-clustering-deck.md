@@ -12,7 +12,7 @@ date: Tuesday, 12 January 2027
 4. Fair centres, fair costs, fair radii
 
 ::: notes
-DRAFT (24 October 2026), proposal for the first lecture of block 4. The running example is a constructed town (24 families in two groups, three schools); all numbers come from tools/make_fairness_figures.py. If a guest speaks on 12 January (2025: Melanie Schmidt on fairness in geometric clustering), this deck can move to 19 January; then slides 8–12 become a short recap.
+Live demo added on 16 November 2026: slide 12 (fair clustering in the town); the timing below does not include it (about +4 minutes). DRAFT (24 October 2026), proposal for the first lecture of block 4. The running example is a constructed town (24 families in two groups, three schools); all numbers come from tools/make_fairness_figures.py. If a guest speaks on 12 January (2025: Melanie Schmidt on fairness in geometric clustering), this deck can move to 19 January; then slides 8–12 become a short recap.
 
 Timing (90 min, main part slides 2–21): 10:15 plan, block overview, leave no one behind, the town (slides 2–6, 12 min) · 10:27 fairness notions (slide 7, 6 min) · 10:33 balance, fairlets, price of fairness, exercise (slides 8–12, 23 min) · 10:56 more groups, fair centres, social fairness (slides 13–15, 12 min) · 11:08 individual fairness (slides 16–17, 10 min) · 11:18 which notion when, conflicts, summary (slides 18–20, 8 min) · 11:26 next steps (slide 21, 1 min) · about 18 min buffer.
 :::
@@ -150,6 +150,18 @@ About 4 minutes. A simple bound of 4 that students can follow (OPT = radius of a
 
 ::: notes
 About 5 minutes. Optimum with balance 1 computed exactly, with every school in its own cluster: for every triple of centres, binary search over the radius R, feasible if there is a perfect A–B matching in which both families of a pair are within R of a common centre (a pair with a school family must use that school). Answer to the question: segregation. The more the groups live apart, the farther some families must travel to a mixed school. The price of fairness is a property of the instance, not of the algorithm. The fairlet algorithm is far from optimal here because its pairs are fixed before the centres are chosen.
+:::
+
+# Fair clustering, live
+
+The town of the slides: k-center, Gonzalez, fairlets, fair optimum. **Drag** a family, change **k**. [Move one family: when does fairness get cheaper?]{.ask}
+
+<iframe class="demo wide" data-src="../static/fairness-demo/index.html?ui=compact&amp;modes=0&amp;mode=cluster&amp;show=kcenter" title="Interactive fair clustering in the constructed town: k-center, Gonzalez, fairlets and the fair optimum, with draggable families"></iframe>
+
+![The best clustering with balance 1 in the town: radius 5.19 km, schools with 2 A + 2 B, 6 A + 6 B and 4 A + 4 B families](figures/fair-live.png){.demo-print .wide .nocap}
+
+::: notes
+About 4 minutes. Same numbers as on the previous slides: optimal 3-center 2.97 km with minimum balance 0.17; fairlets (bottleneck pairing, longest pair 6.50 km) with the best 3-center of their A-families: 8.63 km; fair optimum 5.19 km (computed exactly in the browser, about 0.1 s). Moving a family of the minority group into "its" quarter (e.g. the B family in the north-west to the east) lowers the fair optimum: segregation is what makes fairness expensive here. k = 2 and 4 also work; for the fair optimum the groups must have equal size (12 and 12).
 :::
 
 # Your turn

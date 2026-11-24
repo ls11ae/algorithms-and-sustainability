@@ -6,7 +6,7 @@ Small constructed examples only (no data needed).
 Writes:
   pareto-quiz.svg, pareto-quiz-solution.svg   nine routes (time, stress): which are Pareto-optimal?
                                               solution with the Pareto set and the lower convex hull
-  martins-step-0..5.svg           multi-criteria Dijkstra (Martins) on a four-node graph
+  martins-step-0..5.svg           multi-criteria Dijkstra (MC-Dijkstra) on a four-node graph
   pareto-chain.svg                2^k Pareto-optimal paths on a chain
   mcch-envelope.svg               the u-w paths of the example as lines over lambda, with the lower envelope
   mcch-witness-0..2.svg           witness search of Funke and Storandt (2013), step by step
@@ -144,13 +144,13 @@ def fig_pareto():
     return par, hull, unsupported
 
 
-# ---------------------------------------------------------------- 2) Martins' algorithm
+# ---------------------------------------------------------------- 2) Multi-criteria Dijkstra (MC-Dijkstra)
 M_POS = {"s": (0, 1.0), "a": (2.0, 2.15), "b": (2.0, -0.15), "t": (4.0, 1.0)}
 M_EDGES = {("s", "a"): (1, 3), ("s", "b"): (3, 1), ("a", "b"): (1, 1), ("a", "t"): (2, 4), ("b", "t"): (2, 2)}
 M_BOTH = {("a", "b")}                             # the only edge usable in both directions
 
 
-def martins(edges, s, both=()):
+def mc_dijkstra(edges, s, both=()):
     """Label-setting multi-criteria Dijkstra (Martins 1984) on a directed graph (edges in `both` are used in
     both directions). Labels are extracted in lexicographic order. Returns the trace and the final bags."""
     adj = {}
@@ -272,9 +272,9 @@ def apply_strikes(fig):
     STRIKES.clear()
 
 
-def fig_martins():
-    steps, final = martins(M_EDGES, "s", both=M_BOTH)
-    print("== Martins example: final labels at t", final["t"])
+def fig_mc_dijkstra():
+    steps, final = mc_dijkstra(M_EDGES, "s", both=M_BOTH)
+    print("== MC-Dijkstra example: final labels at t", final["t"])
     for k, st in enumerate(steps[1:], 1):
         u, lab = st["extracted"]
         print(f"   step {k}: extract {u}{fmt(lab)}; insert", ", ".join(f"{v}{fmt(l)}" for v, l in st["inserted"]) or "-",
@@ -522,6 +522,6 @@ def fig_mcch():
 
 if __name__ == "__main__":
     fig_pareto()
-    fig_martins()
+    fig_mc_dijkstra()
     fig_chain()
     fig_mcch()

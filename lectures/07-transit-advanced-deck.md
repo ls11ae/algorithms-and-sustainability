@@ -1,7 +1,7 @@
 ---
 title: Algorithms and Sustainability
 subtitle: "Lecture 7: Public transit: rounds, trips, and the bike"
-date: Tuesday, 1 December 2026
+date: Tuesday, 8 December 2026
 ---
 
 # Plan for today
@@ -14,7 +14,7 @@ date: Tuesday, 1 December 2026
 6. Bike and train: the first and last mile
 
 ::: notes
-DRAFT (24 October 2026). The example is the same as in lecture 6: real stop names around TU Dortmund, a simplified network and invented times; it can be replaced by VRR data. An animation on the real network would come from the routing-viz project.
+Live demo added on 16 November 2026: slide 9 (RAPTOR); the timing below does not include it (about +3 minutes). DRAFT (24 October 2026). The example is the same as in lecture 6: real stop names around TU Dortmund, a simplified network and invented times; it can be replaced by VRR data. An animation on the real network would come from the routing-viz project.
 
 Timing (90 min, main part slides 2–19): 10:15 plan and recap (slides 2–3, 4 min) · 10:19 practice (slides 4–5, 5 min) · 10:24 RAPTOR (slides 6–9, 22 min) · 10:46 profiles and several criteria (slides 10–11, 9 min) · 10:55 Trip-Based routing (slides 12–13, 11 min) · 11:06 bike and train (slides 14–15, 10 min) · 11:16 overview, block summary, projects, next steps (slides 16–19, 8 min) · about 21 min buffer.
 :::
@@ -105,6 +105,18 @@ About 5 minutes. Draw one route as a line of stops on the board: the "current tr
 About 8 minutes; three clicks. Round 1: route H-Bahn from Campus Süd: board 7:56, get off at Universität 8:00. Round 2: marked: Universität. S1 eastwards: board S1 b at 8:04 (8:00 + 2 min change), Dortmund Hbf 8:12. S1 westwards: S1 a at 8:01 is too early, board S1 c at 8:21: Bochum 8:40, Essen 9:01. Round 3: marked Dortmund Hbf, Bochum, Essen. RE from Dortmund Hbf: RE a (8:09) too early, RE b at 8:17: Bochum 8:27, Essen 8:39. Answer: round 4 starts from Bochum (8:27) but finds no improvement (the next S1 from Bochum arrives at 9:01); no stop is marked, RAPTOR stops. Result: Essen with 2 trips at 9:01, with 3 trips at 8:39: both Pareto-optimal.
 :::
 
+# RAPTOR, live
+
+**Step** scans one route, round by round; at the end: the **Pareto set** of arrival time and number of trips. [Which routes does round 3 scan?]{.ask}
+
+<iframe class="demo wide" data-src="../static/transit-demo/index.html?ui=compact&amp;algo=raptor" title="Interactive RAPTOR on the example: round by round, the scanned routes on the right, arrival times and numbers of trips on the map"></iframe>
+
+![RAPTOR on the example, Campus Süd 7:50 to Essen Hbf: after round 3 the Pareto set is 9:01 with two trips and 8:39 with three trips](figures/transit-raptor.png){.demo-print .wide .nocap}
+
+::: notes
+About 3 minutes. Round k scans every route that serves a stop improved in round k − 1, from the first such stop on; in the list, "board 8:32 at DO, then 8:21 at UNI" is the step "catch an earlier trip": a later stop of the route was reached in the previous round early enough for an earlier trip. Answer to the question: round 2 improved Dortmund Hbf (8:12), Bochum Hbf (8:40) and Essen Hbf (9:01), so round 3 scans every route that leaves one of them: the S1 towards Essen from Dortmund Hbf (it catches the 8:21 at Universität again, no improvement), the S1 towards Dortmund from Bochum Hbf (nothing new) and the RE from Dortmund Hbf (8:17: Bochum 8:27, Essen 8:39). Essen Hbf is the last stop of its routes, so no route starts there. Round 4 improves nothing, so RAPTOR stops. "full timetable" and the slider as in lecture 6. With a GTFS feed (tools/make_transit_demo.py) the same code runs on a real network.
+:::
+
 # Why RAPTOR is fast, and correct
 
 - After round $k$: $\tau_k(p)$ is the earliest arrival with at most $k$ trips (induction over $k$)
@@ -140,7 +152,7 @@ About 4 minutes. rRAPTOR (range RAPTOR, Delling et al. 2015). Self-pruning: a jo
 [Delling, Pajor, Werneck (2015); Delling, Dibbelt, Pajor (2019)]{.source}
 
 ::: notes
-About 5 minutes. Same idea as Martins' bags in lecture 6, now per round. Restricted Pareto sets (Delling, Dibbelt, Pajor 2019): only keep journeys that are not much worse than the best one in any criterion, and compute them much faster. OpenTripPlanner 2 uses multi-criteria range RAPTOR with such restrictions (filters on slack in arrival time and transfers).
+About 5 minutes. Same idea as the bags of MC-Dijkstra in lecture 6, now per round. Restricted Pareto sets (Delling, Dibbelt, Pajor 2019): only keep journeys that are not much worse than the best one in any criterion, and compute them much faster. OpenTripPlanner 2 uses multi-criteria range RAPTOR with such restrictions (filters on slack in arrival time and transfers).
 :::
 
 # Trip-Based routing
@@ -237,7 +249,7 @@ About 1 minute; only if the project assignment is still open. Ideas, not a fixed
 
 # Next steps
 
-- **Tuesday, 8 December:** block 3, energy-efficient algorithms
+- **Tuesday, 15 December:** block 3, energy-efficient algorithms
 - Exercise: RAPTOR by hand, Trip-Based transfers
 
 ::: notes

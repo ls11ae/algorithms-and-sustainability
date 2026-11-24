@@ -12,7 +12,7 @@ date: Tuesday, 15 December 2026
 4. Outlook: predictions and carbon-aware computing
 
 ::: notes
-DRAFT (24 October 2026), proposal for the second lecture of block 3. The date follows the plan in the handover document (8 December: energy efficiency in software engineering, 15 December: energy-efficient algorithms); swap if needed. Running example: a student's family farm with solar panels and a feed mill . All farm numbers are invented for illustration; for the lecture a real price profile from SMARD (Bundesnetzagentur, CC BY 4.0) would be better. Literature: prep/energie-pv-scheduling-literatur.md.
+Live demos added on 16 November 2026: slide 5 (the feed mill, replaces the static figure), slide 10 (YDS), slide 18 (power-down); the timing below does not include slides 10 and 18 (about +6 minutes). DRAFT (24 October 2026), proposal for the second lecture of block 3. The date follows the plan in the handover document (8 December: energy efficiency in software engineering, 15 December: energy-efficient algorithms); swap if needed. Running example: a student's family farm with solar panels and a feed mill . All farm numbers are invented for illustration; for the lecture a real price profile from SMARD (Bundesnetzagentur, CC BY 4.0) would be better. Literature: prep/energie-pv-scheduling-literatur.md.
 
 Timing (90 min, main part slides 2–21): 10:15 plan, block overview, the farm question (slides 2–5, 10 min) · 10:25 scheduling with prices (slide 6, 6 min) · 10:31 speed scaling and YDS (slides 7–12, 25 min) · 10:56 online algorithms (slides 13–17, 24 min) · 11:20 predictions, carbon-aware, the farm revisited (slides 18–20, 8 min) · 11:28 next steps (slide 21, 2 min) · about 15 min buffer.
 :::
@@ -46,7 +46,9 @@ About 4 minutes. The example comes from a student's family farm: solar panels on
 
 ## {.left grow="3"}
 
-![The same day with the cheapest three-hour window 12:00–15:00 (10.50 euro) and the most expensive start 17:00 (50.11 euro)](figures/farm-day-solution.svg){.nocap height="470px"}
+<iframe class="demo" data-src="../static/energy-demo/index.html?ui=compact&amp;modes=0&amp;mode=mill" title="Interactive farm day: drag the feed mill along the day, or try all three-hour windows"></iframe>
+
+![The same day with the cheapest three-hour window 12:00–15:00 (10.50 euro) and the most expensive start 17:00 (50.11 euro)](figures/farm-day-solution.svg){.demo-print .nocap}
 
 ## {.right grow="2"}
 
@@ -54,7 +56,7 @@ About 4 minutes. The example comes from a student's family farm: solar panels on
 - One job, fixed length: try every window: $O(T)$ for $T$ slots
 
 ::: notes
-About 3 minutes. Cost in slot t with PV surplus r_t, buying price p_t and feed-in price q_t: f_t(x) = q_t · min(x, r_t) + p_t · max(x − r_t, 0). Numbers (invented): 12:00–15:00 costs €10.50 (only own power, since the surplus is at least 50 kW in all three hours: just the lost feed-in, 3 · 50 kWh · 7 ct), 11:00 or 13:00 cost €10.54, a start at 17:00 €50.11. The optimum is flat around noon; what matters is to avoid the evening. Sliding window: update the window sum by one slot each step.
+About 3 minutes. Cost in slot t with PV surplus r_t, buying price p_t and feed-in price q_t: f_t(x) = q_t · min(x, r_t) + p_t · max(x − r_t, 0). Numbers (invented): 12:00–15:00 costs €10.50 (only own power, since the surplus is at least 50 kW in all three hours: just the lost feed-in, 3 · 50 kWh · 7 ct), 11:00 or 13:00 cost €10.54, a start at 17:00 €50.11. The optimum is flat around noon; what matters is to avoid the evening. Sliding window: update the window sum by one slot each step. Live: drag the mill (yellow: own solar power, pink: bought), then ▶ Try all windows (one bar per start hour) or Cheapest.
 :::
 
 # Scheduling with prices: what is known
@@ -117,6 +119,18 @@ About 4 minutes. "Inside" means r_j ≥ a and d_j ≤ b. Instead of blocking, th
 
 ::: notes
 About 9 minutes; three clicks. Before each click, let students compute densities. Round 1: candidates: [2, 6] with J2: 6/4 = 1.5; [0, 8] with J1, J2: 10/8 = 1.25; [0, 10] with J1–J3: 13/10 = 1.3; [0, 12]: 15/12 = 1.25. Maximum: [2, 6]. Round 2 (free time outside [2, 6]): [0, 10] contains J1 and J3: 7 units of work in 2 + 4 = 6 free time units: 7/6 ≈ 1.17; [0, 8]: J1 alone 4/4 = 1. EDF: J1 (deadline 8) in [0, 2] and [6, 7.43], J3 in [7.43, 10]. Round 3: J4 in [10, 12]: 2/2 = 1. Energy with α = 3: 901/36 ≈ 25.0.
+:::
+
+# YDS, live
+
+**Step**: one round of YDS; **drag** the ends of a job. **online: AVR** runs every job at its own density. [Why does AVR need more energy?]{.ask}
+
+<iframe class="demo wide" data-src="../static/energy-demo/index.html?ui=compact&amp;modes=0&amp;mode=yds&amp;k=0" title="Interactive YDS: rounds of the algorithm on four jobs, with draggable release times and deadlines, and the online AVR speed profile for comparison"></iframe>
+
+![YDS on the four jobs: speed 3/2 for J2 in [2, 6], 7/6 for J1 and J3, 1 for J4; energy with power s³: YDS 25.03, the online AVR (dashed) 47.33](figures/energy-yds.png){.demo-print .wide .nocap}
+
+::: notes
+About 3 minutes. Answer: AVR adds up the densities of overlapping jobs (here up to 2.6 in [5, 6]), and with a convex power function peaks are expensive: energy 47.33 against 25.03 (×1.89). Yao, Demers and Shenker (1995) showed that AVR is at most 2^(α−1) α^α times optimal (108 for α = 3); this worst case is far from typical. Dragging: release times and deadlines snap to whole time units, so the densities stay fractions.
 :::
 
 # Why YDS is optimal
@@ -195,6 +209,18 @@ About 8 minutes. Let students propose strategies first. Lower bound: the adversa
 
 ::: notes
 About 4 minutes. Examples: laptops and phones going to sleep, servers in data centres (right-sizing), the display after a timeout. With several sleep states the problem becomes multi-state power-down (Irani, Shukla, Gupta 2003), still with constant competitive ratios.
+:::
+
+# Power-down, simulated
+
+60 random idle periods, waking up costs β = 10 J: **▶ Run**, then the slider or the **adversary**. [Which strategy would you build into a laptop?]{.ask}
+
+<iframe class="demo wide" data-src="../static/energy-demo/index.html?ui=compact&amp;modes=0&amp;mode=power" title="Interactive simulation of power-down strategies: idle periods one by one, total energy of each strategy against the offline optimum"></iframe>
+
+![Power-down on 60 random idle periods (30 % long): offline optimum 298 J, never sleep ×3.29, sleep at once ×2.02, sleep after β ×1.50, randomised ×1.58](figures/energy-power.png){.demo-print .wide .nocap}
+
+::: notes
+About 3 minutes. The idle periods are random (exponential, mean 3 s for short and 40 s for long ones, fixed seed); they are not measured. Points: (1) on typical inputs the break-even strategy is far better than its guarantee 2; (2) the randomised strategy (sleep after a random time with density e^(x/β)/(β(e−1)) on [0, β]) has the better worst case e/(e−1) ≈ 1.58 but is not better on these inputs; (3) adversary: every period lasts just over β: break-even pays 2β instead of β (×2.00), randomised ×1.58. Predictions (next slide but one) try to get the best of both. A real trace of idle periods lies in AuN/energy-efficient-algorithms/idleperiods (689,210 periods; source and licence to be checked before use).
 :::
 
 # Waiting for a good price

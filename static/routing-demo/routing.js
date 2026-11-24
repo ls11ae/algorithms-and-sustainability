@@ -428,8 +428,78 @@
              nShortcuts, nEdges: keep.length };
   }
 
+  // ------------------------------------------------------------------ MC-Dijkstra (multi-criteria Dijkstra): two criteria (lecture 6)
+  // Label-setting search with Pareto sets for two edge weights wa, wb (here: travel time and the
+  // "quiet" weight). Labels leave the queue in lexicographic order of (a, b). Every label settled at
+  // a node v before has a' <= a, so a label (v, a, b) is dominated by them iff b >= minB[v]: an O(1)
+  // test (as in BOA*). Target pruning: labels dominated by a label settled at t are dropped.
+  // The search runs in pieces, step(k) settles up to k more labels, so the demo can show it growing.
+  class MCDijkstra {
+    constructor(G, s, t, wa, wb) {
+      this.G = G; this.s = s; this.t = t; this.wa = wa; this.wb = wb;
+      this.minB = new Float64Array(G.n).fill(Infinity);
+      this.cap = 1 << 19; this.nl = 0;
+      this.node = new Int32Array(this.cap); this.a = new Float64Array(this.cap); this.b = new Float64Array(this.cap);
+      this.par = new Int32Array(this.cap); this.edge = new Int32Array(this.cap);
+      this.order = new Int32Array(1 << 18); this.settled = 0;   // label ids in the order they were settled
+      this.target = [];                                         // labels settled at t: the Pareto set
+      this.heap = new Heap(1 << 16); this.done = false; this.created = 0;
+      this.SCALE = 4194304;                                     // key = a * SCALE + b (lexicographic, exact)
+      this.add(s, 0, 0, -1, -1);
+    }
+    add(v, a, b, par, edge) {
+      if (this.nl === this.cap) {
+        this.cap *= 2;
+        for (const f of ['node', 'a', 'b', 'par', 'edge']) {
+          const x = new this[f].constructor(this.cap); x.set(this[f]); this[f] = x;
+        }
+      }
+      const id = this.nl++;
+      this.node[id] = v; this.a[id] = a; this.b[id] = b; this.par[id] = par; this.edge[id] = edge;
+      this.heap.push(a * this.SCALE + b, id); this.created++;
+    }
+    step(k) {
+      const G = this.G, wa = this.wa, wb = this.wb, minB = this.minB, t = this.t, h = this.heap;
+      let left = k;
+      while (left > 0 && h.n > 0) {
+        const id = h.pop(), u = this.node[id], au = this.a[id], bu = this.b[id];
+        if (bu >= minB[u] || bu >= minB[t]) continue;           // dominated at u or by a route to t
+        minB[u] = bu;
+        if (this.settled === this.order.length) { const o = new Int32Array(this.settled * 2); o.set(this.order); this.order = o; }
+        this.order[this.settled++] = id; left--;
+        if (u === t) { this.target.push(id); continue; }
+        for (let e = G.off[u]; e < G.off[u + 1]; e++) {
+          const v = G.to[e], nb = bu + wb[e];
+          if (nb >= minB[v] || nb >= minB[t]) continue;
+          this.add(v, au + wa[e], nb, id, e);
+        }
+      }
+      if (h.n === 0) this.done = true;
+      return this.done;
+    }
+    edgesOf(id) {                                             // the edges of the route of label id
+      const es = [];
+      for (let x = id; this.par[x] >= 0; x = this.par[x]) es.push(this.edge[x]);
+      return es.reverse();
+    }
+  }
+
+  // the lower convex hull of points [x, y] (sorted by x): the points weighted sums can find
+  function lowerHull(pts) {
+    const idx = pts.map((p, i) => i).sort((i, j) => pts[i][0] - pts[j][0] || pts[i][1] - pts[j][1]);
+    const h = [];
+    for (const i of idx) {
+      while (h.length >= 2) {
+        const [o, a] = [pts[h[h.length - 2]], pts[h[h.length - 1]]], b = pts[i];
+        if ((a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]) <= 0) h.pop(); else break;
+      }
+      h.push(i);
+    }
+    return h;
+  }
+
   const Routing = { Heap, makeGraph, dijkstra, astar, alt, bidirectional, chQuery, buildCH, loadCH, compactCH,
-                    landmarkTables, chooseLandmarks, allDistances, euclidPotential, altPotential };
+                    landmarkTables, chooseLandmarks, allDistances, euclidPotential, altPotential, MCDijkstra, lowerHull };
   if (typeof module !== 'undefined' && module.exports) module.exports = Routing;
   else root.Routing = Routing;
 })(typeof window !== 'undefined' ? window : globalThis);
