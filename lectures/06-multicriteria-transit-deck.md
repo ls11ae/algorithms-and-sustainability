@@ -15,7 +15,7 @@ date: Tuesday, 24 November 2026
 ::: notes
 Live demos on slides 5 (the Dortmund map of lecture 5), 9 (weighted sums with a slider), 13 (MC-Dijkstra on the Dortmund map) and 26 (Connection Scan). The Dortmund running example (bicycle, Hbf → Phoenix-See, OpenStreetMap, as in lecture 5) is on slides 5, 9 and 13. The public transit example uses real stop names, a simplified network and invented times; it is replaced by VRR data once the GTFS feed is available.
 
-Timing (90 min, main part slides 2–29): the times in the notes add up to 80 minutes, at the pace of lecture 5 (1.26 × plan) about 101 minutes. With the cuts below about 69 plan minutes, about 86 minutes: 10:15 plan and recap (slides 2–3) · 10:20 several criteria, Pareto optimality, weighted sums (slides 5–9) · 10:37 MC-Dijkstra (slides 10–13; step by step 7 min) · 10:56 how many Pareto-optimal routes, contraction hierarchies for several criteria (slides 14–17: 14 short, of 17 only the table; skip 18) · 11:10 public transit and Connection Scan (slides 20–27: GTFS and graph models short; skip the live demo on 26) · 11:38 outlook and next steps (slides 28–29) · 11:42 end, about 3 minutes buffer. Emergency brake: not at slide 20 by 11:15 → show 21 and 23 only briefly, 27 in one sentence. In 2025 the same material took about 105 minutes in two lectures.
+Timing (90 min, main part slides 2–29): the times in the notes add up to 81 minutes, at the pace of lecture 5 (1.26 × plan) about 102 minutes. With the cuts below about 69 plan minutes, about 86 minutes: 10:15 plan and recap (slides 2–3) · 10:20 several criteria, Pareto optimality, weighted sums (slides 5–9) · 10:37 MC-Dijkstra (slides 10–13; step by step 7 min) · 10:56 how many Pareto-optimal routes, contraction hierarchies for several criteria (slides 14–18: 14 short; 15–16 as a recap of the guest lecture, about 5 min; of 17 only the table; 18 personalized or customizable, about 3 min) · 11:10 public transit and Connection Scan (slides 20–27: GTFS and graph models short; skip the live demo on 26) · 11:38 outlook and next steps (slides 28–29) · 11:42 end, about 3 minutes buffer. Emergency brake: not at slide 20 by 11:15 → show 21 and 23 only briefly, 27 in one sentence. In 2025 the same material took about 105 minutes in two lectures.
 :::
 
 # Recap: contraction hierarchies {.columns}
@@ -258,23 +258,27 @@ About 5 minutes; two clicks. Algorithm 2 of Funke and Storandt (2013): low = 0, 
 [Funke and Storandt (2013), Table 2; single core, 2013]{.source}
 
 ::: notes
-About 3 minutes. Numbers: Baden-Württemberg 2,459,354 nodes, Dijkstra 409.77 ms, CH query 0.42 ms (speed-up 965 as given in their Table 2), preprocessing 121 s; California 11,283,833 nodes, 2097.42 ms vs 1.98 ms (speed-up 1059), preprocessing 1078 s. The uncontracted core: contraction stopped at about 99.95 % of the nodes; the remaining nodes are treated as one level at the top. This is the CH of the two previous slides (one hierarchy for all λ, the weight is chosen per query), not the customizable CH of lecture 5 (any new metric, customization in about a second). Not on the slide: a "quiet" criterion costs more CH edges and slower queries (their Figure 9; values not checked).
+About 3 minutes. Numbers: Baden-Württemberg 2,459,354 nodes, Dijkstra 409.77 ms, CH query 0.42 ms (speed-up 965 as given in their Table 2), preprocessing 121 s; California 11,283,833 nodes, 2097.42 ms vs 1.98 ms (speed-up 1059), preprocessing 1078 s. The uncontracted core: contraction stopped at about 99.95 % of the nodes; the remaining nodes are treated as one level at the top. This is the CH of the two previous slides (one hierarchy for all λ, the weight is chosen per query); the next slide compares it with the customizable CH of lecture 5. Not on the slide: a "quiet" criterion costs more CH edges and slower queries (their Figure 9; values not checked).
 :::
 
-# The other speed-up techniques
+# Personalized or customizable?
 
 ::: tablefit
-| technique | with several criteria | works? |
+| | CH for all $\lambda$ | customizable CH |
 |---|---|---|
-| bidirectional | multi-criteria Dijkstra from both ends; stopping is tricky | partly |
-| A\* / landmarks | landmark distances per criterion, vector of potentials (NAMOA\*) | yes |
-| arc flags | flag: edge on **some** Pareto route into the region (Pareto-SHARC) | if Pareto sets are small |
-| contraction hierarchies | keep shortcuts that are Pareto-optimal, or best for some $\lambda$ | yes, for weighted sums |
-| transit node routing | store **all** Pareto distances between transit nodes | too much memory |
+| a user may change | the weights $\lambda$ of fixed criteria | the whole metric: new criteria, blocked steps ($\infty$), traffic |
+| preprocessing | once, witness search over all $\lambda$ | order and shortcuts from the graph alone |
+| new user or metric | nothing to do | customization: below 1 s |
+| query | 0.4–2 ms | 0.41 ms |
 :::
 
+- Customizable CH needs **no witness search**: it adds every shortcut that some metric could need, and an order from **separators** of the road network (nested dissection) keeps them few
+- Both answer queries like a CH: upward searches from $s$ and from $t$
+
+[Funke and Storandt (2013): Baden-Württemberg, California; Dibbelt, Strasser, Wagner (2016): Western Europe; different graphs and hardware]{.source}
+
 ::: notes
-About 2 minutes; optional, skip if late. From last year's slides, compressed. Pareto-SHARC: Delling and Wagner (2009). The general lesson: techniques that store one distance per pair suffer most, because with several criteria a "distance" becomes a set.
+About 3 minutes. The CH of the last three slides fixes the criteria and lets the user choose the weights at query time (personalized route planning, as in Sabine Storandt's guest lecture): nothing is computed per user, but a new criterion, or a segment that is blocked for one persona, needs a new preprocessing. The customizable CH (lecture 5, slide 26; Dibbelt, Strasser and Wagner 2014/2016) fixes nothing but the graph: it adds every shortcut that some metric could need, without a witness search, and contracting the separators of the road network last (nested dissection) keeps their number small; a new metric is customized by computing all shortcut weights bottom-up (0.74 s for Western Europe on 16 threads in the SEA 2014 paper), and queries take 0.41 ms (Dijkstra 1.56 s). The numbers come from different graphs and hardware and only show orders of magnitude. This afternoon, Exercise 1(d) asks what to use for four fixed personas and for "set the weights yourself": do not answer it here.
 :::
 
 # Public transit {.section}
@@ -446,6 +450,22 @@ is where their lines cross. If $\text{stress}(\pi)>\text{stress}(p)$, then $\pi$
 
 [Funke and Storandt (2013), Algorithm 2]{.source}
 
+# The other speed-up techniques
+
+::: tablefit
+| technique | with several criteria | works? |
+|---|---|---|
+| bidirectional | multi-criteria Dijkstra from both ends; stopping is tricky | partly |
+| A\* / landmarks | landmark distances per criterion, vector of potentials (NAMOA\*) | yes |
+| arc flags | flag: edge on **some** Pareto route into the region (Pareto-SHARC) | if Pareto sets are small |
+| contraction hierarchies | keep shortcuts that are Pareto-optimal, or best for some $\lambda$ | yes, for weighted sums |
+| transit node routing | store **all** Pareto distances between transit nodes | too much memory |
+:::
+
+::: notes
+Additional material (from last year's slides, compressed). Pareto-SHARC: Delling and Wagner (2009). The general lesson: techniques that store one distance per pair suffer most, because with several criteria a "distance" becomes a set.
+:::
+
 # Profiles with CSA
 
 - Scan the connections in **decreasing** departure time
@@ -469,6 +489,7 @@ is where their lines cross. If $\text{stress}(\pi)>\text{stress}(p)$, then $\pi$
 
 ::: refs
 - Delling, D., Wagner, D. (2009). Pareto paths with SHARC. *SEA 2009*, LNCS 5526, 125–136.
+- Dibbelt, J., Strasser, B., Wagner, D. (2016). Customizable contraction hierarchies. *ACM Journal of Experimental Algorithmics* 21 (conference version: *SEA 2014*, LNCS 8504).
 - Funke, S., Storandt, S. (2013). Polynomial-time construction of contraction hierarchies for multi-criteria objectives. *ALENEX 2013*.
 - Hernández, C., Yeoh, W., Baier, J. A., Zhang, H., Suazo, L., Koenig, S., Salzman, O. (2023). Simple and efficient bi-objective search algorithms via fast dominance checks. *Artificial Intelligence* 314, 103807.
 - Hrnčíř, J., Žilecký, P., Song, Q., Jakob, M. (2017). Practical multicriteria urban bicycle routing. *IEEE Transactions on Intelligent Transportation Systems* 18(3), 493–504.
