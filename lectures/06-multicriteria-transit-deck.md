@@ -13,9 +13,9 @@ date: Tuesday, 24 November 2026
 5. Public transit: timetables, models, Connection Scan
 
 ::: notes
-Live demos on slides 5 (the Dortmund map of lecture 5), 9 (weighted sums with a slider), 13 (MC-Dijkstra on the Dortmund map) and 27 (Connection Scan). The Dortmund running example (bicycle, Hbf → Phoenix-See, OpenStreetMap, as in lecture 5) is on slides 5, 9 and 13. The public transit example uses real stop names, a simplified network and invented times; it is replaced by VRR data once the GTFS feed is available.
+Live demos on slides 5 (the Dortmund map of lecture 5), 9 (weighted sums with a slider), 13 (MC-Dijkstra on the Dortmund map) and 26 (Connection Scan). The Dortmund running example (bicycle, Hbf → Phoenix-See, OpenStreetMap, as in lecture 5) is on slides 5, 9 and 13. The public transit example uses real stop names, a simplified network and invented times; it is replaced by VRR data once the GTFS feed is available.
 
-Timing (90 min, main part slides 2–30): the times in the notes add up to 82 minutes, at the pace of lecture 5 (1.26 × plan) about 103 minutes. With the cuts below about 69 plan minutes, about 86 minutes: 10:15 plan and recap (slides 2–3) · 10:20 several criteria, Pareto optimality, weighted sums (slides 5–9) · 10:37 MC-Dijkstra (slides 10–13; step by step 7 min) · 10:56 how many Pareto-optimal routes, contraction hierarchies for several criteria (slides 14–18: 14 short, of 18 only the table; skip 17 and 19) · 11:10 public transit and Connection Scan (slides 21–28: GTFS and graph models short; skip the live demo on 27) · 11:38 outlook and next steps (slides 29–30) · 11:42 end, about 3 minutes buffer. Emergency brake: not at slide 21 by 11:15 → show 22 and 24 only briefly, 28 in one sentence. In 2025 the same material took about 105 minutes in two lectures.
+Timing (90 min, main part slides 2–29): the times in the notes add up to 80 minutes, at the pace of lecture 5 (1.26 × plan) about 101 minutes. With the cuts below about 69 plan minutes, about 86 minutes: 10:15 plan and recap (slides 2–3) · 10:20 several criteria, Pareto optimality, weighted sums (slides 5–9) · 10:37 MC-Dijkstra (slides 10–13; step by step 7 min) · 10:56 how many Pareto-optimal routes, contraction hierarchies for several criteria (slides 14–17: 14 short, of 17 only the table; skip 18) · 11:10 public transit and Connection Scan (slides 20–27: GTFS and graph models short; skip the live demo on 26) · 11:38 outlook and next steps (slides 28–29) · 11:42 end, about 3 minutes buffer. Emergency brake: not at slide 20 by 11:15 → show 21 and 23 only briefly, 27 in one sentence. In 2025 the same material took about 105 minutes in two lectures.
 :::
 
 # Recap: contraction hierarchies {.columns}
@@ -240,23 +240,10 @@ About 3 minutes. Two views of the same thing (duality): a point (time, stress) o
 - Finds $u\!-\!v\!-\!w$: **shortcut**; interval empty: **no shortcut**
 
 ::: notes
-About 5 minutes; two clicks. Algorithm 2 of Funke and Storandt (2013): low = 0, upp = 1; λ = (low + upp)/2; p = best u–w path for λ (one Dijkstra in G_λ, including v); if p = π: shortcut; if p dominates π: no shortcut; else compute the λ' where the lines of p and π cross; if λ' is outside [low, upp]: no shortcut; else shrink the interval to the side where π is below p. Example: λ = 0.5: u–x–w (8, 2) has weighted cost 5, π (5, 7) has 6; lines cross at λ' = 0.625; π is below u–x–w only for λ > 0.625. λ = 0.8125: u–y–w (2, 10) has 3.5, π has 5.375; crossing at 0.5, but π would need λ < 0.5: empty, no shortcut. Together u–x–w and u–y–w are the witness.
+About 5 minutes; two clicks. Algorithm 2 of Funke and Storandt (2013): low = 0, upp = 1; λ = (low + upp)/2; p = best u–w path for λ (one Dijkstra in G_λ, including v); if p = π: shortcut; if p dominates π: no shortcut; else compute the λ' where the lines of p and π cross; if λ' is outside [low, upp]: no shortcut; else shrink the interval to the side where π is below p. Example: λ = 0.5: u–x–w (8, 2) has weighted cost 5, π (5, 7) has 6; lines cross at λ' = 0.625; π is below u–x–w only for λ > 0.625. λ = 0.8125: u–y–w (2, 10) has 3.5, π has 5.375; crossing at 0.5, but π would need λ < 0.5: empty, no shortcut. Together u–x–w and u–y–w are the witness. Why few runs suffice (one sentence in the lecture; the former slide on this was removed on 24 November): each round at least halves the interval, because λ is the midpoint and p is below π there, so π can only win on one side of the midpoint. With integer edge costs ≤ M, path costs are at most nM, so two corners of the lower envelope are at least 1/(4n²M²) apart; after O(log(nM)) rounds the interval is too short to contain a range where π wins. So the preprocessing is polynomial, although the envelope can have n^Θ(log n) corners (parametric shortest paths). In the experiments at most 8 rounds per witness search (California). Funke and Storandt also extend the idea to more than two criteria (polyhedral argument).
 :::
 
-# Why few Dijkstra runs suffice
-
-- The interval where $u\!-\!v\!-\!w$ can still win at least **halves** in every round
-- Integer costs $\le M$, $n$ nodes: corners of the lower envelope are at least $1/(n^2M^2)$ apart
-- So $O(\log(nM))$ Dijkstra runs per witness search: **polynomial** preprocessing, although the envelope can have many corners
-- Experiments: at most **8** rounds in a single witness search (California)
-
-[Funke and Storandt (2013)]{.source}
-
-::: notes
-About 2 minutes. The interval halves because λ is always the midpoint and the found path p is below π at λ, so π can only survive on one side of the midpoint. The minimum distance of the corners comes from writing the crossing λ as a fraction with small integers (path costs are at most nM). Funke and Storandt also extend the idea to more than two criteria (polyhedral argument), which we skip.
-:::
-
-# Does it pay off?
+# CH for all $\lambda$: does it pay off?
 
 ::: tablefit
 | graph (OSM) | nodes | Dijkstra | CH query | speed-up | preprocessing |
@@ -267,12 +254,11 @@ About 2 minutes. The interval halves because λ is always the midpoint and the f
 
 - Travel time and fuel cost, $\lambda$ random per query; the CH graph is about twice the original size
 - About 0.05 % of the nodes stay **uncontracted** (too many shortcuts among them)
-- A "quiet" criterion (prefers slow roads) costs about 11 % more edges and slower queries
 
 [Funke and Storandt (2013), Table 2; single core, 2013]{.source}
 
 ::: notes
-About 3 minutes. Numbers: Baden-Württemberg 2,459,354 nodes, Dijkstra 409.77 ms, CH query 0.42 ms (speed-up 965 as given in their Table 2), preprocessing 121 s; California 11,283,833 nodes, 2097.42 ms vs 1.98 ms (speed-up 1059), preprocessing 1078 s. The uncontracted core: contraction stopped at about 99.95 % of the nodes; the remaining nodes are treated as one level at the top. For the quiet metric see their Figure 9 (more CH edges and slower queries; check the exact values before quoting them).
+About 3 minutes. Numbers: Baden-Württemberg 2,459,354 nodes, Dijkstra 409.77 ms, CH query 0.42 ms (speed-up 965 as given in their Table 2), preprocessing 121 s; California 11,283,833 nodes, 2097.42 ms vs 1.98 ms (speed-up 1059), preprocessing 1078 s. The uncontracted core: contraction stopped at about 99.95 % of the nodes; the remaining nodes are treated as one level at the top. This is the CH of the two previous slides (one hierarchy for all λ, the weight is chosen per query), not the customizable CH of lecture 5 (any new metric, customization in about a second). Not on the slide: a "quiet" criterion costs more CH edges and slower queries (their Figure 9; values not checked).
 :::
 
 # The other speed-up techniques
