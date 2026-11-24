@@ -1,0 +1,202 @@
+[
+    {
+        "slideId": "title-slide",
+        "timeIn": "0",
+        "timeOut": "33.604"
+    },
+    {
+        "slideId": "plan-for-today",
+        "timeIn": "33.604",
+        "timeOut": "125.759"
+    },
+    {
+        "slideId": "where-we-are",
+        "timeIn": "125.759",
+        "timeOut": "181.581"
+    },
+    {
+        "slideId": "block-2-route-planning",
+        "timeIn": "181.581",
+        "timeOut": "185.741"
+    },
+    {
+        "slideId": "which-cycling-route-is-best",
+        "timeIn": "185.741",
+        "timeOut": "406.003"
+    },
+    {
+        "slideId": "why-route-planning-matters-for-sustainability",
+        "timeIn": "406.003",
+        "timeOut": "524.245"
+    },
+    {
+        "slideId": "travel-time-is-not-everything",
+        "timeIn": "524.245",
+        "timeOut": "692.723"
+    },
+    {
+        "slideId": "one-problem-behind-all-of-them",
+        "timeIn": "692.723",
+        "timeOut": "857.437"
+    },
+    {
+        "slideId": "dijkstras-algorithm",
+        "timeIn": "857.437",
+        "timeOut": "1111.451"
+    },
+    {
+        "slideId": "why-dijkstra-is-correct-and-how-fast",
+        "timeIn": "1111.451",
+        "timeOut": "1112.388"
+    },
+    {
+        "slideId": "dijkstras-algorithm",
+        "timeIn": "1112.388",
+        "timeOut": "1130.071"
+    },
+    {
+        "slideId": "why-dijkstra-is-correct-and-how-fast",
+        "timeIn": "1130.071",
+        "timeOut": "1491.564"
+    },
+    {
+        "slideId": "dijkstra-on-the-map-of-dortmund",
+        "timeIn": "1491.564",
+        "timeOut": "1600.288"
+    },
+    {
+        "slideId": "bidirectional-search",
+        "timeIn": "1600.288",
+        "timeOut": "1731.77"
+    },
+    {
+        "slideId": "dijkstra-on-the-map-of-dortmund",
+        "timeIn": "1731.77",
+        "timeOut": "1742.974"
+    },
+    {
+        "slideId": "bidirectional-search",
+        "timeIn": "1742.974",
+        "timeOut": "1743.867"
+    },
+    {
+        "slideId": "quiz-how-much-faster",
+        "timeIn": "1743.867",
+        "timeOut": "1825.051"
+    },
+    {
+        "slideId": "goal-direction-a",
+        "timeIn": "1825.051",
+        "timeOut": "2228.902"
+    },
+    {
+        "slideId": "which-heuristic-straight-line-and-landmarks",
+        "timeIn": "2228.902",
+        "timeOut": "2687.906"
+    },
+    {
+        "slideId": "a-and-alt-on-the-map-of-dortmund",
+        "timeIn": "2687.906",
+        "timeOut": "2778.235"
+    },
+    {
+        "slideId": "which-heuristic-straight-line-and-landmarks",
+        "timeIn": "2778.235",
+        "timeOut": "2778.855"
+    },
+    {
+        "slideId": "goal-direction-a",
+        "timeIn": "2778.855",
+        "timeOut": "2876.927"
+    },
+    {
+        "slideId": "which-heuristic-straight-line-and-landmarks",
+        "timeIn": "2876.927",
+        "timeOut": "2930.438"
+    },
+    {
+        "slideId": "a-and-alt-on-the-map-of-dortmund",
+        "timeIn": "2930.438",
+        "timeOut": "3293.359"
+    },
+    {
+        "slideId": "other-ideas-in-one-line-each",
+        "timeIn": "3293.359",
+        "timeOut": "3544.08"
+    },
+    {
+        "slideId": "contraction-hierarchies-the-idea",
+        "timeIn": "3544.08",
+        "timeOut": "4027.961"
+    },
+    {
+        "slideId": "contracting-a-node",
+        "timeIn": "4027.961",
+        "timeOut": "4262.614"
+    },
+    {
+        "slideId": "your-turn-contract-v",
+        "timeIn": "4262.614",
+        "timeOut": "4263.616"
+    },
+    {
+        "slideId": "contracting-a-node",
+        "timeIn": "4263.616",
+        "timeOut": "4290.019"
+    },
+    {
+        "slideId": "your-turn-contract-v",
+        "timeIn": "4290.019",
+        "timeOut": "4316.661"
+    },
+    {
+        "slideId": "contracting-a-node",
+        "timeIn": "4316.661",
+        "timeOut": "4347.408"
+    },
+    {
+        "slideId": "your-turn-contract-v",
+        "timeIn": "4347.408",
+        "timeOut": "4718.002"
+    },
+    {
+        "slideId": "in-which-order",
+        "timeIn": "4718.002",
+        "timeOut": "4889.475"
+    },
+    {
+        "slideId": "the-query",
+        "timeIn": "4889.475",
+        "timeOut": "5061.409"
+    },
+    {
+        "slideId": "why-upward-searches-suffice",
+        "timeIn": "5061.409",
+        "timeOut": "5163.035"
+    },
+    {
+        "slideId": "contraction-hierarchies-on-the-map-of-dortmund",
+        "timeIn": "5163.035",
+        "timeOut": "5288.33"
+    },
+    {
+        "slideId": "how-much-faster",
+        "timeIn": "5288.33",
+        "timeOut": "5392.507"
+    },
+    {
+        "slideId": "one-profile-per-person",
+        "timeIn": "5392.507",
+        "timeOut": "5443.666"
+    },
+    {
+        "slideId": "outlook-several-criteria-at-once",
+        "timeIn": "5443.666",
+        "timeOut": "5461.466"
+    },
+    {
+        "slideId": "next-steps",
+        "timeIn": "5461.466",
+        "timeOut": "5515.369"
+    }
+]
